@@ -20,7 +20,7 @@ There are many ways to deploy a Palladium Games website. Here's how:
   2. Configure your web server to serve the files in the Palladium Games folder
   3. You're good to go! Remember to run ```git pull origin main``` sometimes to keep your link updated.
 
-### Links
+## Links
   1. https://sethpang.com (main link)
   2. https://palladium-games.netlify.app
   3. http://bakzz05.surge.sh
@@ -31,8 +31,8 @@ There are many ways to deploy a Palladium Games website. Here's how:
   8. https://palladium-games.pages.dev
   9. https://palladium-games-blush.vercel.app/index.html (i didn't even know about this link)  
 
-### Discord
+## Discord
 [Join our Discord Server for more updates!](https://discord.gg/FNACSCcE26)
 
-### Credits
+## Credits
 We source our games from [GN-MATH](https://gn-math.dev) and the [Internet Archive](https://archive.org/).
