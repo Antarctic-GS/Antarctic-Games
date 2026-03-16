@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function(){
+      try {
+        var stored = sessionStorage.getItem('palladium-nav-expanded');
+        document.documentElement.classList.add(stored === '1' ? 'nav-initial-expanded' : 'nav-initial-collapsed');
+      } catch (e) {}
+    })();
+  </script>
+  <title>SchoolSoft</title>
+  <link rel="icon" href="images/favicon.png?v=3" type="image/png" />
+  <link rel="shortcut icon" href="favicon.ico?v=3" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="images/favicon.png?v=3" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <nav id="nav" class="nav">
+      <div class="nav__toggle">
+        <button type="button" id="nav-toggle" class="nav__toggle-btn" aria-label="Toggle menu">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h12"/><path d="M4 17h16"/></svg>
+        </button>
+      </div>
+      <div class="nav__logo">
+        <img src="images/favicon.png" alt="Palladium" class="nav__logo-icon" />
+        <span class="nav__logo-text">PALLADIUM</span>
+      </div>
+      <div class="nav__links">
+        <a href="index.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9 20v-5h6v5"/></svg>
+          <span class="nav__link-text">Home</span>
+        </a>
+        <a href="games.html" class="nav__link nav__link--active">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="9" rx="4.5"/><path d="M8 13h4"/><path d="M10 11v4"/><circle cx="15.5" cy="12.5" r="1"/><circle cx="18" cy="14.5" r="1"/></svg>
+          <span class="nav__link-text">Games</span>
+        </a>
+        <a href="proxy.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M4.5 9h15"/><path d="M4.5 15h15"/><path d="M12 4a12 12 0 0 1 0 16"/><path d="M12 4a12 12 0 0 0 0 16"/></svg>
+          <span class="nav__link-text">Proxy</span>
+        </a>
+        <a href="ai.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="11" rx="3"/><path d="M12 7V4"/><path d="M9 4h6"/><circle cx="9.5" cy="12.5" r="1"/><circle cx="14.5" cy="12.5" r="1"/><path d="M8.5 15.5h7"/></svg>
+          <span class="nav__link-text">AI</span>
+        </a>
+        <a href="music.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.8V6.5l10-2V16"/><circle cx="7" cy="18" r="2.4"/><circle cx="17" cy="16" r="2.4"/></svg>
+          <span class="nav__link-text">Music</span>
+        </a>
+      </div>
+    </nav>
+    <main class="main">
+      <div class="page page--player">
+        <div id="player-wrap" class="player-wrap">
+          <div class="player-frame-wrap" id="player-frame-wrap">
+            <iframe id="game-frame" title="Game"></iframe>
+          </div>
+          <div class="player-bar">
+            <div class="player-bar__info">
+              <span id="player-title" class="player-bar__title">—</span>
+              <span id="player-author" class="player-bar__author"></span>
+            </div>
+            <div class="player-bar__actions">
+              <button type="button" id="player-fullscreen-btn" class="player-bar__btn" title="Fullscreen">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                <span id="player-fullscreen-label">Fullscreen</span>
+              </button>
+              <a id="player-newtab-link" href="#" target="_blank" rel="noopener noreferrer" class="player-bar__btn" title="Open in new tab" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Open in new tab
+              </a>
+              <a href="games.html" class="player-bar__btn player-bar__back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Back to Games
+              </a>
+            </div>
+          </div>
+        </div>
+        <div id="player-empty" class="placeholder" style="display: none;">
+          <div class="placeholder__box">
+            <svg class="placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"/></svg>
+            <h2 class="placeholder__title">No game selected</h2>
+            <p class="placeholder__text">Choose a game from the Games page to play.</p>
+            <a href="games.html" class="player-bar__btn player-bar__back" style="margin-top: 1rem; display: inline-flex;">Back to Games</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="site-settings.js"></script>
+  <script src="backend.js"></script>
+  <script src="nav.js"></script>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var game = params.get('game');
+      var title = params.get('title') || 'Unknown Game';
+      var author = params.get('author') || '';
+      var decodedTitle = decodeURIComponent(String(title).replace(/\+/g, ' '));
+      var decodedAuthor = decodeURIComponent(String(author).replace(/\+/g, ' '));
+
+      var frame = document.getElementById('game-frame');
+      var frameWrap = document.getElementById('player-frame-wrap');
+      var wrap = document.getElementById('player-wrap');
+      var empty = document.getElementById('player-empty');
+      var titleEl = document.getElementById('player-title');
+      var authorEl = document.getElementById('player-author');
+      var fullscreenBtn = document.getElementById('player-fullscreen-btn');
+      var newTabLink = document.getElementById('player-newtab-link');
+      var playTrackEndpoint = (window.PalladiumBackend && typeof window.PalladiumBackend.apiUrl === 'function')
+        ? window.PalladiumBackend.apiUrl('/api/games/play')
+        : '/api/games/play';
+      var resolvedGameUrl = (window.PalladiumBackend && typeof window.PalladiumBackend.assetUrl === 'function')
+        ? window.PalladiumBackend.assetUrl(game)
+        : game;
+
+      function inferCategoryFromPath(gamePath) {
+        var normalized = String(gamePath || '').replace(/\\/g, '/').replace(/^\/+/, '');
+        var parts = normalized.split('/').filter(Boolean);
+        if (parts.length >= 2 && parts[0].toLowerCase() === 'games') {
+          return parts[1];
+        }
+        return 'other';
+      }
+
+      function trackPlay() {
+        if (!game) return;
+        var payload = {
+          path: String(game).replace(/\\/g, '/').replace(/^\/+/, ''),
+          title: decodedTitle || 'Unknown Game',
+          author: decodedAuthor || 'Unknown',
+          category: inferCategoryFromPath(game),
+          playerPath: 'game-player.html?' + params.toString()
+        };
+        var body = JSON.stringify(payload);
+
+        try {
+          if (navigator.sendBeacon) {
+            var blob = new Blob([body], { type: 'application/json' });
+            navigator.sendBeacon(playTrackEndpoint, blob);
+            return;
+          }
+        } catch (err) {
+          console.warn('sendBeacon tracking failed:', err);
+        }
+
+        fetch(playTrackEndpoint, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: body,
+          keepalive: true
+        }).catch(function () {
+          // Ignore tracking errors.
+        });
+      }
+
+      if (game && frame) {
+        frame.src = resolvedGameUrl;
+        var dynamicTitle = 'SchoolSoft';
+        if (window.PalladiumSiteSettings && typeof window.PalladiumSiteSettings.decorateTitle === 'function') {
+          document.title = window.PalladiumSiteSettings.decorateTitle(dynamicTitle);
+        } else {
+          document.title = dynamicTitle;
+        }
+        if (titleEl) titleEl.textContent = decodedTitle;
+        if (authorEl) authorEl.textContent = author ? ' — ' + decodedAuthor : '';
+
+        if (newTabLink) {
+          newTabLink.href = resolvedGameUrl;
+          newTabLink.style.display = 'inline-flex';
+        }
+
+        if (fullscreenBtn && frameWrap) {
+          fullscreenBtn.addEventListener('click', function () {
+            if (!document.fullscreenElement) {
+              frameWrap.requestFullscreen().catch(function (err) { console.warn('Fullscreen failed:', err); });
+            } else {
+              document.exitFullscreen();
+            }
+          });
+          document.addEventListener('fullscreenchange', function () {
+            var label = document.getElementById('player-fullscreen-label');
+            if (label) label.textContent = document.fullscreenElement ? 'Exit fullscreen' : 'Fullscreen';
+          });
+        }
+
+        trackPlay();
+      } else {
+        wrap.style.display = 'none';
+        empty.style.display = 'flex';
+      }
+    })();
+  </script>
+</body>
+</html>

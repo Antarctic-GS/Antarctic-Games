@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: palladium-frontend
+    runtime: static
+    buildCommand: "true"
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache

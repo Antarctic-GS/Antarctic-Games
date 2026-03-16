@@ -1,0 +1,10 @@
+.DS_Store
+.discord-community-bot-state.json
+backend/.discord-community-bot-state.json
+config/palladium.env
+config/game-play-stats.json
+backend/config/palladium.env
+backend/config/game-play-stats.json
+scramjet-service/node_modules/
+backend/services/**/node_modules/
+*.log

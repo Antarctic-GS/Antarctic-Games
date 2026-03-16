@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function(){
+      try {
+        var stored = sessionStorage.getItem('palladium-nav-expanded');
+        document.documentElement.classList.add(stored === '0' ? 'nav-initial-collapsed' : 'nav-initial-expanded');
+      } catch (e) {}
+    })();
+  </script>
+  <title>SchoolSoft</title>
+  <link rel="icon" href="images/favicon.png?v=3" type="image/png" />
+  <link rel="shortcut icon" href="favicon.ico?v=3" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="images/favicon.png?v=3" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <nav id="nav" class="nav">
+      <div class="nav__toggle">
+        <button type="button" id="nav-toggle" class="nav__toggle-btn" aria-label="Toggle menu">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h12"/><path d="M4 17h16"/></svg>
+        </button>
+      </div>
+      <div class="nav__logo">
+        <img src="images/favicon.png" alt="Palladium" class="nav__logo-icon" />
+        <span class="nav__logo-text">PALLADIUM</span>
+      </div>
+      <div class="nav__links">
+        <a href="index.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9 20v-5h6v5"/></svg>
+          <span class="nav__link-text">Home</span>
+        </a>
+        <a href="games.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="9" rx="4.5"/><path d="M8 13h4"/><path d="M10 11v4"/><circle cx="15.5" cy="12.5" r="1"/><circle cx="18" cy="14.5" r="1"/></svg>
+          <span class="nav__link-text">Games</span>
+        </a>
+        <a href="proxy.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M4.5 9h15"/><path d="M4.5 15h15"/><path d="M12 4a12 12 0 0 1 0 16"/><path d="M12 4a12 12 0 0 0 0 16"/></svg>
+          <span class="nav__link-text">Proxy</span>
+        </a>
+        <a href="ai.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="11" rx="3"/><path d="M12 7V4"/><path d="M9 4h6"/><circle cx="9.5" cy="12.5" r="1"/><circle cx="14.5" cy="12.5" r="1"/><path d="M8.5 15.5h7"/></svg>
+          <span class="nav__link-text">AI</span>
+        </a>
+        <a href="music.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.8V6.5l10-2V16"/><circle cx="7" cy="18" r="2.4"/><circle cx="17" cy="16" r="2.4"/></svg>
+          <span class="nav__link-text">Music</span>
+        </a>
+      </div>
+    </nav>
+    <main class="main">
+      <div class="page page--settings">
+        <section class="settings-shell">
+          <header class="settings-shell__header">
+            <h1 class="settings-shell__title">Website Settings</h1>
+            <p class="settings-shell__subtitle">Customize website themes, tab title, favicon presets, and launch in about:blank. Changes auto-save.</p>
+          </header>
+
+          <div class="settings-grid">
+            <form id="settings-form" class="settings-card settings-form">
+              <div class="settings-tabs" role="tablist" aria-label="Settings views">
+                <button
+                  type="button"
+                  id="settings-tab-custom"
+                  class="settings-tab settings-tab--active"
+                  role="tab"
+                  aria-selected="true"
+                  aria-controls="settings-panel-custom"
+                >
+                  Customize
+                </button>
+                <button
+                  type="button"
+                  id="settings-tab-presets"
+                  class="settings-tab"
+                  role="tab"
+                  aria-selected="false"
+                  aria-controls="settings-panel-presets"
+                >
+                  Presets
+                </button>
+              </div>
+
+              <section
+                id="settings-panel-custom"
+                class="settings-panel settings-panel--active"
+                role="tabpanel"
+                aria-labelledby="settings-tab-custom"
+              >
+                <label class="settings-field">
+                  <span class="settings-field__label">Website theme</span>
+                  <input id="settings-theme" type="hidden" value="default" />
+                  <div id="settings-theme-picker" class="settings-theme-picker">
+                    <button
+                      type="button"
+                      id="settings-theme-toggle"
+                      class="settings-theme-toggle"
+                      aria-haspopup="listbox"
+                      aria-expanded="false"
+                      aria-controls="settings-theme-menu"
+                    >
+                      <span id="settings-theme-chip" class="settings-theme-chip settings-theme-chip--default" aria-hidden="true"></span>
+                      <span id="settings-theme-label" class="settings-theme-label">Default</span>
+                      <svg class="settings-theme-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </button>
+                    <div id="settings-theme-menu" class="settings-theme-menu" role="listbox" aria-label="Theme options">
+                      <button type="button" class="settings-theme-option" role="option" data-theme-value="default" data-theme-label="Default" aria-selected="true">
+                        <span class="settings-theme-chip settings-theme-chip--default" aria-hidden="true"></span>
+                        <span>Default</span>
+                      </button>
+                      <button type="button" class="settings-theme-option" role="option" data-theme-value="color-wash" data-theme-label="Color Wash" aria-selected="false">
+                        <span class="settings-theme-chip settings-theme-chip--color-wash" aria-hidden="true"></span>
+                        <span>Color Wash</span>
+                      </button>
+                      <button type="button" class="settings-theme-option" role="option" data-theme-value="miami" data-theme-label="Miami" aria-selected="false">
+                        <span class="settings-theme-chip settings-theme-chip--miami" aria-hidden="true"></span>
+                        <span>Miami</span>
+                      </button>
+                      <button type="button" class="settings-theme-option" role="option" data-theme-value="rainbow" data-theme-label="Rainbow" aria-selected="false">
+                        <span class="settings-theme-chip settings-theme-chip--rainbow" aria-hidden="true"></span>
+                        <span>Rainbow</span>
+                      </button>
+                      <button type="button" class="settings-theme-option" role="option" data-theme-value="aurora" data-theme-label="Aurora" aria-selected="false">
+                        <span class="settings-theme-chip settings-theme-chip--aurora" aria-hidden="true"></span>
+                        <span>Aurora</span>
+                      </button>
+                      <button type="button" class="settings-theme-option" role="option" data-theme-value="sunset" data-theme-label="Sunset" aria-selected="false">
+                        <span class="settings-theme-chip settings-theme-chip--sunset" aria-hidden="true"></span>
+                        <span>Sunset</span>
+                      </button>
+                      <button type="button" class="settings-theme-option" role="option" data-theme-value="forest" data-theme-label="Forest" aria-selected="false">
+                        <span class="settings-theme-chip settings-theme-chip--forest" aria-hidden="true"></span>
+                        <span>Forest</span>
+                      </button>
+                      <button type="button" class="settings-theme-option" role="option" data-theme-value="oceanic" data-theme-label="Oceanic" aria-selected="false">
+                        <span class="settings-theme-chip settings-theme-chip--oceanic" aria-hidden="true"></span>
+                        <span>Oceanic</span>
+                      </button>
+                      <button type="button" class="settings-theme-option" role="option" data-theme-value="graphite" data-theme-label="Graphite" aria-selected="false">
+                        <span class="settings-theme-chip settings-theme-chip--graphite" aria-hidden="true"></span>
+                        <span>Graphite</span>
+                      </button>
+                      <button type="button" class="settings-theme-option" role="option" data-theme-value="arctic" data-theme-label="Arctic" aria-selected="false">
+                        <span class="settings-theme-chip settings-theme-chip--arctic" aria-hidden="true"></span>
+                        <span>Arctic</span>
+                      </button>
+                      <button type="button" class="settings-theme-option" role="option" data-theme-value="ember" data-theme-label="Ember" aria-selected="false">
+                        <span class="settings-theme-chip settings-theme-chip--ember" aria-hidden="true"></span>
+                        <span>Ember</span>
+                      </button>
+                      <button type="button" class="settings-theme-option" role="option" data-theme-value="neon" data-theme-label="Neon" aria-selected="false">
+                        <span class="settings-theme-chip settings-theme-chip--neon" aria-hidden="true"></span>
+                        <span>Neon</span>
+                      </button>
+                    </div>
+                  </div>
+                </label>
+                <div class="settings-divider" aria-hidden="true"></div>
+
+                <label class="settings-field">
+                  <span class="settings-field__label">Website title</span>
+                  <input id="settings-title" class="settings-input" type="text" placeholder="Palladium Games" autocomplete="off" />
+                </label>
+                <div class="settings-divider" aria-hidden="true"></div>
+
+                <label class="settings-field">
+                  <span class="settings-field__label">Favicon URL/path or website URL</span>
+                  <div class="settings-fetch__row">
+                    <input id="settings-favicon-source" class="settings-input" type="text" placeholder="images/favicon.png or https://schoology.com" autocomplete="off" />
+                    <button type="button" id="settings-detect-btn" class="settings-btn">Detect</button>
+                  </div>
+                </label>
+                <div class="settings-divider" aria-hidden="true"></div>
+
+                <div class="settings-field settings-upload">
+                  <span class="settings-field__label">Upload favicon image</span>
+                  <input id="settings-favicon-file" class="settings-file-input" type="file" accept="image/*" />
+                  <div class="settings-upload__row">
+                    <label for="settings-favicon-file" class="settings-btn settings-btn--file">Choose image</label>
+                    <span id="settings-file-name" class="settings-upload__name">No file selected</span>
+                  </div>
+                </div>
+              </section>
+
+              <section
+                id="settings-panel-presets"
+                class="settings-panel"
+                role="tabpanel"
+                aria-labelledby="settings-tab-presets"
+                hidden
+              >
+                <p class="settings-presets__hint">Choose a preset to instantly apply both title and favicon.</p>
+                <div id="settings-presets-grid" class="settings-presets-grid"></div>
+              </section>
+              <div class="settings-divider" aria-hidden="true"></div>
+
+              <div class="settings-actions">
+                <button type="button" id="settings-reset" class="settings-btn">Reset</button>
+                <button type="button" id="settings-aboutblank" class="settings-btn">Open in about:blank</button>
+              </div>
+
+              <p id="settings-status" class="settings-status" aria-live="polite"></p>
+            </form>
+
+            <aside class="settings-card settings-preview">
+              <h2 class="settings-preview__title">Preview</h2>
+              <img id="settings-preview-icon" class="settings-preview__icon" src="images/favicon.png" alt="Favicon preview" />
+              <div id="settings-preview-title" class="settings-preview__text">Palladium Games</div>
+              <p class="settings-preview__hint">Changes are stored in your browser for this site.</p>
+            </aside>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="site-settings.js"></script>
+  <script src="backend.js"></script>
+  <script src="nav.js"></script>
+  <script>
+    (function () {
+      var api = window.PalladiumSiteSettings;
+      var form = document.getElementById('settings-form');
+      var themeInput = document.getElementById('settings-theme');
+      var themePicker = document.getElementById('settings-theme-picker');
+      var themeToggle = document.getElementById('settings-theme-toggle');
+      var themeMenu = document.getElementById('settings-theme-menu');
+      var themeLabel = document.getElementById('settings-theme-label');
+      var themeChip = document.getElementById('settings-theme-chip');
+      var titleInput = document.getElementById('settings-title');
+      var sourceInput = document.getElementById('settings-favicon-source');
+      var detectBtn = document.getElementById('settings-detect-btn');
+      var fileInput = document.getElementById('settings-favicon-file');
+      var fileNameEl = document.getElementById('settings-file-name');
+      var resetBtn = document.getElementById('settings-reset');
+      var aboutBlankBtn = document.getElementById('settings-aboutblank');
+      var previewIcon = document.getElementById('settings-preview-icon');
+      var previewTitle = document.getElementById('settings-preview-title');
+      var statusEl = document.getElementById('settings-status');
+      var tabCustomBtn = document.getElementById('settings-tab-custom');
+      var tabPresetsBtn = document.getElementById('settings-tab-presets');
+      var panelCustom = document.getElementById('settings-panel-custom');
+      var panelPresets = document.getElementById('settings-panel-presets');
+      var presetsGrid = document.getElementById('settings-presets-grid');
+      var activePresetId = '';
+      var titleSaveTimer = 0;
+      var sourceSaveTimer = 0;
+
+      var PRESETS = [
+        {
+          id: 'schoology',
+          name: 'Schoology',
+          title: 'Home | Schoology',
+          favicon: 'https://powerschool.com/favicon.ico',
+          note: 'LMS'
+        },
+        {
+          id: 'google',
+          name: 'Google',
+          title: 'Google',
+          favicon: 'https://www.google.com/favicon.ico',
+          note: 'Search'
+        },
+        {
+          id: 'google-docs',
+          name: 'Google Docs',
+          title: 'Google Docs',
+          favicon: 'https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico',
+          note: 'Docs'
+        },
+        {
+          id: 'google-drive',
+          name: 'Google Drive',
+          title: 'My Drive - Google Drive',
+          favicon: 'https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_32dp.png',
+          note: 'Drive'
+        },
+        {
+          id: 'gmail',
+          name: 'Gmail',
+          title: 'Inbox',
+          favicon: 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico',
+          note: 'Mail'
+        }
+      ];
+
+      if (!api) return;
+
+      function setStatus(text, isError) {
+        if (!statusEl) return;
+        statusEl.textContent = String(text || '');
+        statusEl.classList.toggle('settings-status--error', Boolean(isError));
+      }
+
+      function normalizePresetCompareValue(value) {
+        return String(value || '')
+          .trim()
+          .replace(/^https?:\/\/localhost(?=[:/]|$)/i, '')
+          .replace(/^https?:\/\/127\.0\.0\.1(?=[:/]|$)/i, '')
+          .replace(/^\/+/, '')
+          .toLowerCase();
+      }
+
+      function setActiveTab(tabId) {
+        var isPresets = tabId === 'presets';
+
+        if (tabCustomBtn) {
+          tabCustomBtn.classList.toggle('settings-tab--active', !isPresets);
+          tabCustomBtn.setAttribute('aria-selected', String(!isPresets));
+        }
+        if (tabPresetsBtn) {
+          tabPresetsBtn.classList.toggle('settings-tab--active', isPresets);
+          tabPresetsBtn.setAttribute('aria-selected', String(isPresets));
+        }
+        if (panelCustom) {
+          panelCustom.classList.toggle('settings-panel--active', !isPresets);
+          panelCustom.hidden = isPresets;
+        }
+        if (panelPresets) {
+          panelPresets.classList.toggle('settings-panel--active', isPresets);
+          panelPresets.hidden = !isPresets;
+        }
+      }
+
+      function getPresetById(id) {
+        for (var i = 0; i < PRESETS.length; i += 1) {
+          if (PRESETS[i].id === id) return PRESETS[i];
+        }
+        return null;
+      }
+
+      function setActivePreset(id) {
+        activePresetId = String(id || '');
+        if (!presetsGrid) return;
+        var cards = presetsGrid.querySelectorAll('.settings-preset');
+        for (var i = 0; i < cards.length; i += 1) {
+          var cardId = cards[i].getAttribute('data-preset-id') || '';
+          var isActive = cardId === activePresetId;
+          cards[i].classList.toggle('settings-preset--active', isActive);
+          cards[i].setAttribute('aria-pressed', String(isActive));
+        }
+      }
+
+      function detectMatchingPresetId(titleValue, faviconValue) {
+        var normalizedTitle = String(titleValue || '').trim().toLowerCase();
+        var normalizedFavicon = normalizePresetCompareValue(faviconValue);
+
+        for (var i = 0; i < PRESETS.length; i += 1) {
+          var preset = PRESETS[i];
+          if (
+            normalizedTitle === String(preset.title || '').trim().toLowerCase() &&
+            normalizedFavicon === normalizePresetCompareValue(preset.favicon)
+          ) {
+            return preset.id;
+          }
+        }
+        return '';
+      }
+
+      function applyPreset(presetId) {
+        var preset = getPresetById(presetId);
+        if (!preset) return;
+
+        if (typeof api.setTheme === 'function') {
+          api.setTheme(currentThemeValue());
+        }
+        api.setTitle(preset.title);
+        api.setFavicon(preset.favicon);
+
+        setThemePickerValue(currentThemeValue());
+        if (titleInput) titleInput.value = preset.title;
+        if (sourceInput) sourceInput.value = preset.favicon;
+        if (fileInput) fileInput.value = '';
+        if (fileNameEl) fileNameEl.textContent = 'No file selected';
+
+        setActivePreset(preset.id);
+        renderPreview();
+        setStatus('Applied preset and auto-saved: ' + preset.name + '.', false);
+      }
+
+      function renderPresets() {
+        if (!presetsGrid) return;
+        presetsGrid.innerHTML = '';
+
+        for (var i = 0; i < PRESETS.length; i += 1) {
+          (function (preset) {
+            var button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'settings-preset';
+            button.setAttribute('data-preset-id', preset.id);
+            button.setAttribute('aria-pressed', 'false');
+
+            var icon = document.createElement('img');
+            icon.className = 'settings-preset__icon';
+            icon.alt = preset.name + ' icon';
+            icon.src = preset.favicon;
+
+            var textWrap = document.createElement('div');
+            textWrap.className = 'settings-preset__text';
+
+            var name = document.createElement('div');
+            name.className = 'settings-preset__name';
+            name.textContent = preset.name;
+
+            var meta = document.createElement('div');
+            meta.className = 'settings-preset__meta';
+            meta.textContent = preset.title;
+
+            textWrap.appendChild(name);
+            textWrap.appendChild(meta);
+
+            if (preset.note) {
+              var badge = document.createElement('span');
+              badge.className = 'settings-preset__badge';
+              badge.textContent = preset.note;
+              button.appendChild(badge);
+            }
+
+            button.appendChild(icon);
+            button.appendChild(textWrap);
+
+            button.addEventListener('click', function () {
+              applyPreset(preset.id);
+            });
+
+            presetsGrid.appendChild(button);
+          })(PRESETS[i]);
+        }
+      }
+
+      function currentSourceValue() {
+        var raw = sourceInput ? sourceInput.value : '';
+        return String(raw || '').trim();
+      }
+
+      function currentThemeValue() {
+        var raw = themeInput ? themeInput.value : '';
+        return String(raw || '').trim() || (api.defaultTheme || 'default');
+      }
+
+      function currentTitleValue() {
+        var raw = titleInput ? titleInput.value : '';
+        return String(raw || '').trim();
+      }
+
+      function getThemeOptions() {
+        if (!themeMenu) return [];
+        return Array.prototype.slice.call(themeMenu.querySelectorAll('.settings-theme-option[data-theme-value]'));
+      }
+
+      function normalizeThemeValue(themeValue) {
+        var raw = String(themeValue || '').trim().toLowerCase();
+        if (!raw) return api.defaultTheme || 'default';
+        var options = getThemeOptions();
+        for (var i = 0; i < options.length; i += 1) {
+          var candidate = String(options[i].getAttribute('data-theme-value') || '').trim().toLowerCase();
+          if (candidate === raw) return raw;
+        }
+        return api.defaultTheme || 'default';
+      }
+
+      function closeThemeMenu() {
+        if (!themePicker || !themeToggle) return;
+        themePicker.classList.remove('settings-theme-picker--open');
+        themeToggle.setAttribute('aria-expanded', 'false');
+      }
+
+      function openThemeMenu() {
+        if (!themePicker || !themeToggle) return;
+        themePicker.classList.add('settings-theme-picker--open');
+        themeToggle.setAttribute('aria-expanded', 'true');
+      }
+
+      function setThemePickerValue(themeValue) {
+        var next = normalizeThemeValue(themeValue);
+        if (themeInput) themeInput.value = next;
+
+        var options = getThemeOptions();
+        var nextLabel = next;
+
+        for (var i = 0; i < options.length; i += 1) {
+          var option = options[i];
+          var optionValue = String(option.getAttribute('data-theme-value') || '').trim().toLowerCase();
+          var isMatch = optionValue === next;
+          option.setAttribute('aria-selected', String(isMatch));
+          option.classList.toggle('settings-theme-option--active', isMatch);
+          if (isMatch) {
+            nextLabel = String(option.getAttribute('data-theme-label') || option.textContent || next).trim();
+          }
+        }
+
+        if (themeLabel) themeLabel.textContent = nextLabel;
+        if (themeChip) themeChip.className = 'settings-theme-chip settings-theme-chip--' + next;
+      }
+
+      function applyThemeSelection(themeValue) {
+        setThemePickerValue(themeValue);
+        if (typeof api.setTheme === 'function') {
+          api.setTheme(currentThemeValue());
+        }
+        setStatus('Theme auto-saved.', false);
+        renderPreview();
+      }
+
+      function queueTitleAutoSave() {
+        if (titleSaveTimer) window.clearTimeout(titleSaveTimer);
+        titleSaveTimer = window.setTimeout(function () {
+          api.setTitle(currentTitleValue());
+          renderPreview();
+          setStatus('Title auto-saved.', false);
+        }, 180);
+      }
+
+      function queueDirectFaviconAutoSave() {
+        if (sourceSaveTimer) window.clearTimeout(sourceSaveTimer);
+        sourceSaveTimer = window.setTimeout(function () {
+          var sourceValue = currentSourceValue();
+          if (!sourceValue) {
+            api.setFavicon('');
+            renderPreview();
+            setStatus('Favicon reset to default.', false);
+            return;
+          }
+
+          if (!isDirectFaviconValue(sourceValue)) {
+            setStatus('Website URL detected. Click Detect to fetch favicon.', false);
+            return;
+          }
+
+          var canAutoSaveDirect =
+            /^data:image\//i.test(sourceValue) ||
+            hasImageExtension(sourceValue) ||
+            /^(\/|\.{1,2}\/)/.test(sourceValue);
+          if (!canAutoSaveDirect) {
+            return;
+          }
+
+          api.setFavicon(sourceValue);
+          renderPreview();
+          setStatus('Favicon auto-saved.', false);
+        }, 220);
+      }
+
+      function normalizeUrl(value) {
+        var raw = String(value || '').trim();
+        if (!raw) return '';
+        if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
+        try {
+          return new URL(raw).toString();
+        } catch (error) {
+          return '';
+        }
+      }
+
+      function isDomainLike(value) {
+        return /^[a-z0-9.-]+\.[a-z]{2,}(\/.*)?$/i.test(String(value || '').trim());
+      }
+
+      function hasImageExtension(value) {
+        return /\.(ico|png|svg|jpg|jpeg|gif|webp)([?#].*)?$/i.test(String(value || '').trim());
+      }
+
+      function isDirectFaviconValue(value) {
+        var raw = String(value || '').trim();
+        if (!raw) return false;
+        if (/^data:image\//i.test(raw)) return true;
+        if (/^(\/|\.{1,2}\/)/.test(raw)) return true;
+        if (!/^https?:\/\//i.test(raw) && !isDomainLike(raw)) return true;
+        if (hasImageExtension(raw)) return true;
+        return false;
+      }
+
+      function resolveAbsoluteUrl(raw, base) {
+        var value = String(raw || '').trim();
+        if (!value) return '';
+        try {
+          return new URL(value, base).toString();
+        } catch (error) {
+          return '';
+        }
+      }
+
+      function buildProxyRequestUrl(targetUrl) {
+        var endpoint = '/api/proxy/fetch?url=' + encodeURIComponent(targetUrl);
+        return window.PalladiumBackend && typeof window.PalladiumBackend.apiUrl === 'function'
+          ? window.PalladiumBackend.apiUrl(endpoint)
+          : endpoint;
+      }
+
+      async function fetchViaProxy(targetUrl, method) {
+        return fetch(buildProxyRequestUrl(targetUrl), {
+          method: method || 'GET'
+        });
+      }
+
+      function isLikelyImageContentType(contentType) {
+        var value = String(contentType || '').toLowerCase();
+        return value.indexOf('image/') !== -1 || value.indexOf('icon') !== -1 || value.indexOf('octet-stream') !== -1;
+      }
+
+      function extractFaviconCandidates(doc, baseUrl) {
+        var links = doc.querySelectorAll('link[rel][href]');
+        var picks = [];
+        var seen = Object.create(null);
+
+        for (var i = 0; i < links.length; i += 1) {
+          var rel = String(links[i].getAttribute('rel') || '').toLowerCase();
+          if (rel.indexOf('icon') === -1) continue;
+
+          var href = resolveAbsoluteUrl(links[i].getAttribute('href') || '', baseUrl);
+          if (!href) continue;
+
+          var score = 0;
+          if (rel.indexOf('shortcut') !== -1) score += 1;
+          if (rel.indexOf('apple-touch-icon') !== -1) score += 1;
+          if (rel === 'icon') score += 2;
+          if (rel.indexOf('mask-icon') !== -1) score -= 1;
+          if ((links[i].getAttribute('sizes') || '').toLowerCase().indexOf('any') !== -1) score += 1;
+
+          picks.push({ href: href, score: score });
+        }
+
+        var ogImage = doc.querySelector('meta[property="og:image"]');
+        if (ogImage) {
+          var ogImageUrl = resolveAbsoluteUrl(ogImage.getAttribute('content') || '', baseUrl);
+          if (ogImageUrl) picks.push({ href: ogImageUrl, score: -1 });
+        }
+
+        try {
+          var parsed = new URL(baseUrl);
+          picks.push({ href: parsed.origin + '/favicon.ico', score: 1 });
+          picks.push({ href: parsed.origin + '/favicon.png', score: 0 });
+        } catch (error) {
+          // Ignore fallback URL failures.
+        }
+
+        picks.sort(function (a, b) { return b.score - a.score; });
+        var candidates = [];
+        for (var j = 0; j < picks.length; j += 1) {
+          var key = String(picks[j].href || '').trim();
+          if (!key || seen[key]) continue;
+          seen[key] = true;
+          candidates.push(key);
+        }
+        return candidates;
+      }
+
+      function isLikelyIconUrl(urlValue) {
+        return /\.(ico|png|svg|jpg|jpeg|gif|webp)([?#].*)?$/i.test(String(urlValue || ''));
+      }
+
+      async function closeBody(response) {
+        if (!response || !response.body || typeof response.body.cancel !== 'function') return;
+        try {
+          await response.body.cancel();
+        } catch (error) {
+          // Ignore body cancellation failures.
+        }
+      }
+
+      function shouldFallbackAfterHead(response) {
+        if (!response) return true;
+        return [400, 403, 405, 429, 500, 501, 502, 503, 504].indexOf(response.status) !== -1;
+      }
+
+      async function verifyFaviconCandidate(urlValue) {
+        if (!urlValue) return false;
+        if (/^data:image\//i.test(String(urlValue))) return true;
+
+        var headResponse = null;
+        try {
+          headResponse = await fetchViaProxy(urlValue, 'HEAD');
+          if (headResponse.ok) {
+            var headType = String(headResponse.headers.get('content-type') || '');
+            var headFinalUrl = String(headResponse.headers.get('x-palladium-final-url') || urlValue);
+
+            if (isLikelyImageContentType(headType)) return true;
+            if (isLikelyIconUrl(headFinalUrl) && (!headType || /text\/plain/i.test(headType))) return true;
+            if (isLikelyIconUrl(urlValue) && !headType) return true;
+          } else if (!shouldFallbackAfterHead(headResponse)) {
+            return false;
+          }
+        } catch (error) {
+          // Fallback to GET check.
+        } finally {
+          await closeBody(headResponse);
+        }
+
+        try {
+          var getResponse = await fetchViaProxy(urlValue, 'GET');
+          if (!getResponse.ok) {
+            await closeBody(getResponse);
+            return false;
+          }
+
+          var getType = String(getResponse.headers.get('content-type') || '');
+          var getFinalUrl = String(getResponse.headers.get('x-palladium-final-url') || urlValue);
+          await closeBody(getResponse);
+
+          if (isLikelyImageContentType(getType)) return true;
+          if (isLikelyIconUrl(getFinalUrl) && (!getType || /text\/plain/i.test(getType))) return true;
+          if (isLikelyIconUrl(urlValue) && !getType) return true;
+          return false;
+        } catch (error) {
+          return false;
+        }
+      }
+
+      async function fetchSiteFavicon(sourceUrl) {
+        var target = normalizeUrl(sourceUrl);
+        if (!target) {
+          throw new Error('Enter a valid URL.');
+        }
+
+        var response = await fetchViaProxy(target, 'GET');
+        if (!response.ok) {
+          throw new Error('Could not fetch that URL (status ' + response.status + ').');
+        }
+
+        var finalUrl = String(response.headers.get('x-palladium-final-url') || target);
+        var initialType = String(response.headers.get('content-type') || '');
+        if (isLikelyImageContentType(initialType)) {
+          return finalUrl;
+        }
+
+        var html = await response.text();
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(html, 'text/html');
+        var candidates = extractFaviconCandidates(doc, finalUrl);
+        if (!candidates.length) return '';
+
+        var maxChecks = Math.min(candidates.length, 8);
+        for (var i = 0; i < maxChecks; i += 1) {
+          if (await verifyFaviconCandidate(candidates[i])) {
+            return candidates[i];
+          }
+        }
+
+        return candidates[0];
+      }
+
+      async function resolveFaviconSource(sourceValue) {
+        var raw = String(sourceValue || '').trim();
+        if (!raw) return '';
+
+        if (isDirectFaviconValue(raw)) {
+          if (isDomainLike(raw) && hasImageExtension(raw) && !/^https?:\/\//i.test(raw)) {
+            return 'https://' + raw;
+          }
+          return raw;
+        }
+
+        var normalized = normalizeUrl(raw);
+        if (!normalized) {
+          throw new Error('Enter a valid favicon URL/path or website URL.');
+        }
+
+        var detected = await fetchSiteFavicon(normalized);
+        if (!detected) {
+          throw new Error('Could not detect a favicon from that website.');
+        }
+        return detected;
+      }
+
+      function renderPreview() {
+        if (previewTitle) {
+          previewTitle.textContent = currentTitleValue() || api.defaultTitle;
+        }
+        if (previewIcon) {
+          var icon = currentSourceValue() || api.getSettings().favicon || api.defaultFavicon;
+          previewIcon.src = icon;
+        }
+        setActivePreset(detectMatchingPresetId(currentTitleValue(), currentSourceValue()));
+      }
+
+      function loadIntoForm() {
+        var settings = api.getSettings();
+        setThemePickerValue(settings.theme || (api.defaultTheme || 'default'));
+        if (titleInput) titleInput.value = settings.title || '';
+        if (sourceInput) sourceInput.value = settings.favicon || '';
+        if (fileInput) fileInput.value = '';
+        if (fileNameEl) fileNameEl.textContent = 'No file selected';
+        renderPreview();
+      }
+
+      if (form) {
+        form.addEventListener('submit', function (event) {
+          event.preventDefault();
+        });
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+          api.reset();
+          loadIntoForm();
+          setStatus('Reset to default theme, title, and favicon.', false);
+        });
+      }
+
+      if (aboutBlankBtn) {
+        aboutBlankBtn.addEventListener('click', function () {
+          var target = new URL('index.html', window.location.href).toString();
+          var result = api.openInAboutBlank(target);
+          if (result.ok) {
+            setStatus('Opened site in an about:blank tab.', false);
+          } else {
+            setStatus(result.error || 'Could not open about:blank tab.', true);
+          }
+        });
+      }
+
+      if (sourceInput) {
+        sourceInput.addEventListener('input', function () {
+          renderPreview();
+          queueDirectFaviconAutoSave();
+        });
+        sourceInput.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            if (detectBtn) detectBtn.click();
+          }
+        });
+      }
+
+      if (titleInput) {
+        titleInput.addEventListener('input', function () {
+          renderPreview();
+          queueTitleAutoSave();
+        });
+      }
+
+      if (themeToggle && themeMenu) {
+        themeToggle.addEventListener('click', function () {
+          var expanded = themeToggle.getAttribute('aria-expanded') === 'true';
+          if (expanded) {
+            closeThemeMenu();
+          } else {
+            openThemeMenu();
+          }
+        });
+
+        themeMenu.addEventListener('click', function (event) {
+          var target = event.target && event.target.closest
+            ? event.target.closest('.settings-theme-option[data-theme-value]')
+            : null;
+          if (!target) return;
+          var next = String(target.getAttribute('data-theme-value') || '').trim();
+          if (!next) return;
+          applyThemeSelection(next);
+          closeThemeMenu();
+        });
+
+        themeMenu.addEventListener('keydown', function (event) {
+          if (event.key === 'Escape') {
+            closeThemeMenu();
+            themeToggle.focus();
+          }
+        });
+
+        document.addEventListener('click', function (event) {
+          if (!themePicker || !themePicker.contains(event.target)) {
+            closeThemeMenu();
+          }
+        });
+
+        document.addEventListener('keydown', function (event) {
+          if (event.key === 'Escape') closeThemeMenu();
+        });
+      }
+
+      if (detectBtn) {
+        detectBtn.addEventListener('click', async function () {
+          setStatus('Detecting favicon...', false);
+
+          try {
+            var resolved = await resolveFaviconSource(currentSourceValue());
+            if (sourceInput) sourceInput.value = resolved;
+            api.setFavicon(resolved);
+            renderPreview();
+            setStatus('Favicon detected and auto-saved.', false);
+          } catch (error) {
+            setStatus(String((error && error.message) || error || 'Failed to detect favicon.'), true);
+          }
+        });
+      }
+
+      if (fileInput) {
+        fileInput.addEventListener('change', function () {
+          var file = fileInput.files && fileInput.files[0];
+          if (!file) return;
+          if (fileNameEl) fileNameEl.textContent = file.name;
+
+          var reader = new FileReader();
+          reader.onload = function () {
+            if (typeof reader.result === 'string' && sourceInput) {
+              sourceInput.value = reader.result;
+              api.setFavicon(reader.result);
+              renderPreview();
+              setStatus('Uploaded favicon auto-saved.', false);
+            }
+          };
+          reader.onerror = function () {
+            setStatus('Failed to read the selected file.', true);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      if (tabCustomBtn) {
+        tabCustomBtn.addEventListener('click', function () {
+          setActiveTab('custom');
+        });
+      }
+
+      if (tabPresetsBtn) {
+        tabPresetsBtn.addEventListener('click', function () {
+          setActiveTab('presets');
+        });
+      }
+
+      renderPresets();
+      setActiveTab('custom');
+      loadIntoForm();
+      setStatus('Ready. Changes auto-save.', false);
+    })();
+  </script>
+</body>
+</html>

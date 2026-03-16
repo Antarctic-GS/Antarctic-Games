@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function(){
+      try {
+        var stored = sessionStorage.getItem('palladium-nav-expanded');
+        document.documentElement.classList.add(stored === '1' ? 'nav-initial-expanded' : 'nav-initial-collapsed');
+      } catch (e) {}
+    })();
+  </script>
+  <title>SchoolSoft</title>
+  <link rel="icon" href="images/favicon.png?v=3" type="image/png" />
+  <link rel="shortcut icon" href="favicon.ico?v=3" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="images/favicon.png?v=3" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <nav id="nav" class="nav">
+      <div class="nav__toggle">
+        <button type="button" id="nav-toggle" class="nav__toggle-btn" aria-label="Toggle menu">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h12"/><path d="M4 17h16"/></svg>
+        </button>
+      </div>
+      <div class="nav__logo">
+        <img src="images/favicon.png" alt="Palladium" class="nav__logo-icon" />
+        <span class="nav__logo-text">PALLADIUM</span>
+      </div>
+      <div class="nav__links">
+        <a href="index.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9 20v-5h6v5"/></svg>
+          <span class="nav__link-text">Home</span>
+        </a>
+        <a href="games.html" class="nav__link nav__link--active">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="9" rx="4.5"/><path d="M8 13h4"/><path d="M10 11v4"/><circle cx="15.5" cy="12.5" r="1"/><circle cx="18" cy="14.5" r="1"/></svg>
+          <span class="nav__link-text">Games</span>
+        </a>
+        <a href="proxy.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M4.5 9h15"/><path d="M4.5 15h15"/><path d="M12 4a12 12 0 0 1 0 16"/><path d="M12 4a12 12 0 0 0 0 16"/></svg>
+          <span class="nav__link-text">Proxy</span>
+        </a>
+        <a href="ai.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="11" rx="3"/><path d="M12 7V4"/><path d="M9 4h6"/><circle cx="9.5" cy="12.5" r="1"/><circle cx="14.5" cy="12.5" r="1"/><path d="M8.5 15.5h7"/></svg>
+          <span class="nav__link-text">AI</span>
+        </a>
+        <a href="music.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.8V6.5l10-2V16"/><circle cx="7" cy="18" r="2.4"/><circle cx="17" cy="16" r="2.4"/></svg>
+          <span class="nav__link-text">Music</span>
+        </a>
+      </div>
+    </nav>
+    <main class="main">
+      <div class="page">
+        <h1 class="page__title">GAMES</h1>
+        <section class="featured-game" id="featured-game">
+          <div class="featured-game__head">
+            <span class="featured-game__kicker">Featured Game</span>
+            <span class="featured-game__date" id="featured-game-date">Daily pick</span>
+          </div>
+          <a id="featured-game-link" class="featured-game__card" href="#">
+            <div id="featured-game-thumb" class="featured-game__thumb game-card__thumb"></div>
+            <div class="featured-game__body">
+              <div id="featured-game-title" class="featured-game__title">Loading daily featured game...</div>
+              <div id="featured-game-author" class="featured-game__author">Please wait</div>
+              <span class="featured-game__cta">Play Featured Game</span>
+            </div>
+          </a>
+        </section>
+        <section class="trending-games" id="trending-games">
+          <div class="games-section-head">
+            <h2 class="games-section-head__title">Trending Now</h2>
+            <span id="trending-games-meta" class="games-section-head__meta">Based on recent player activity</span>
+          </div>
+          <div id="trending-games-list" class="trending-games__grid">
+            <div class="trending-games__empty">Trending data will appear once players start launching games.</div>
+          </div>
+        </section>
+        <div class="games-section-head">
+          <h2 class="games-section-head__title">All Games</h2>
+          <span class="games-section-head__meta">Search by title, author, or category</span>
+        </div>
+        <div class="games-search" role="search" aria-label="Search games">
+          <label class="games-search__field" for="games-search-input">
+            <svg class="games-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="7"></circle>
+              <line x1="20" y1="20" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              id="games-search-input"
+              class="games-search__input"
+              type="search"
+              placeholder="Search games, authors, or categories"
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </label>
+          <div id="games-search-status" class="games-search__status">Loading catalog...</div>
+          <button type="button" id="games-search-clear" class="games-search__clear" hidden>Clear</button>
+        </div>
+        <div id="games-grid" class="games-grid">
+          <div class="trending-games__empty">Loading games from the backend catalog...</div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="site-settings.js"></script>
+  <script src="backend.js"></script>
+  <script src="nav.js"></script>
+  <script>
+    (function () {
+      var dateEl = document.getElementById('featured-game-date');
+      var linkEl = document.getElementById('featured-game-link');
+      var thumbEl = document.getElementById('featured-game-thumb');
+      var titleEl = document.getElementById('featured-game-title');
+      var authorEl = document.getElementById('featured-game-author');
+      var gamesGridEl = document.getElementById('games-grid');
+      var searchInputEl = document.getElementById('games-search-input');
+      var searchStatusEl = document.getElementById('games-search-status');
+      var searchClearEl = document.getElementById('games-search-clear');
+      var trendingMetaEl = document.getElementById('trending-games-meta');
+      var trendingListEl = document.getElementById('trending-games-list');
+      var allGames = [];
+      var currentQuery = '';
+
+      function hashSeed(seed) {
+        var hash = 2166136261;
+        for (var i = 0; i < seed.length; i += 1) {
+          hash ^= seed.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        return hash >>> 0;
+      }
+
+      function sanitizeText(value) {
+        return String(value == null ? '' : value).trim();
+      }
+
+      function searchValue(value) {
+        return sanitizeText(value).toLowerCase();
+      }
+
+      function resolveAssetUrl(value) {
+        var text = sanitizeText(value);
+        if (!text) return '';
+        if (/^https?:\/\//i.test(text)) return text;
+        if (window.PalladiumBackend && typeof window.PalladiumBackend.assetUrl === 'function') {
+          return window.PalladiumBackend.assetUrl(text);
+        }
+        return text;
+      }
+
+      function buildPlayerHref(item) {
+        var href = sanitizeText(item && item.playerPath);
+        if (href) return href;
+        var path = sanitizeText(item && item.path);
+        var title = sanitizeText(item && item.title) || 'Unknown Game';
+        var author = sanitizeText(item && item.author) || 'Unknown';
+        if (!path) return '#';
+        return (
+          'game-player.html?game=' + encodeURIComponent(path) +
+          '&title=' + encodeURIComponent(title) +
+          '&author=' + encodeURIComponent(author)
+        );
+      }
+
+      function createThumb(image, title, extraClass) {
+        var wrap = document.createElement('div');
+        wrap.className = 'game-card__thumb' + (extraClass ? (' ' + extraClass) : '');
+
+        var imageUrl = resolveAssetUrl(image);
+        if (imageUrl) {
+          var img = document.createElement('img');
+          img.src = imageUrl;
+          img.alt = sanitizeText(title) || 'Trending game';
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          img.onerror = function () {
+            img.remove();
+            if (!wrap.querySelector('.game-card__thumb-placeholder')) {
+              wrap.appendChild(buildThumbPlaceholder());
+            }
+          };
+          wrap.appendChild(img);
+        } else {
+          wrap.appendChild(buildThumbPlaceholder());
+        }
+
+        return wrap;
+      }
+
+      function buildThumbPlaceholder() {
+        var ph = document.createElement('div');
+        ph.className = 'game-card__thumb-placeholder';
+        ph.innerHTML =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+          '<rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect>' +
+          '<line x1="6" y1="12" x2="10" y2="12"></line>' +
+          '<line x1="8" y1="10" x2="8" y2="14"></line>' +
+          '</svg>';
+        return ph;
+      }
+
+      function applyThumb(target, image, title) {
+        if (!target) return;
+        target.innerHTML = '';
+        var thumb = createThumb(image, title);
+        while (thumb.firstChild) {
+          target.appendChild(thumb.firstChild);
+        }
+      }
+
+      function createGameCard(item, extraClass) {
+        var title = sanitizeText(item && item.title) || 'Unknown Game';
+        var author = sanitizeText(item && item.author) || 'Unknown';
+        var href = buildPlayerHref(item);
+
+        var card = document.createElement('a');
+        card.className = 'game-card' + (extraClass ? (' ' + extraClass) : '');
+        card.href = href;
+        card.appendChild(createThumb(item && item.image, title, extraClass === 'trending-game-card' ? 'trending-game-card__thumb' : ''));
+
+        var info = document.createElement('div');
+        info.className = 'game-card__info';
+
+        var titleNode = document.createElement('div');
+        titleNode.className = 'game-card__title';
+        titleNode.textContent = title;
+        info.appendChild(titleNode);
+
+        var authorNode = document.createElement('div');
+        authorNode.className = 'game-card__author';
+        authorNode.textContent = author;
+        info.appendChild(authorNode);
+
+        card.appendChild(info);
+        return card;
+      }
+
+      function renderAllGames(games) {
+        if (!gamesGridEl) return;
+        gamesGridEl.innerHTML = '';
+
+        if (!Array.isArray(games) || !games.length) {
+          var empty = document.createElement('div');
+          empty.className = 'trending-games__empty';
+          empty.textContent = currentQuery
+            ? ('No games match "' + currentQuery + '".')
+            : 'No games were returned by the backend catalog.';
+          gamesGridEl.appendChild(empty);
+          return;
+        }
+
+        for (var i = 0; i < games.length; i += 1) {
+          gamesGridEl.appendChild(createGameCard(games[i], ''));
+        }
+      }
+
+      function filterGames(games, query) {
+        var normalizedQuery = searchValue(query);
+        if (!normalizedQuery) return Array.isArray(games) ? games.slice() : [];
+
+        return (Array.isArray(games) ? games : []).filter(function (item) {
+          var haystack = [
+            item && item.title,
+            item && item.author,
+            item && item.category,
+            item && item.path
+          ]
+            .map(searchValue)
+            .join(' ');
+          return haystack.indexOf(normalizedQuery) !== -1;
+        });
+      }
+
+      function syncSearchUrl(query) {
+        try {
+          var params = new URLSearchParams(window.location.search || '');
+          if (query) {
+            params.set('q', query);
+          } else {
+            params.delete('q');
+          }
+          var next = window.location.pathname + (params.toString() ? ('?' + params.toString()) : '') + window.location.hash;
+          window.history.replaceState(null, '', next);
+        } catch (error) {
+          // Ignore history update issues.
+        }
+      }
+
+      function updateSearchStatus(resultCount, totalCount, query, hadError) {
+        if (!searchStatusEl) return;
+
+        if (hadError) {
+          searchStatusEl.textContent = 'Catalog unavailable';
+          return;
+        }
+
+        if (query) {
+          searchStatusEl.textContent = resultCount + (resultCount === 1 ? ' result' : ' results');
+          return;
+        }
+
+        searchStatusEl.textContent = totalCount + (totalCount === 1 ? ' game' : ' games');
+      }
+
+      function applyGameFilter() {
+        var filteredGames = filterGames(allGames, currentQuery);
+        renderAllGames(filteredGames);
+        updateSearchStatus(filteredGames.length, allGames.length, currentQuery, false);
+      }
+
+      function setSearchQuery(value) {
+        currentQuery = sanitizeText(value);
+        if (searchInputEl && searchInputEl.value !== currentQuery) {
+          searchInputEl.value = currentQuery;
+        }
+        if (searchClearEl) {
+          searchClearEl.hidden = !currentQuery;
+        }
+        syncSearchUrl(currentQuery);
+        applyGameFilter();
+      }
+
+      function renderFeatured(games) {
+        if (!Array.isArray(games) || !games.length) {
+          if (linkEl) linkEl.href = '#';
+          if (titleEl) titleEl.textContent = 'No featured game available';
+          if (authorEl) authorEl.textContent = 'Backend catalog unavailable';
+          if (thumbEl) thumbEl.innerHTML = '';
+          return;
+        }
+
+        var today = new Date();
+        var seed = [
+          today.getFullYear(),
+          String(today.getMonth() + 1).padStart(2, '0'),
+          String(today.getDate()).padStart(2, '0')
+        ].join('-');
+        var selected = games[hashSeed(seed) % games.length];
+
+        if (linkEl) {
+          linkEl.href = buildPlayerHref(selected);
+        }
+        if (titleEl) {
+          titleEl.textContent = sanitizeText(selected && selected.title) || 'Featured Game';
+        }
+        if (authorEl) {
+          authorEl.textContent = sanitizeText(selected && selected.author) || 'Unknown';
+        }
+        applyThumb(thumbEl, selected && selected.image, selected && selected.title);
+        if (dateEl) {
+          dateEl.textContent = today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+        }
+      }
+
+      function renderTrending(games) {
+        if (!trendingListEl) return;
+        trendingListEl.innerHTML = '';
+
+        if (!Array.isArray(games) || !games.length) {
+          var empty = document.createElement('div');
+          empty.className = 'trending-games__empty';
+          empty.textContent = 'Trending data will appear once players start launching games.';
+          trendingListEl.appendChild(empty);
+          return;
+        }
+
+        for (var i = 0; i < games.length; i += 1) {
+          var item = games[i] || {};
+          var title = sanitizeText(item.title) || 'Unknown Game';
+          var count = Math.max(0, Number(item.count) || 0);
+          var card = createGameCard(item, 'trending-game-card');
+          var info = card.querySelector('.game-card__info');
+
+          var stats = document.createElement('div');
+          stats.className = 'trending-game-card__stats';
+          stats.textContent = count + (count === 1 ? ' play' : ' plays');
+          info.appendChild(stats);
+
+          trendingListEl.appendChild(card);
+        }
+      }
+
+      async function loadCatalog() {
+        try {
+          var payload = await window.PalladiumBackend.fetchJson('/api/games');
+          var games = Array.isArray(payload && payload.games) ? payload.games : [];
+          allGames = games;
+          applyGameFilter();
+          renderFeatured(games);
+        } catch (error) {
+          allGames = [];
+          renderAllGames([]);
+          renderFeatured([]);
+          updateSearchStatus(0, 0, currentQuery, true);
+        }
+      }
+
+      async function loadTrending() {
+        if (!trendingListEl) return;
+        try {
+          var payload = await window.PalladiumBackend.fetchJson('/api/games/trending?limit=6');
+          if (!payload || !payload.ok) {
+            throw new Error('Trending API failed');
+          }
+
+          renderTrending(payload.games || []);
+          if (trendingMetaEl) {
+            var total = Math.max(0, Number(payload.totalPlays) || 0);
+            trendingMetaEl.textContent = total > 0
+              ? ('Based on ' + total + (total === 1 ? ' total play' : ' total plays'))
+              : 'Based on recent player activity';
+          }
+        } catch (error) {
+          if (trendingMetaEl) {
+            trendingMetaEl.textContent = 'Live trending currently unavailable';
+          }
+          renderTrending([]);
+        }
+      }
+
+      if (searchInputEl) {
+        try {
+          var initialParams = new URLSearchParams(window.location.search || '');
+          currentQuery = sanitizeText(initialParams.get('q'));
+          if (currentQuery) {
+            searchInputEl.value = currentQuery;
+          }
+        } catch (error) {
+          currentQuery = '';
+        }
+
+        searchInputEl.addEventListener('input', function () {
+          setSearchQuery(searchInputEl.value);
+        });
+      }
+
+      if (searchClearEl) {
+        searchClearEl.hidden = !currentQuery;
+        searchClearEl.addEventListener('click', function () {
+          setSearchQuery('');
+          if (searchInputEl) {
+            searchInputEl.focus();
+          }
+        });
+      }
+
+      loadCatalog();
+      loadTrending();
+    })();
+  </script>
+</body>
+</html>

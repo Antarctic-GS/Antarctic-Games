@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function(){
+      try {
+        var stored = sessionStorage.getItem('palladium-nav-expanded');
+        document.documentElement.classList.add(stored === '1' ? 'nav-initial-expanded' : 'nav-initial-collapsed');
+      } catch (e) {}
+    })();
+  </script>
+  <title>SchoolSoft</title>
+  <link rel="icon" href="images/favicon.png?v=3" type="image/png" />
+  <link rel="shortcut icon" href="favicon.ico?v=3" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="images/favicon.png?v=3" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <nav id="nav" class="nav">
+      <div class="nav__toggle">
+        <button type="button" id="nav-toggle" class="nav__toggle-btn" aria-label="Toggle menu">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h12"/><path d="M4 17h16"/></svg>
+        </button>
+      </div>
+      <div class="nav__logo">
+        <img src="images/favicon.png" alt="Palladium" class="nav__logo-icon" />
+        <span class="nav__logo-text">PALLADIUM</span>
+      </div>
+      <div class="nav__links">
+        <a href="index.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9 20v-5h6v5"/></svg>
+          <span class="nav__link-text">Home</span>
+        </a>
+        <a href="games.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="9" rx="4.5"/><path d="M8 13h4"/><path d="M10 11v4"/><circle cx="15.5" cy="12.5" r="1"/><circle cx="18" cy="14.5" r="1"/></svg>
+          <span class="nav__link-text">Games</span>
+        </a>
+        <a href="proxy.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M4.5 9h15"/><path d="M4.5 15h15"/><path d="M12 4a12 12 0 0 1 0 16"/><path d="M12 4a12 12 0 0 0 0 16"/></svg>
+          <span class="nav__link-text">Proxy</span>
+        </a>
+        <a href="ai.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="11" rx="3"/><path d="M12 7V4"/><path d="M9 4h6"/><circle cx="9.5" cy="12.5" r="1"/><circle cx="14.5" cy="12.5" r="1"/><path d="M8.5 15.5h7"/></svg>
+          <span class="nav__link-text">AI</span>
+        </a>
+        <a href="music.html" class="nav__link">
+          <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.8V6.5l10-2V16"/><circle cx="7" cy="18" r="2.4"/><circle cx="17" cy="16" r="2.4"/></svg>
+          <span class="nav__link-text">Music</span>
+        </a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <div class="page page--discord">
+        <section class="discord-present">
+          <div class="discord-present__spotlight" aria-hidden="true"></div>
+          <header class="discord-present__header">
+            <div class="discord-present__headrow">
+              <span class="discord-present__eyebrow">Palladium Community Deck</span>
+              <span id="discord-last-sync" class="discord-present__sync">Syncing...</span>
+            </div>
+            <h1 class="discord-present__title">Discord Community</h1>
+            <p id="discord-server-name" class="discord-present__server-name">Palladium Games</p>
+            <p id="discord-server-status" class="discord-summary__status discord-present__status">Loading widget data...</p>
+            <div class="discord-present__hero-metrics" aria-label="Discord summary">
+              <span id="discord-hero-online" class="discord-present__chip">0 online</span>
+              <span id="discord-hero-members" class="discord-present__chip">0 members listed</span>
+              <span id="discord-hero-channels" class="discord-present__chip">0 channels</span>
+            </div>
+          </header>
+
+          <section class="discord-present__panel">
+            <div class="discord-present__server">
+              <img id="discord-server-icon" class="discord-summary__icon discord-present__icon" src="images/discord.png" alt="Discord server icon" />
+              <span class="discord-present__server-label">Live Server Pulse</span>
+            </div>
+            <div class="discord-metrics">
+              <div class="discord-metric">
+                <span class="discord-metric__label">Online</span>
+                <span id="discord-online-count" class="discord-metric__value">0</span>
+              </div>
+              <div class="discord-metric">
+                <span class="discord-metric__label">Members Listed</span>
+                <span id="discord-members-count" class="discord-metric__value">0</span>
+              </div>
+              <div class="discord-metric">
+                <span class="discord-metric__label">Channels</span>
+                <span id="discord-channels-count" class="discord-metric__value">0</span>
+              </div>
+            </div>
+            <div class="discord-present__focus">
+              <span class="discord-present__focus-label">Live Feed</span>
+              <p class="discord-present__focus-text">Community activity is synced from Discord in real time.</p>
+              <span id="discord-focus-pill" class="discord-present__focus-pill">Pulse: stable</span>
+            </div>
+          </section>
+
+          <section class="discord-card discord-card--ticker discord-present__runway">
+            <h3 class="discord-card__title">Member Runway</h3>
+            <div class="discord-ticker" id="discord-ticker" aria-live="polite">
+              <div class="discord-ticker__track" id="discord-ticker-track">
+                <div class="discord-ticker__lane">
+                  <span class="discord-avatar discord-avatar--placeholder" aria-hidden="true"></span>
+                  <span class="discord-avatar discord-avatar--placeholder" aria-hidden="true"></span>
+                  <span class="discord-avatar discord-avatar--placeholder" aria-hidden="true"></span>
+                  <span class="discord-avatar discord-avatar--placeholder" aria-hidden="true"></span>
+                  <span class="discord-avatar discord-avatar--placeholder" aria-hidden="true"></span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="discord-join-dock">
+            <a id="discord-invite-link" class="discord-join-dock__btn" href="https://discord.gg/FNACSCcE26" target="_blank" rel="noopener noreferrer">
+              <svg class="discord-join-dock__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M20.32 4.37a19.8 19.8 0 0 0-4.95-1.54c-.21.38-.45.88-.62 1.28-1.83-.28-3.67-.28-5.46 0-.18-.4-.43-.9-.64-1.28A19.74 19.74 0 0 0 3.7 4.37C.57 9.06-.28 13.63.14 18.14a20.02 20.02 0 0 0 6.07 3.06c.49-.67.93-1.39 1.3-2.14-.71-.27-1.39-.6-2.04-.97.17-.13.33-.26.49-.4a14.16 14.16 0 0 0 12.08 0c.16.13.32.27.49.4-.65.37-1.33.7-2.05.97.38.75.82 1.47 1.3 2.14a19.98 19.98 0 0 0 6.08-3.06c.5-5.22-.85-9.75-3.54-13.77ZM8.03 15.4c-1.18 0-2.14-1.08-2.14-2.42 0-1.33.95-2.41 2.14-2.41 1.19 0 2.15 1.08 2.13 2.41 0 1.34-.95 2.42-2.13 2.42Zm7.9 0c-1.18 0-2.14-1.08-2.14-2.42 0-1.33.95-2.41 2.14-2.41 1.19 0 2.15 1.08 2.13 2.41 0 1.34-.94 2.42-2.13 2.42Z"></path>
+              </svg>
+              <span class="discord-join-dock__text">
+                <span class="discord-join-dock__title">Join The Palladium Discord</span>
+                <span class="discord-join-dock__meta">Talk with players, get updates, and see new drops first.</span>
+              </span>
+            </a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="site-settings.js"></script>
+  <script src="backend.js"></script>
+  <script src="nav.js"></script>
+  <script>
+    (function () {
+      var WIDGET_FALLBACK_URL = 'https://discord.com/api/guilds/1479914434460913707/widget.json';
+      var INVITE_FALLBACK_URL = 'https://discord.gg/FNACSCcE26';
+      var WIDGET_ENDPOINT = (window.PalladiumBackend && typeof window.PalladiumBackend.apiUrl === 'function')
+        ? window.PalladiumBackend.apiUrl('/api/discord/widget')
+        : '/api/discord/widget';
+
+      var serverNameEl = document.getElementById('discord-server-name');
+      var serverStatusEl = document.getElementById('discord-server-status');
+      var serverIconEl = document.getElementById('discord-server-icon');
+      var inviteLinkEl = document.getElementById('discord-invite-link');
+      var onlineCountEl = document.getElementById('discord-online-count');
+      var membersCountEl = document.getElementById('discord-members-count');
+      var channelsCountEl = document.getElementById('discord-channels-count');
+      var tickerTrackEl = document.getElementById('discord-ticker-track');
+      var lastSyncEl = document.getElementById('discord-last-sync');
+      var heroOnlineEl = document.getElementById('discord-hero-online');
+      var heroMembersEl = document.getElementById('discord-hero-members');
+      var heroChannelsEl = document.getElementById('discord-hero-channels');
+      var focusPillEl = document.getElementById('discord-focus-pill');
+      var joinDockEl = document.querySelector('.discord-join-dock');
+      var dockSyncTimer = null;
+
+      function syncJoinDockPosition() {
+        if (!joinDockEl) return;
+        joinDockEl.style.removeProperty('left');
+        joinDockEl.style.removeProperty('right');
+        joinDockEl.style.removeProperty('width');
+      }
+
+      function queueDockSync() {
+        if (dockSyncTimer) {
+          clearTimeout(dockSyncTimer);
+        }
+        dockSyncTimer = setTimeout(function () {
+          syncJoinDockPosition();
+          requestAnimationFrame(syncJoinDockPosition);
+          dockSyncTimer = null;
+        }, 35);
+      }
+
+      window.addEventListener('resize', queueDockSync);
+      window.addEventListener('orientationchange', queueDockSync);
+      window.addEventListener('load', syncJoinDockPosition);
+      if (window.MutationObserver) {
+        var documentClassObserver = new MutationObserver(function () {
+          queueDockSync();
+        });
+        documentClassObserver.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['class']
+        });
+        var navEl = document.getElementById('nav');
+        if (navEl) {
+          var navClassObserver = new MutationObserver(function () {
+            queueDockSync();
+          });
+          navClassObserver.observe(navEl, {
+            attributes: true,
+            attributeFilter: ['class']
+          });
+        }
+      }
+      var discordPresentEl = document.querySelector('.discord-present');
+      if (window.ResizeObserver && discordPresentEl) {
+        var dockResizeObserver = new ResizeObserver(function () {
+          queueDockSync();
+        });
+        dockResizeObserver.observe(discordPresentEl);
+        var mainEl = document.querySelector('.main');
+        if (mainEl) {
+          dockResizeObserver.observe(mainEl);
+        }
+      }
+      var navToggle = document.getElementById('nav-toggle');
+      if (navToggle) {
+        navToggle.addEventListener('click', function () {
+          queueDockSync();
+          setTimeout(queueDockSync, 280);
+          requestAnimationFrame(syncJoinDockPosition);
+        });
+      }
+
+      function setStatus(text, isError) {
+        if (!serverStatusEl) return;
+        serverStatusEl.textContent = String(text || '');
+        serverStatusEl.classList.toggle('discord-summary__status--error', Boolean(isError));
+      }
+
+      function setPulseState(text) {
+        if (!focusPillEl) return;
+        focusPillEl.textContent = String(text || 'Pulse: stable');
+      }
+
+      function setInvite(url) {
+        var href = String(url || '').trim() || INVITE_FALLBACK_URL;
+        if (inviteLinkEl) inviteLinkEl.href = href;
+      }
+
+      function fillText(el, text) {
+        if (!el) return;
+        el.textContent = String(text == null ? '' : text);
+      }
+
+      function updateHeroCounts(online, members, channels) {
+        fillText(heroOnlineEl, String(online || 0) + ' online');
+        fillText(heroMembersEl, String(members || 0) + ' members listed');
+        fillText(heroChannelsEl, String(channels || 0) + ' channels');
+      }
+
+      function stampSync(text) {
+        fillText(lastSyncEl, text || 'Syncing...');
+      }
+
+      function pickText(value, fallback) {
+        var cleaned = String(value == null ? '' : value)
+          .replace(/[\u200B-\u200D\u2060\uFEFF]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        return cleaned || String(fallback || '');
+      }
+
+      function memberKey(member, index) {
+        if (member && member.id) return String(member.id);
+        if (member && member.username) return String(member.username).toLowerCase();
+        return 'member-' + String(index || 0);
+      }
+
+      function normalizeMembers(members) {
+        var safeMembers = Array.isArray(members) ? members : [];
+        var seen = {};
+        var out = [];
+
+        for (var i = 0; i < safeMembers.length; i += 1) {
+          var raw = safeMembers[i] || {};
+          var key = memberKey(raw, i);
+          if (seen[key]) continue;
+          seen[key] = true;
+
+          out.push({
+            id: key,
+            username: String(raw.username || 'Member'),
+            avatar: String(raw.avatar_url || '').trim() || 'images/discord.png',
+            status: String(raw.status || 'online').toLowerCase()
+          });
+        }
+
+        return out;
+      }
+
+      function createAvatarNode(member) {
+        var wrap = document.createElement('span');
+        wrap.className = 'discord-avatar';
+        wrap.title = member.username + ' • ' + member.status;
+
+        var img = document.createElement('img');
+        img.className = 'discord-avatar__img';
+        img.src = member.avatar;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.alt = '';
+        wrap.appendChild(img);
+
+        var dot = document.createElement('span');
+        dot.className = 'discord-avatar__status discord-avatar__status--' + (member.status || 'online');
+        dot.setAttribute('aria-hidden', 'true');
+        wrap.appendChild(dot);
+
+        return wrap;
+      }
+
+      function renderTickerMembers(members) {
+        if (!tickerTrackEl) return;
+
+        var safeMembers = normalizeMembers(members);
+        if (!safeMembers.length) {
+          tickerTrackEl.innerHTML = '<div class="discord-ticker__lane"><span class="discord-tag discord-tag--muted">No member avatars available.</span></div>';
+          tickerTrackEl.style.setProperty('--ticker-duration', '24s');
+          return;
+        }
+
+        var laneA = document.createElement('div');
+        laneA.className = 'discord-ticker__lane';
+        var laneB = document.createElement('div');
+        laneB.className = 'discord-ticker__lane';
+        laneB.setAttribute('aria-hidden', 'true');
+
+        var targetCount = safeMembers.length < 24 ? 24 : safeMembers.length;
+        if (targetCount > 60) targetCount = 60;
+
+        var runwayMembers = [];
+        for (var i = 0; i < targetCount; i += 1) {
+          runwayMembers.push(safeMembers[i % safeMembers.length]);
+        }
+
+        for (var j = 0; j < runwayMembers.length; j += 1) {
+          laneA.appendChild(createAvatarNode(runwayMembers[j]));
+          laneB.appendChild(createAvatarNode(runwayMembers[j]));
+        }
+
+        tickerTrackEl.innerHTML = '';
+        tickerTrackEl.appendChild(laneA);
+        tickerTrackEl.appendChild(laneB);
+        tickerTrackEl.style.setProperty('--ticker-duration', String(Math.max(18, runwayMembers.length * 1.05)) + 's');
+      }
+
+      function renderWidget(widget, inviteUrl) {
+        var safeWidget = widget && typeof widget === 'object' ? widget : {};
+        var members = Array.isArray(safeWidget.members) ? safeWidget.members : [];
+        var channels = Array.isArray(safeWidget.channels) ? safeWidget.channels : [];
+        var onlineCount = Number(safeWidget.presence_count || members.length || 0);
+
+        fillText(serverNameEl, pickText(safeWidget.name, 'Palladium Games'));
+        fillText(onlineCountEl, onlineCount);
+        fillText(membersCountEl, members.length);
+        fillText(channelsCountEl, channels.length);
+        updateHeroCounts(onlineCount, members.length, channels.length);
+        setInvite(inviteUrl || safeWidget.instant_invite || INVITE_FALLBACK_URL);
+        renderTickerMembers(members);
+
+        if (serverIconEl && safeWidget.icon_url) {
+          serverIconEl.src = safeWidget.icon_url;
+        }
+        setPulseState('Pulse: live');
+
+        setStatus('Live data updated.', false);
+        stampSync('Updated ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
+        queueDockSync();
+      }
+
+      async function loadFromBackend() {
+        var response = await fetch(WIDGET_ENDPOINT, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error('Backend widget endpoint returned ' + response.status + '.');
+        }
+        var payload = await response.json();
+        if (!payload || !payload.ok || !payload.widget) {
+          throw new Error('Backend widget payload was invalid.');
+        }
+        return payload;
+      }
+
+      async function loadDirectWidget() {
+        var response = await fetch(WIDGET_FALLBACK_URL, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error('Widget URL returned ' + response.status + '.');
+        }
+        var widget = await response.json();
+        if (!widget || typeof widget !== 'object') {
+          throw new Error('Widget response was invalid.');
+        }
+        return {
+          ok: true,
+          inviteUrl: widget.instant_invite || INVITE_FALLBACK_URL,
+          widget: widget
+        };
+      }
+
+      async function refreshWidget() {
+        fillText(serverNameEl, pickText(serverNameEl && serverNameEl.textContent, 'Palladium Games'));
+        setStatus('Refreshing widget...', false);
+        setPulseState('Pulse: checking');
+        stampSync('Syncing...');
+        try {
+          var payload = await loadFromBackend();
+          renderWidget(payload.widget, payload.inviteUrl);
+          return;
+        } catch (backendError) {
+          try {
+            var fallbackPayload = await loadDirectWidget();
+            renderWidget(fallbackPayload.widget, fallbackPayload.inviteUrl);
+            setStatus('Loaded direct widget fallback.', false);
+            return;
+          } catch (directError) {
+            console.warn('Discord widget load failed:', backendError, directError);
+          }
+        }
+
+        fillText(serverNameEl, 'Palladium Games');
+        updateHeroCounts(0, 0, 0);
+        stampSync('Widget unavailable');
+        setStatus('Could not load Discord widget right now.', true);
+        setPulseState('Pulse: disconnected');
+      }
+
+      refreshWidget();
+      queueDockSync();
+      setInterval(refreshWidget, 60000);
+    })();
+  </script>
+</body>
+</html>
