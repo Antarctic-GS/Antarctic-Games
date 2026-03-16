@@ -157,6 +157,24 @@
         });
       }
 
+      var saveKey = game ? 'palladium-game-save:' + String(game).replace(/^\/+/, '') : null;
+
+      function handleSaveMessage(event) {
+        if (!saveKey || !frame || event.source !== frame.contentWindow) return;
+        if (event.data && event.data.type === 'palladium-save-ready') {
+          try {
+            var raw = localStorage.getItem(saveKey);
+            var data = raw ? JSON.parse(raw) : {};
+            event.source.postMessage({ type: 'palladium-save-load', data: data }, '*');
+          } catch (e) {}
+        } else if (event.data && event.data.type === 'palladium-save-sync' && event.data.data && typeof event.data.data === 'object') {
+          try {
+            localStorage.setItem(saveKey, JSON.stringify(event.data.data));
+          } catch (e) {}
+        }
+      }
+      if (saveKey) window.addEventListener('message', handleSaveMessage);
+
       if (game && frame) {
         frame.src = resolvedGameUrl;
         var dynamicTitle = 'SchoolSoft';
