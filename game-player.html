@@ -160,14 +160,21 @@
       var saveKey = game ? 'palladium-game-save:' + String(game).replace(/^\/+/, '') : null;
 
       function handleSaveMessage(event) {
-        if (!saveKey || !frame || event.source !== frame.contentWindow) return;
-        if (event.data && event.data.type === 'palladium-save-ready') {
+        if (!event.data || typeof event.data.type !== 'string') return;
+        if (event.data.type === 'palladium-save-ready') {
+          if (!saveKey || !frame) return;
+          var data = {};
           try {
             var raw = localStorage.getItem(saveKey);
-            var data = raw ? JSON.parse(raw) : {};
-            event.source.postMessage({ type: 'palladium-save-load', data: data }, '*');
+            if (raw) data = JSON.parse(raw);
           } catch (e) {}
-        } else if (event.data && event.data.type === 'palladium-save-sync' && event.data.data && typeof event.data.data === 'object') {
+          try {
+            event.source.postMessage({ type: 'palladium-save-load', data: data }, '*');
+          } catch (e2) {}
+          return;
+        }
+        if (event.data.type === 'palladium-save-sync' && event.data.data && typeof event.data.data === 'object') {
+          if (!saveKey || !frame || event.source !== frame.contentWindow) return;
           try {
             localStorage.setItem(saveKey, JSON.stringify(event.data.data));
           } catch (e) {}
