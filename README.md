@@ -1,5 +1,11 @@
 # Palladium Games
 
+## Our Purpose
+Our purpose is to provide gaming fun to everybody who is probably sitting bored in a classroom while their teacher drones on about the Civil War.
+We have games, AI, and a proxy will be coming soon!
+
+## Our Tech Infrastructure
+We use games from [GN-MATH](https://gn-math.dev), and the [Internet Archive](https://archive.org)
 
 ## Deployment
 There are many ways to deploy a Palladium Games website. Here's how:
@@ -36,5 +42,12 @@ You can also remix this on [Replit](https://replit.com/@sethpanng/Palladium-Game
 ## Discord
 [Join our Discord Server for more updates!](https://discord.gg/FNACSCcE26)
 
-## Credits
-We source our games from [GN-MATH](https://gn-math.dev) and the [Internet Archive](https://archive.org/).
+## Star History
+
+<a href="https://www.star-history.com/?repos=Palladium-Games%2FPalladium-Games&type=date&legend=bottom-right">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=Palladium-Games/Palladium-Games&type=date&theme=dark&legend=bottom-right" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=Palladium-Games/Palladium-Games&type=date&legend=bottom-right" />
+   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=Palladium-Games/Palladium-Games&type=date&legend=bottom-right" />
+ </picture>
+</a>
