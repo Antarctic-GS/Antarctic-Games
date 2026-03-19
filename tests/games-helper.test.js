@@ -45,7 +45,7 @@ test("buildLaunchUri points game launches into the Palladium tab protocol", () =
 
   assert.equal(
     api.buildLaunchUri("games/platformer/ovo.html", "OvO", "Dedra Games"),
-    "palladium://game?path=games%2Fplatformer%2Fovo.html&title=OvO&author=Dedra%20Games"
+    "palladium://gamelauncher?path=games%2Fplatformer%2Fovo.html&title=OvO&author=Dedra%20Games"
   );
 });
 
@@ -73,7 +73,7 @@ test("loadCatalog prefers the committed local manifest", async () => {
   assert.equal(calls[0].url, "data/games-catalog.json");
 });
 
-test("loadCatalog falls back to the backend api when the local manifest is unavailable", async () => {
+test("loadCatalog stays local-only when the manifest is unavailable", async () => {
   const sampleGames = [{ title: "Retro Bowl", path: "games/sports/retro-bowl.html" }];
   let backendCalls = 0;
   const { api } = createHelperContext({
@@ -86,16 +86,18 @@ test("loadCatalog falls back to the backend api when the local manifest is unava
     }),
     window: {
       PalladiumBackend: {
-        async fetchJson(pathValue) {
+        async fetchJson() {
           backendCalls += 1;
-          assert.equal(pathValue, "/api/games");
           return { games: sampleGames };
         }
       }
     }
   });
 
-  const games = await api.loadCatalog();
-  assert.deepEqual(games, sampleGames);
-  assert.equal(backendCalls, 1);
+  await assert.rejects(
+    () => api.loadCatalog(),
+    /Local games catalog request failed with status 503/
+  );
+  assert.deepEqual(sampleGames, [{ title: "Retro Bowl", path: "games/sports/retro-bowl.html" }]);
+  assert.equal(backendCalls, 0);
 });

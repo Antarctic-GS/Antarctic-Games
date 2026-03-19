@@ -4,7 +4,8 @@
     newtab: "New Tab",
     games: "Games",
     ai: "AI",
-    settings: "Settings"
+    settings: "Settings",
+    gamelauncher: "Game Launcher"
   };
 
   function cleanText(value) {
@@ -45,7 +46,7 @@
   function buildGameUri(gamePath, title, author) {
     var normalizedPath = normalizeGamePath(gamePath);
     if (!normalizedPath) {
-      return buildInternalUri("games");
+      return buildInternalUri("gamelauncher");
     }
 
     var query = ["path=" + encodeURIComponent(normalizedPath)];
@@ -60,7 +61,7 @@
       query.push("author=" + encodeURIComponent(normalizedAuthor));
     }
 
-    return "palladium://game?" + query.join("&");
+    return "palladium://gamelauncher?" + query.join("&");
   }
 
   function parseInternalUri(value) {
@@ -77,21 +78,23 @@
         route = "newtab";
       }
 
-      if (route === "game") {
+      if (route === "game" || route === "gamelauncher") {
         var gamePath = normalizeGamePath(parsed.searchParams.get("path"));
         if (!gamePath) {
           return {
-            view: "games",
-            route: "games",
-            title: INTERNAL_ROUTES.games,
-            uri: buildInternalUri("games")
+            view: "gamelauncher",
+            route: "gamelauncher",
+            title: INTERNAL_ROUTES.gamelauncher,
+            author: "",
+            path: "",
+            uri: buildInternalUri("gamelauncher")
           };
         }
 
         var title = cleanText(parsed.searchParams.get("title")) || humanizeSlug(gamePath);
         return {
-          view: "game",
-          route: "game",
+          view: "gamelauncher",
+          route: "gamelauncher",
           title: title,
           author: cleanText(parsed.searchParams.get("author")),
           path: gamePath,
@@ -108,7 +111,7 @@
         };
       }
 
-      if (route === "games" || route === "ai" || route === "settings") {
+      if (route === "games" || route === "ai" || route === "settings" || route === "gamelauncher") {
         return {
           view: route,
           route: route,
@@ -159,8 +162,8 @@
     if (looksLikeGamePath(raw)) {
       var title = humanizeSlug(raw);
       return {
-        view: "game",
-        route: "game",
+        view: "gamelauncher",
+        route: "gamelauncher",
         title: title,
         author: "",
         path: normalizeGamePath(raw),

@@ -24,7 +24,7 @@ test("frontend ships a committed local games manifest and bundled assets", () =>
 
   for (const entry of payload.games) {
     assert.match(entry.path, /^games\//);
-    assert.match(entry.launchUri, /^palladium:\/\/game\?/);
+    assert.match(entry.launchUri, /^palladium:\/\/gamelauncher\?/);
     assert.ok(fs.existsSync(path.join(FRONTEND_DIR, entry.path)), "Missing local game asset: " + entry.path);
 
     if (entry.image && !/^(?:[a-z]+:)?\/\//i.test(entry.image)) {

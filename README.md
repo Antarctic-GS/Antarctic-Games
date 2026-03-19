@@ -30,7 +30,7 @@ You can also remix this on [Replit](https://replit.com/@sethpanng/Palladium-Game
 
 ## Local Game Hosting
 The frontend now commits the playable game files, SWFs, thumbnails, and a generated catalog manifest directly into this repo so a blocked `api.sethpang.com` domain does not take the whole games page down.
-The only top-level app page is `index.html`; games launch from the shell into their own tabs through `palladium://game?...` launch URIs.
+The only top-level app page is `index.html`; games launch from the shell into their own tabs through `palladium://gamelauncher?...` launch URIs.
 
 Refresh those bundled assets from a sibling backend checkout with:
 

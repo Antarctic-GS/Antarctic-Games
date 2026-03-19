@@ -390,7 +390,7 @@
 
   function resolveTabFavicon(tab) {
     if (!tab) return "";
-    if (tab.view === "game") return "images/favicon.png";
+    if (tab.view === "gamelauncher") return "images/favicon.png";
     if (tab.view !== "web" || !tab.targetUrl) return "";
     try {
       var origin = new URL(tab.targetUrl).origin;
@@ -405,7 +405,7 @@
     if (tab.view === "games") return "games";
     if (tab.view === "ai") return "ai";
     if (tab.view === "settings") return "settings";
-    if (tab.view === "game") return "play";
+    if (tab.view === "gamelauncher") return "play";
     return "web";
   }
 
@@ -512,8 +512,8 @@
       tab.paneEl = createAiPane(tab);
     } else if (tab.view === "settings") {
       tab.paneEl = createSettingsPane(tab);
-    } else if (tab.view === "game") {
-      tab.paneEl = createGamePane(tab);
+    } else if (tab.view === "gamelauncher") {
+      tab.paneEl = createGameLauncherPane(tab);
     } else {
       tab.paneEl = createWebPane(tab);
     }
@@ -837,16 +837,52 @@
     return pane;
   }
 
-  function createGamePane(tab) {
+  function createGameLauncherPane(tab) {
     var pane = document.createElement("section");
-    pane.className = "shell-pane shell-pane--frame";
+    pane.className = "shell-pane shell-pane--internal shell-pane--gamelauncher";
+    pane.addEventListener("click", handlePaneAction);
+
+    var title = cleanText(tab.title) || "Game Launcher";
+    var author = cleanText(tab.author);
+    var gamePath = cleanText(tab.path);
+    var details = [];
+
+    if (author) details.push(author);
+    if (gamePath) details.push(gamePath);
+
+    pane.innerHTML =
+      '<div class="game-launcher">' +
+        '<div class="game-launcher__header">' +
+          '<div class="game-launcher__copy">' +
+            '<p class="game-launcher__eyebrow">palladium://gamelauncher</p>' +
+            '<h2 class="game-launcher__title">' + escapeHtml(title) + "</h2>" +
+            '<p class="game-launcher__meta">' + escapeHtml(details.join(" · ") || "Pick a game from the library to launch it here.") + "</p>" +
+          "</div>" +
+          '<div class="game-launcher__actions">' +
+            '<button type="button" class="toolbar-button" data-route="palladium://games">Game Library</button>' +
+          "</div>" +
+        "</div>" +
+        '<div class="game-launcher__viewport" data-role="game-launcher-viewport"></div>' +
+      "</div>";
+
+    var viewport = pane.querySelector('[data-role="game-launcher-viewport"]');
+    if (!viewport) return pane;
+
+    if (!gamePath) {
+      viewport.innerHTML =
+        '<div class="empty-state empty-state--launcher">' +
+          "<strong>No game selected yet.</strong>" +
+          "<span>Open a title from palladium://games and it will launch here.</span>" +
+        "</div>";
+      return pane;
+    }
 
     var frame = document.createElement("iframe");
-    frame.className = "shell-pane__frame";
-    frame.src = tab.path;
+    frame.className = "shell-pane__frame game-launcher__frame";
+    frame.src = gamePath;
     frame.setAttribute("allow", "clipboard-read; clipboard-write; fullscreen");
     frame.setAttribute("referrerpolicy", "no-referrer");
-    pane.appendChild(frame);
+    viewport.appendChild(frame);
     return pane;
   }
 
@@ -1679,7 +1715,7 @@
       } else {
         hydrateWebPane(active);
       }
-    } else if (active.view === "game") {
+    } else if (active.view === "gamelauncher") {
       var gameFrame = active.paneEl && active.paneEl.querySelector("iframe");
       if (gameFrame) gameFrame.src = active.path;
     }

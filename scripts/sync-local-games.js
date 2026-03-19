@@ -292,7 +292,7 @@ function humanizeFilename(value) {
 
 function buildLaunchUri(gamePath, title, author) {
   return (
-    "palladium://game?path=" +
+    "palladium://gamelauncher?path=" +
     encodeURIComponent(gamePath) +
     "&title=" +
     encodeURIComponent(title) +

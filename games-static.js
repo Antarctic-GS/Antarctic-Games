@@ -23,7 +23,7 @@
   function buildLaunchUri(gamePath, title, author) {
     var normalizedPath = normalizeGamePath(gamePath);
     if (!normalizedPath) {
-      return "palladium://games";
+      return "palladium://gamelauncher";
     }
 
     var parts = ["path=" + encodeURIComponent(normalizedPath)];
@@ -38,7 +38,7 @@
       parts.push("author=" + encodeURIComponent(normalizedAuthor));
     }
 
-    return "palladium://game?" + parts.join("&");
+    return "palladium://gamelauncher?" + parts.join("&");
   }
 
   async function loadLocalCatalog(forceRefresh) {
@@ -58,25 +58,7 @@
 
   async function loadCatalog(options) {
     var settings = options || {};
-
-    try {
-      return await loadLocalCatalog(Boolean(settings.forceRefresh));
-    } catch (localError) {
-      if (settings.localOnly) {
-        throw localError;
-      }
-
-      if (
-        window.PalladiumBackend &&
-        typeof window.PalladiumBackend.fetchJson === "function"
-      ) {
-        var payload = await window.PalladiumBackend.fetchJson("/api/games");
-        catalogCache = Array.isArray(payload && payload.games) ? payload.games : [];
-        return catalogCache.slice();
-      }
-
-      throw localError;
-    }
+    return loadLocalCatalog(Boolean(settings.forceRefresh));
   }
 
   window.PalladiumGames = {
