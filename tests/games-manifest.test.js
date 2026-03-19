@@ -42,3 +42,13 @@ test("games pages load the shared local-games helper", () => {
   assert.match(playerPage, /games-static\.js/);
   assert.match(aiPage, /games-static\.js/);
 });
+
+test("game player uses a fixed stage and non-scrolling iframe viewport", () => {
+  const playerPage = fs.readFileSync(path.join(FRONTEND_DIR, "game-player.html"), "utf8");
+  const styles = fs.readFileSync(path.join(FRONTEND_DIR, "styles.css"), "utf8");
+
+  assert.match(playerPage, /player-frame-stage/);
+  assert.match(playerPage, /scrolling="no"/);
+  assert.match(styles, /\.player-frame-stage/);
+  assert.match(styles, /transform-origin:\s*top left/);
+});

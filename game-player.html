@@ -56,7 +56,9 @@
       <div class="page page--player">
         <div id="player-wrap" class="player-wrap">
           <div class="player-frame-wrap" id="player-frame-wrap">
-            <iframe id="game-frame" title="Game"></iframe>
+            <div id="player-frame-stage" class="player-frame-stage">
+              <iframe id="game-frame" title="Game" scrolling="no"></iframe>
+            </div>
           </div>
           <div class="player-bar">
             <div class="player-bar__info">
@@ -105,6 +107,7 @@
 
       var frame = document.getElementById('game-frame');
       var frameWrap = document.getElementById('player-frame-wrap');
+      var frameStage = document.getElementById('player-frame-stage');
       var wrap = document.getElementById('player-wrap');
       var empty = document.getElementById('player-empty');
       var titleEl = document.getElementById('player-title');
@@ -114,11 +117,139 @@
       var playTrackEndpoint = (window.PalladiumBackend && typeof window.PalladiumBackend.apiUrl === 'function')
         ? window.PalladiumBackend.apiUrl('/api/games/play')
         : '/api/games/play';
+      var DEFAULT_VIEWPORT_WIDTH = 1280;
+      var DEFAULT_VIEWPORT_HEIGHT = 720;
+      var viewportWidth = DEFAULT_VIEWPORT_WIDTH;
+      var viewportHeight = DEFAULT_VIEWPORT_HEIGHT;
+      var viewportSyncTimers = [];
       var resolvedGameUrl = (window.PalladiumGames && typeof window.PalladiumGames.normalizeAssetPath === 'function')
         ? window.PalladiumGames.normalizeAssetPath(game)
         : ((window.PalladiumBackend && typeof window.PalladiumBackend.assetUrl === 'function')
           ? window.PalladiumBackend.assetUrl(game)
           : game);
+
+      function clearViewportTimers() {
+        while (viewportSyncTimers.length) {
+          clearTimeout(viewportSyncTimers.pop());
+        }
+      }
+
+      function readDimension(value, fallback) {
+        var numeric = Number(value);
+        if (!isFinite(numeric) || numeric < 240) {
+          return fallback;
+        }
+        return Math.round(numeric);
+      }
+
+      function setViewportSize(width, height) {
+        viewportWidth = readDimension(width, DEFAULT_VIEWPORT_WIDTH);
+        viewportHeight = readDimension(height, DEFAULT_VIEWPORT_HEIGHT);
+        updateViewportScale();
+      }
+
+      function updateViewportScale() {
+        if (!frameWrap || !frameStage || !frame) return;
+
+        var availableWidth = Math.max(frameWrap.clientWidth - 16, 1);
+        var availableHeight = Math.max(frameWrap.clientHeight - 16, 1);
+        var scale = Math.min(availableWidth / viewportWidth, availableHeight / viewportHeight, 1);
+        if (!isFinite(scale) || scale <= 0) {
+          scale = 1;
+        }
+
+        var scaledWidth = Math.max(1, Math.round(viewportWidth * scale));
+        var scaledHeight = Math.max(1, Math.round(viewportHeight * scale));
+
+        frameStage.style.width = scaledWidth + 'px';
+        frameStage.style.height = scaledHeight + 'px';
+        frameStage.style.maxWidth = availableWidth + 'px';
+        frameStage.style.maxHeight = availableHeight + 'px';
+        frameStage.dataset.orientation = viewportHeight > viewportWidth ? 'portrait' : 'landscape';
+
+        frame.style.width = viewportWidth + 'px';
+        frame.style.height = viewportHeight + 'px';
+        frame.style.transform = 'scale(' + scale + ')';
+      }
+
+      function pickPrimaryCanvas(doc) {
+        var canvases = Array.prototype.slice.call(doc.querySelectorAll('canvas'));
+        var bestCanvas = null;
+        var bestArea = 0;
+
+        for (var i = 0; i < canvases.length; i += 1) {
+          var canvas = canvases[i];
+          var width = readDimension(canvas.width || canvas.getAttribute('width') || canvas.clientWidth, 0);
+          var height = readDimension(canvas.height || canvas.getAttribute('height') || canvas.clientHeight, 0);
+          var area = width * height;
+          if (area > bestArea) {
+            bestCanvas = canvas;
+            bestArea = area;
+          }
+        }
+
+        return bestCanvas;
+      }
+
+      function injectViewportStyle(doc) {
+        var root = doc.head || doc.documentElement;
+        if (!root || doc.getElementById('palladium-player-viewport-style')) return;
+
+        var style = doc.createElement('style');
+        style.id = 'palladium-player-viewport-style';
+        style.textContent =
+          'html,body{margin:0!important;overflow:hidden!important;overscroll-behavior:none!important;}' +
+          'body{-ms-overflow-style:none;scrollbar-width:none;}' +
+          'body::-webkit-scrollbar{display:none;}';
+        root.appendChild(style);
+      }
+
+      function readViewportSize() {
+        if (!frame || !frame.contentDocument) {
+          return null;
+        }
+
+        try {
+          var doc = frame.contentDocument;
+          injectViewportStyle(doc);
+
+          var primaryCanvas = pickPrimaryCanvas(doc);
+          if (primaryCanvas) {
+            return {
+              width: readDimension(primaryCanvas.width || primaryCanvas.getAttribute('width') || primaryCanvas.clientWidth, DEFAULT_VIEWPORT_WIDTH),
+              height: readDimension(primaryCanvas.height || primaryCanvas.getAttribute('height') || primaryCanvas.clientHeight, DEFAULT_VIEWPORT_HEIGHT)
+            };
+          }
+
+          var root = doc.scrollingElement || doc.documentElement;
+          if (!root) {
+            return null;
+          }
+
+          return {
+            width: readDimension(root.scrollWidth || root.clientWidth, DEFAULT_VIEWPORT_WIDTH),
+            height: readDimension(root.scrollHeight || root.clientHeight, DEFAULT_VIEWPORT_HEIGHT)
+          };
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function syncViewportSize() {
+        var nextViewport = readViewportSize();
+        if (nextViewport) {
+          setViewportSize(nextViewport.width, nextViewport.height);
+          return;
+        }
+        setViewportSize(DEFAULT_VIEWPORT_WIDTH, DEFAULT_VIEWPORT_HEIGHT);
+      }
+
+      function scheduleViewportSync() {
+        clearViewportTimers();
+        [0, 120, 400, 900, 1800].forEach(function (delay) {
+          viewportSyncTimers.push(setTimeout(syncViewportSize, delay));
+        });
+      }
 
       function inferCategoryFromPath(gamePath) {
         var normalized = String(gamePath || '').replace(/\\/g, '/').replace(/^\/+/, '');
@@ -186,7 +317,22 @@
       if (saveKey) window.addEventListener('message', handleSaveMessage);
 
       if (game && frame) {
+        frame.addEventListener('load', function () {
+          syncViewportSize();
+          scheduleViewportSync();
+
+          try {
+            if (frame.contentWindow) {
+              frame.contentWindow.addEventListener('resize', syncViewportSize);
+            }
+          } catch (error) {
+            // Ignore iframe resize binding errors.
+          }
+        });
+
+        window.addEventListener('resize', updateViewportScale);
         frame.src = resolvedGameUrl;
+        updateViewportScale();
         var dynamicTitle = 'SchoolSoft';
         if (window.PalladiumSiteSettings && typeof window.PalladiumSiteSettings.decorateTitle === 'function') {
           document.title = window.PalladiumSiteSettings.decorateTitle(dynamicTitle);
@@ -212,6 +358,7 @@
           document.addEventListener('fullscreenchange', function () {
             var label = document.getElementById('player-fullscreen-label');
             if (label) label.textContent = document.fullscreenElement ? 'Exit fullscreen' : 'Fullscreen';
+            updateViewportScale();
           });
         }
 
