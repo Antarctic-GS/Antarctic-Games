@@ -41,9 +41,12 @@ test("service worker bootstraps Scramjet from the static frontend origin", () =>
   assert.match(serviceWorker, /scramjet\.fetch\(event\)/);
 });
 
-test("settings shell keeps the sidebar on a fixed rail", () => {
+test("settings shell keeps the sidebar on a fixed attached rail", () => {
   const settingsShellCss = fs.readFileSync(path.join(FRONTEND_DIR, "settings-shell.css"), "utf8");
 
+  assert.match(settingsShellCss, /\.shell\s*\{[\s\S]*padding-left:\s*0;/);
+  assert.match(settingsShellCss, /\.shell-sidebar\s*\{[\s\S]*border-radius:\s*0 calc\(var\(--radius-xl\) \+ 0\.35rem\) calc\(var\(--radius-xl\) \+ 0\.35rem\) 0;/);
+  assert.match(settingsShellCss, /\.shell-sidebar\s*\{[\s\S]*margin:\s*var\(--shell-pad\) 0 var\(--shell-pad\) 0;/);
   assert.match(settingsShellCss, /\.shell-sidebar__row,\s*\.sidebar-toggle-btn,\s*\.tab-card,\s*\.route-link\s*\{[\s\S]*grid-template-columns:\s*var\(--sidebar-row-template\);/);
   assert.match(settingsShellCss, /\.shell--sidebar-collapsed \.shell-sidebar__row,\s*\.shell--sidebar-collapsed \.sidebar-toggle-btn,\s*\.shell--sidebar-collapsed \.tab-card,\s*\.shell--sidebar-collapsed \.route-link\s*\{[\s\S]*grid-template-columns:\s*var\(--sidebar-row-template\);/);
   assert.doesNotMatch(settingsShellCss, /\.shell--sidebar-collapsed \.shell-sidebar__row\s*\{[\s\S]*justify-content:\s*center;/);
