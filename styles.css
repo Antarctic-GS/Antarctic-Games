@@ -499,6 +499,10 @@ a {
   display: block;
 }
 
+.shell-pane--active.shell-pane--home {
+  display: flex;
+}
+
 .shell-pane--internal {
   overflow: auto;
   padding: 1.2rem;
