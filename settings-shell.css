@@ -225,11 +225,15 @@
 }
 
 .sidebar-block--tabs,
+.shell--sidebar-collapsed .sidebar-block--tabs {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .sidebar-block--links,
-.shell--sidebar-collapsed .sidebar-block--tabs,
 .shell--sidebar-collapsed .sidebar-block--links {
   flex: 0 0 auto;
-  margin-top: 0;
+  margin-top: auto;
 }
 
 .sidebar-block__header {
@@ -256,15 +260,30 @@
 
 .tab-card,
 .route-link {
+  position: relative;
   min-height: calc(var(--sidebar-tile) + 0.15rem);
   padding: 0 calc(0.35rem + var(--gutter)) 0 0;
   border-radius: 0.95rem;
-  border: 1px solid transparent;
+  border: 0;
   background: transparent;
   box-shadow: none;
 }
 
-.tab-card:hover,
+.tab-card::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline: calc(0.16rem + var(--gutter)) calc(0.16rem + var(--gutter));
+  border-radius: inherit;
+  border: 1px solid transparent;
+  background: transparent;
+  pointer-events: none;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.tab-card:hover::before,
 .route-link:hover {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.06);
@@ -273,13 +292,17 @@
 }
 
 .tab-card--active {
+  background: transparent;
+}
+
+.tab-card--active::before {
   background:
     linear-gradient(135deg, rgba(45, 125, 255, 0.18), rgba(88, 160, 255, 0.08)),
     rgba(255, 255, 255, 0.03);
   border-color: rgba(88, 160, 255, 0.24);
 }
 
-.tab-card--active:hover {
+.tab-card--active:hover::before {
   background:
     linear-gradient(135deg, rgba(45, 125, 255, 0.2), rgba(88, 160, 255, 0.1)),
     rgba(255, 255, 255, 0.04);
@@ -303,6 +326,20 @@
 
 .shell--sidebar-collapsed .tab-list:empty {
   display: none;
+}
+
+.shell--sidebar-collapsed .sidebar-block__header--tabs {
+  padding-right: 0;
+}
+
+.shell--sidebar-collapsed .sidebar-block__header--tabs .shell-sidebar__rail {
+  opacity: 0;
+}
+
+.shell--sidebar-collapsed .sidebar-block__header--tabs .shell-sidebar__actions {
+  grid-column: 1;
+  justify-self: start;
+  justify-content: flex-start;
 }
 
 .featured-launch {
