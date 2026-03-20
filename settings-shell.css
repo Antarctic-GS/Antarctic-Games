@@ -1,25 +1,23 @@
 [data-theme] {
-  --sidebar-open-width: clamp(17rem, 22vw, 20.5rem);
+  /* Match :root — fixed track width (no vw) keeps the flex shell from jumping */
+  --sidebar-open-width: 18.5rem;
   --sidebar-collapsed-width: 5.2rem;
 }
 
 .shell {
-  grid-template-columns: var(--sidebar-open-width) minmax(0, 1fr);
-  transition: grid-template-columns var(--sidebar-rest-ease), gap var(--sidebar-rest-ease);
-}
-
-.shell--sidebar-collapsed {
-  grid-template-columns: var(--sidebar-collapsed-width) minmax(0, 1fr);
+  display: flex;
 }
 
 .shell-sidebar {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
   min-width: 0;
+  min-height: 0;
 }
 
 .shell-sidebar__rest,
 .sidebar-toggle-btn__label {
-  will-change: max-width, opacity;
+  will-change: opacity;
 }
 
 .route-link__label {
@@ -43,6 +41,7 @@
 .shell-sidebar__rail,
 .sidebar-toggle-btn__rail,
 .tab-card__icon,
+.route-link__rail,
 .route-link__icon {
   display: grid;
   place-items: center;
@@ -70,11 +69,6 @@
   display: none;
 }
 
-.route-link {
-  align-items: center;
-  padding-inline-start: 0.35rem;
-}
-
 .tab-card {
   align-items: center;
 }
@@ -91,10 +85,6 @@
 .shell--sidebar-collapsed .tab-list,
 .shell--sidebar-collapsed .route-list {
   width: 100%;
-}
-
-.shell--sidebar-collapsed .sidebar-block {
-  padding-block: 0.2rem;
 }
 
 .shell--sidebar-collapsed .sidebar-block--tabs {
@@ -114,7 +104,7 @@
 }
 
 .shell--sidebar-collapsed .sidebar-block--links {
-  margin-top: 0;
+  margin-top: auto;
 }
 
 .shell--sidebar-collapsed .route-list {
@@ -141,6 +131,217 @@
 .shell-pane--gamelauncher {
   padding: 1rem;
   overflow: hidden;
+}
+
+.shell-pane--ai {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.shell-pane--ai .section-hero {
+  align-items: center;
+  margin-bottom: 0;
+  padding: 0.15rem 0.2rem 0.35rem;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.shell-pane--ai .section-hero__eyebrow {
+  margin-bottom: 0.2rem;
+  color: rgba(159, 176, 200, 0.72);
+}
+
+.shell-pane--ai .section-hero__title {
+  font-size: clamp(1.08rem, 1.8vw, 1.35rem);
+  line-height: 1.15;
+}
+
+.shell-pane--ai .section-hero__text {
+  max-width: 38rem;
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+
+.ai-layout {
+  grid-template-columns: minmax(15rem, 17.5rem) minmax(0, 1fr);
+  gap: 1rem;
+  min-height: 0;
+}
+
+.ai-prompts,
+.ai-chat {
+  border-radius: calc(var(--radius-xl) - 0.15rem);
+}
+
+.ai-prompts {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+    rgba(10, 16, 24, 0.76);
+}
+
+.ai-prompts .content-card__header {
+  margin-bottom: 0.9rem;
+}
+
+.prompt-list {
+  gap: 0.75rem;
+}
+
+.prompt-chip {
+  padding: 1rem 1rem 1.05rem;
+  border-radius: 1rem;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+.prompt-chip:hover,
+.prompt-chip:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(88, 160, 255, 0.26);
+  box-shadow: 0 12px 28px rgba(10, 18, 30, 0.28);
+}
+
+.ai-chat {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  padding: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(12, 17, 25, 0.92), rgba(9, 14, 22, 0.96)),
+    rgba(8, 12, 18, 0.92);
+}
+
+.ai-chat__messages {
+  gap: 1rem;
+  padding: 1.25rem 1.15rem 1rem;
+  scroll-padding-bottom: 2rem;
+}
+
+.ai-message {
+  width: min(48rem, 100%);
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.ai-message--assistant {
+  align-self: stretch;
+}
+
+.ai-message--assistant .ai-message__body {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.ai-message--user {
+  align-self: flex-end;
+  width: min(42rem, 88%);
+}
+
+.ai-message--user .ai-message__body {
+  background:
+    linear-gradient(135deg, rgba(45, 125, 255, 0.28), rgba(88, 160, 255, 0.16)),
+    rgba(22, 34, 52, 0.9);
+  border: 1px solid rgba(88, 160, 255, 0.28);
+}
+
+.ai-message__label {
+  margin-bottom: 0.4rem;
+  padding-inline: 0.1rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: rgba(159, 176, 200, 0.76);
+}
+
+.ai-message__body {
+  padding: 1rem 1.05rem;
+  border-radius: 1.15rem;
+  line-height: 1.72;
+}
+
+.ai-message--assistant .ai-message__body {
+  border-top-left-radius: 0.55rem;
+}
+
+.ai-message--user .ai-message__body {
+  border-top-right-radius: 0.55rem;
+}
+
+.ai-message__body p:first-child,
+.ai-message__body ul:first-child,
+.ai-message__body pre:first-child {
+  margin-top: 0;
+}
+
+.ai-message__body p:last-child,
+.ai-message__body ul:last-child,
+.ai-message__body pre:last-child {
+  margin-bottom: 0;
+}
+
+.ai-message__body pre {
+  background: rgba(3, 8, 14, 0.76);
+}
+
+.ai-chat__form {
+  position: relative;
+  gap: 0;
+  margin-top: 0;
+  padding: 0.95rem 1rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(10, 14, 22, 0), rgba(10, 14, 22, 0.94) 28%);
+}
+
+.ai-chat__input {
+  min-height: 8rem;
+  padding: 1rem 4.5rem 1rem 1.1rem;
+  resize: none;
+  line-height: 1.6;
+  border-radius: 1.35rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ai-chat__input::placeholder {
+  color: rgba(159, 176, 200, 0.56);
+}
+
+.ai-chat__actions {
+  position: absolute;
+  right: 1.7rem;
+  bottom: 1.75rem;
+}
+
+.ai-chat__actions .toolbar-button--accent {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 0;
+  box-shadow: 0 14px 28px rgba(45, 125, 255, 0.2);
+}
+
+.ai-chat__actions .toolbar-button--accent::before {
+  content: "\2191";
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .game-launcher {
@@ -476,17 +677,41 @@
   font-size: 1rem;
 }
 
-@media (max-width: 1120px) {
+@media (max-width: 1100px) {
   .shell {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .shell-sidebar {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: none;
   }
 
   .shell--sidebar-collapsed {
-    grid-template-columns: 4.6rem minmax(0, 1fr);
+    flex-direction: row;
+  }
+
+  .shell--sidebar-collapsed .shell-sidebar {
+    flex: 0 0 4.6rem;
+    width: 4.6rem;
+    max-width: 4.6rem;
   }
 
   .settings-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ai-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-prompts {
+    order: 2;
+  }
+
+  .ai-chat {
+    order: 1;
   }
 
   .game-launcher__header {
@@ -500,6 +725,27 @@
   .theme-grid,
   .preset-grid {
     grid-template-columns: 1fr;
+  }
+
+  .shell-pane--ai {
+    padding: 0.8rem;
+  }
+
+  .ai-chat__messages {
+    padding: 1rem 0.85rem 0.9rem;
+  }
+
+  .ai-chat__form {
+    padding: 0.85rem 0.8rem 0.9rem;
+  }
+
+  .ai-chat__actions {
+    right: 1.35rem;
+    bottom: 1.35rem;
+  }
+
+  .ai-message--user {
+    width: 100%;
   }
 
   .shell-pane--gamelauncher {
