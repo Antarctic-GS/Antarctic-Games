@@ -52,3 +52,13 @@ test("frontend root keeps a single app shell entrypoint", () => {
 
   assert.deepEqual(topLevelHtmlFiles, ["index.html"]);
 });
+
+test("frontend ships the Stick War 1 Ruffle launcher and SWF asset", () => {
+  const launcherPath = path.join(FRONTEND_DIR, "games", "swf", "stick-war-1.html");
+  const swfPath = path.join(FRONTEND_DIR, "swf", "stick-war-1.swf");
+  const source = fs.readFileSync(launcherPath, "utf8");
+
+  assert.ok(fs.existsSync(swfPath));
+  assert.match(source, /@ruffle-rs\/ruffle/);
+  assert.match(source, /\/swf\/stick-war-1\.swf/);
+});

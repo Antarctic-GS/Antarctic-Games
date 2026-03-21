@@ -292,6 +292,15 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "launchUri": "antarctic://gamelauncher?path=games%2Fracing%2Fsnow-rider.html&title=Snow%20Rider&author=Unknown"
     },
     {
+      "file": "stick-war-1.html",
+      "title": "Stick War 1",
+      "author": "Max Games Studios",
+      "category": "swf",
+      "path": "games/swf/stick-war-1.html",
+      "image": "images/game-img/stick-war-legacy.png",
+      "launchUri": "antarctic://gamelauncher?path=games%2Fswf%2Fstick-war-1.html&title=Stick%20War%201&author=Max%20Games%20Studios"
+    },
+    {
       "file": "stick-war-legacy.html",
       "title": "Stick War Legacy",
       "author": "Max Games Studios",
