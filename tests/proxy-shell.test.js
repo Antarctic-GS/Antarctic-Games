@@ -52,7 +52,8 @@ test("settings shell keeps the sidebar on a fixed attached rail", () => {
   assert.match(settingsShellCss, /\.shell-sidebar__row,\s*\.sidebar-toggle-btn,\s*\.tab-card,\s*\.route-link\s*\{[\s\S]*grid-template-columns:\s*var\(--sidebar-row-template\);/);
   assert.match(settingsShellCss, /\.tab-list\s*\{[\s\S]*flex:\s*0 0 auto;/);
   assert.match(settingsShellCss, /\.sidebar-block--links,\s*\.shell--sidebar-collapsed \.sidebar-block--links\s*\{[\s\S]*margin-top:\s*auto;/);
-  assert.match(settingsShellCss, /\.shell--sidebar-collapsed \.sidebar-block__header--tabs \.shell-sidebar__actions\s*\{[\s\S]*grid-column:\s*1;/);
+  assert.match(settingsShellCss, /\.sidebar-block__header--tabs \.shell-sidebar__actions\s*\{[\s\S]*grid-column:\s*1;/);
+  assert.match(settingsShellCss, /\.sidebar-block__header--tabs \.shell-sidebar__rail\s*\{[\s\S]*pointer-events:\s*none;/);
   assert.match(settingsShellCss, /\.tab-card::before\s*\{[\s\S]*inset-inline:\s*calc\(0\.16rem \+ var\(--gutter\)\) calc\(0\.16rem \+ var\(--gutter\)\);/);
   assert.match(settingsShellCss, /\.shell--sidebar-collapsed \.shell-sidebar__row,\s*\.shell--sidebar-collapsed \.sidebar-toggle-btn,\s*\.shell--sidebar-collapsed \.tab-card,\s*\.shell--sidebar-collapsed \.route-link\s*\{[\s\S]*grid-template-columns:\s*var\(--sidebar-row-template\);/);
   assert.doesNotMatch(settingsShellCss, /\.shell--sidebar-collapsed \.shell-sidebar__row\s*\{[\s\S]*justify-content:\s*center;/);

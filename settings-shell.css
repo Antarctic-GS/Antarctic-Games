@@ -328,15 +328,16 @@
   display: none;
 }
 
-.shell--sidebar-collapsed .sidebar-block__header--tabs {
+.sidebar-block__header--tabs {
   padding-right: 0;
 }
 
-.shell--sidebar-collapsed .sidebar-block__header--tabs .shell-sidebar__rail {
+.sidebar-block__header--tabs .shell-sidebar__rail {
   opacity: 0;
+  pointer-events: none;
 }
 
-.shell--sidebar-collapsed .sidebar-block__header--tabs .shell-sidebar__actions {
+.sidebar-block__header--tabs .shell-sidebar__actions {
   grid-column: 1;
   justify-self: start;
   justify-content: flex-start;
