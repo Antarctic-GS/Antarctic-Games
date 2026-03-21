@@ -54,8 +54,14 @@ test("frontend root keeps a single app shell entrypoint", () => {
   assert.deepEqual(topLevelHtmlFiles, ["index.html"]);
 });
 
-test("frontend Cookie Clicker launcher uses the GitHub-backed mirror", () => {
+test("frontend Cookie Clicker launcher stays on the bundled local mirror", () => {
   const launcher = fs.readFileSync(path.join(FRONTEND_DIR, "games", "clickers", "cookie-clicker.html"), "utf8");
-  assert.match(launcher, /rawcdn\.githack\.com\/bubbls\/UGS-Assets\/main\/cookieclicker\/index\.html/);
+  const bundledIndex = path.join(FRONTEND_DIR, "games", "clickers", "cookie-clicker.zip", "index.html");
+  const bundledSource = fs.readFileSync(bundledIndex, "utf8");
+
+  assert.ok(fs.existsSync(bundledIndex));
+  assert.match(launcher, /\.\/cookie-clicker\.zip\/index\.html/);
+  assert.doesNotMatch(launcher, /rawcdn\.githack\.com\/bubbls\/UGS-Assets/);
   assert.doesNotMatch(launcher, /cdn\.jsdelivr\.net\/gh\/bubbls\/UGS-Assets/);
+  assert.doesNotMatch(bundledSource, /<script src="\/js\/main\.js"><\/script>/);
 });
