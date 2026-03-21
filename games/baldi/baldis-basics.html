@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+  <base href="https://rawcdn.githack.com/bubbls/UGS-Assets/main/baldis-basics/">
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="author" content="Basically Games">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Baldi's Basics</title>
+  <link rel="stylesheet" href="TemplateData/style.css">
+  <script>
+    window.fileMergerConfig = {
+      files: [
+        { name: "baldi.data.unityweb", parts: 2 },
+        { name: "baldi.wasm.code.unityweb", parts: 1 },
+        { name: "baldi.wasm.framework.unityweb", parts: 1 }
+      ],
+      basePath: "unity/",
+      debug: false
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/merge.js"></script>
+  <script src="TemplateData/UnityProgress.js"></script>
+  <script src="baldi.js"></script>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #231f20;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    .webgl-content,
+    #unityContainer {
+      width: 100%;
+      height: 100%;
+    }
+
+    #unityContainer {
+      display: grid;
+      place-items: center;
+      background: #231f20;
+    }
+
+    #gameContainer {
+      width: min(100%, 960px);
+      height: min(100%, 600px);
+    }
+  </style>
+</head>
+<body>
+  <div class="webgl-content">
+    <div id="unityContainer">
+      <div id="gameContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener("load", function () {
+      var container = document.getElementById("gameContainer");
+      if (!container || typeof UnityLoader === "undefined") {
+        return;
+      }
+
+      UnityLoader.instantiate("gameContainer", "baldi.json", {
+        onProgress: UnityProgress,
+        Module: {
+          onRuntimeInitialized: function () {
+            UnityProgress(container, "complete");
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -31,6 +31,8 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellPage, /antarctic:\/\/settings/);
   assert.match(shellPage, /Open Antarctic In About:Blank/);
   assert.match(shellPage, /antarctic:\/\/ai/);
+  assert.match(shellPage, /prompt-list--composer/);
+  assert.doesNotMatch(shellPage, /data-role="ai-status"/);
 });
 
 test("service worker bootstraps Scramjet from the static frontend origin", () => {
@@ -64,6 +66,9 @@ test("settings shell keeps the sidebar on a fixed attached rail", () => {
   assert.match(settingsShellCss, /@media \(max-width: 1100px\)\s*\{[\s\S]*\.shell,\s*\.shell--sidebar-collapsed\s*\{[\s\S]*flex-direction:\s*row;/);
   assert.match(settingsShellCss, /\.shell--sidebar-collapsed \.shell-sidebar\s*\{[\s\S]*flex:\s*0 0 var\(--sidebar-collapsed-width\);/);
   assert.match(settingsShellCss, /\.shell-pane--active\.shell-pane--ai\s*\{[\s\S]*display:\s*grid;/);
+  assert.match(settingsShellCss, /\.ai-chat__composer\s*\{/);
+  assert.match(settingsShellCss, /\.theme-chip__preview\s*\{/);
+  assert.match(settingsShellCss, /\[data-theme\] body\s*\{/);
   assert.match(shellPage, /sidebar-block__header sidebar-block__header--tabs shell-sidebar__row[\s\S]*shell-sidebar__rail shell-sidebar__rail--action[\s\S]*id="shell-new-tab"/);
   assert.match(baseShellCss, /\.shell-pane--active\.shell-pane--home\s*\{[\s\S]*display:\s*flex;/);
   assert.match(baseShellCss, /body\s*\{[\s\S]*animation:\s*none;/);

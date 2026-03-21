@@ -31,6 +31,16 @@ test("frontend ships a committed local games manifest and bundled assets", () =>
   assert.equal(adventureCapitalist.author, "Hyper Hippo Games");
   assert.equal(adventureCapitalist.image, "images/game-img/adventure-capitalist.png");
 
+  const baldisBasics = payload.games.find((entry) => entry.path === "games/baldi/baldis-basics.html");
+  assert.ok(baldisBasics, "Expected Baldi's Basics in the local manifest");
+  assert.equal(baldisBasics.title, "Baldi's Basics");
+  assert.equal(baldisBasics.author, "Basically Games");
+  assert.equal(baldisBasics.image, "images/game-img/baldis-basics.png");
+
+  const cookieClicker = payload.games.find((entry) => entry.title === "Cookie Clicker");
+  assert.ok(cookieClicker, "Expected Cookie Clicker in the local manifest");
+  assert.equal(cookieClicker.path, "games/clickers/cookie-clicker.zip/index.html");
+
   const hollowKnight = payload.games.find((entry) => entry.path === "games/platformer/hollow-knight.html");
   assert.ok(hollowKnight, "Expected Hollow Knight in the local manifest");
   assert.equal(hollowKnight.title, "Hollow Knight");
@@ -40,6 +50,10 @@ test("frontend ships a committed local games manifest and bundled assets", () =>
   for (const entry of payload.games) {
     assert.match(entry.path, /^games\//);
     assert.match(entry.launchUri, /^antarctic:\/\/gamelauncher\?/);
+    assert.ok(
+      !/^Index of\b/i.test(entry.title || ""),
+      "Catalog should not list Apache/nginx directory listings as games: " + entry.path
+    );
     assert.ok(fs.existsSync(path.join(FRONTEND_DIR, entry.path)), "Missing local game asset: " + entry.path);
 
     if (entry.image && !/^(?:[a-z]+:)?\/\//i.test(entry.image)) {
@@ -73,12 +87,17 @@ test("frontend Cookie Clicker launcher stays on the bundled local mirror", () =>
 
   assert.ok(fs.existsSync(bundledIndex));
   assert.match(launcher, /\.\/cookie-clicker\.zip\/index\.html/);
+  assert.doesNotMatch(launcher, /http-equiv="refresh"/i);
   assert.doesNotMatch(launcher, /rawcdn\.githack\.com\/bubbls\/UGS-Assets/);
   assert.doesNotMatch(launcher, /cdn\.jsdelivr\.net\/gh\/bubbls\/UGS-Assets/);
   assert.doesNotMatch(bundledSource, /<script src="\/js\/main\.js"><\/script>/);
 });
 
 test("Unity launchers stay free of the injected sidebar ad script", () => {
+  const baldisBasics = fs.readFileSync(
+    path.join(FRONTEND_DIR, "games", "baldi", "baldis-basics.html"),
+    "utf8"
+  );
   const adventureCapitalist = fs.readFileSync(
     path.join(FRONTEND_DIR, "games", "clickers", "adventure-capitalist.html"),
     "utf8"
@@ -88,7 +107,7 @@ test("Unity launchers stay free of the injected sidebar ad script", () => {
     "utf8"
   );
 
-  for (const source of [adventureCapitalist, hollowKnight]) {
+  for (const source of [baldisBasics, adventureCapitalist, hollowKnight]) {
     assert.doesNotMatch(source, /googletagmanager\.com/);
     assert.doesNotMatch(source, /sidebarad1/);
     assert.doesNotMatch(source, /dupedisgay|duplace\.net|breadisgay/i);

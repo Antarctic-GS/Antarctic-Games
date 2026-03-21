@@ -308,44 +308,41 @@
             Ask about the site, the game list, or anything else you want to throw at it.
           </p>
         </div>
-        <div class="section-hero__status" data-role="ai-status">Connecting...</div>
       </div>
 
       <div class="ai-layout">
-        <aside class="content-card ai-prompts">
-          <div class="content-card__header">
-            <div>
-              <p class="content-card__eyebrow">Try these</p>
-              <h3 class="content-card__title">Starter prompts</h3>
-            </div>
-          </div>
-          <div class="prompt-list">
-            <button type="button" class="prompt-chip" data-prompt="What are the best games on this site?">
-              Best games on the site
-            </button>
-            <button type="button" class="prompt-chip" data-prompt="Show me five horror games from the catalog.">
-              Five horror games
-            </button>
-            <button type="button" class="prompt-chip" data-prompt="What can I type in the Antarctic Games address bar?">
-              Address bar help
-            </button>
-          </div>
-        </aside>
-
         <section class="content-card ai-chat">
           <div class="ai-chat__messages" data-role="ai-messages" aria-live="polite"></div>
-          <form class="ai-chat__form" data-role="ai-form">
-            <label class="sr-only" for="ai-input">Ask Antarctic Games AI</label>
-            <textarea
-              id="ai-input"
-              class="ai-chat__input"
-              rows="3"
-              placeholder="Ask Antarctic Games AI something..."
-            ></textarea>
-            <div class="ai-chat__actions">
-              <button type="submit" class="toolbar-button toolbar-button--accent">Send</button>
+          <div class="ai-chat__composer">
+            <div class="prompt-list prompt-list--composer">
+              <button type="button" class="prompt-chip" data-prompt="What are the best games on this site?">
+                Best games on the site
+              </button>
+              <button type="button" class="prompt-chip" data-prompt="Show me five horror games from the catalog.">
+                Five horror games
+              </button>
+              <button type="button" class="prompt-chip" data-prompt="What can I type in the Antarctic Games address bar?">
+                Address bar help
+              </button>
             </div>
-          </form>
+            <form class="ai-chat__form" data-role="ai-form">
+              <label class="sr-only" for="ai-input">Ask Antarctic Games AI</label>
+              <textarea
+                id="ai-input"
+                class="ai-chat__input"
+                rows="1"
+                placeholder="Message Antarctic Games AI"
+              ></textarea>
+              <div class="ai-chat__actions">
+                <button type="submit" class="toolbar-button toolbar-button--accent ai-chat__send" aria-label="Send message">
+                  <svg class="ui-icon ai-chat__send-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 18V7" />
+                    <path d="m7 12 5-5 5 5" />
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
         </section>
       </div>
     </section>

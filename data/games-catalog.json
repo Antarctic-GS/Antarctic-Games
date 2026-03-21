@@ -31,6 +31,15 @@
       "launchUri": "antarctic://gamelauncher?path=games%2Fclickers%2Fadventure-capitalist.html&title=AdVenture%20Capitalist%21&author=Hyper%20Hippo%20Games"
     },
     {
+      "file": "baldis-basics.html",
+      "title": "Baldi's Basics",
+      "author": "Basically Games",
+      "category": "Horror",
+      "path": "games/baldi/baldis-basics.html",
+      "image": "images/game-img/baldis-basics.png",
+      "launchUri": "antarctic://gamelauncher?path=games%2Fbaldi%2Fbaldis-basics.html&title=Baldi%27s%20Basics&author=Basically%20Games"
+    },
+    {
       "file": "baseballbros.html",
       "title": "Baseball Bros",
       "author": "Blue Wizard Digital",
@@ -85,13 +94,13 @@
       "launchUri": "antarctic://gamelauncher?path=games%2Fswf%2Fchibi-knight.html&title=Chibi%20Knight&author=Armor%20Games"
     },
     {
-      "file": "cookie-clicker.html",
+      "file": "index.html",
       "title": "Cookie Clicker",
       "author": "Orteil",
       "category": "Clicker",
-      "path": "games/clickers/cookie-clicker.html",
+      "path": "games/clickers/cookie-clicker.zip/index.html",
       "image": "images/game-img/cookie-clicker.png",
-      "launchUri": "antarctic://gamelauncher?path=games%2Fclickers%2Fcookie-clicker.html&title=Cookie%20Clicker&author=Orteil"
+      "launchUri": "antarctic://gamelauncher?path=games%2Fclickers%2Fcookie-clicker.zip%2Findex.html&title=Cookie%20Clicker&author=Orteil"
     },
     {
       "file": "eaglercraft-1.12.2.html",
@@ -303,11 +312,11 @@
     {
       "file": "snow-rider.html",
       "title": "Snow Rider",
-      "author": "Unknown",
+      "author": "drippy-cat",
       "category": "Racing",
       "path": "games/racing/snow-rider.html",
       "image": "images/game-img/snow-rider.png",
-      "launchUri": "antarctic://gamelauncher?path=games%2Fracing%2Fsnow-rider.html&title=Snow%20Rider&author=Unknown"
+      "launchUri": "antarctic://gamelauncher?path=games%2Fracing%2Fsnow-rider.html&title=Snow%20Rider&author=drippy-cat"
     },
     {
       "file": "thats-not-my-neighbor.html",
