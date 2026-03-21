@@ -211,6 +211,15 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "launchUri": "antarctic://gamelauncher?path=games%2Fplatformer%2Fgeodash-lite.html&title=Geometry%20Dash%20Lite&author=RobTop%20Games"
     },
     {
+      "file": "hollow-knight.html",
+      "title": "Hollow Knight",
+      "author": "Team Cherry",
+      "category": "Platformer",
+      "path": "games/platformer/hollow-knight.html",
+      "image": "images/game-img/hollow-knight.jpeg",
+      "launchUri": "antarctic://gamelauncher?path=games%2Fplatformer%2Fhollow-knight.html&title=Hollow%20Knight&author=Team%20Cherry"
+    },
+    {
       "file": "learn-to-fly.html",
       "title": "Learn to Fly",
       "author": "Light Bringer",

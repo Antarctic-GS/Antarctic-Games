@@ -31,6 +31,12 @@ test("frontend ships a committed local games manifest and bundled assets", () =>
   assert.equal(adventureCapitalist.author, "Hyper Hippo Games");
   assert.equal(adventureCapitalist.image, "images/game-img/adventure-capitalist.png");
 
+  const hollowKnight = payload.games.find((entry) => entry.path === "games/platformer/hollow-knight.html");
+  assert.ok(hollowKnight, "Expected Hollow Knight in the local manifest");
+  assert.equal(hollowKnight.title, "Hollow Knight");
+  assert.equal(hollowKnight.author, "Team Cherry");
+  assert.equal(hollowKnight.image, "images/game-img/hollow-knight.jpeg");
+
   for (const entry of payload.games) {
     assert.match(entry.path, /^games\//);
     assert.match(entry.launchUri, /^antarctic:\/\/gamelauncher\?/);
@@ -70,4 +76,21 @@ test("frontend Cookie Clicker launcher stays on the bundled local mirror", () =>
   assert.doesNotMatch(launcher, /rawcdn\.githack\.com\/bubbls\/UGS-Assets/);
   assert.doesNotMatch(launcher, /cdn\.jsdelivr\.net\/gh\/bubbls\/UGS-Assets/);
   assert.doesNotMatch(bundledSource, /<script src="\/js\/main\.js"><\/script>/);
+});
+
+test("Unity launchers stay free of the injected sidebar ad script", () => {
+  const adventureCapitalist = fs.readFileSync(
+    path.join(FRONTEND_DIR, "games", "clickers", "adventure-capitalist.html"),
+    "utf8"
+  );
+  const hollowKnight = fs.readFileSync(
+    path.join(FRONTEND_DIR, "games", "platformer", "hollow-knight.html"),
+    "utf8"
+  );
+
+  for (const source of [adventureCapitalist, hollowKnight]) {
+    assert.doesNotMatch(source, /googletagmanager\.com/);
+    assert.doesNotMatch(source, /sidebarad1/);
+    assert.doesNotMatch(source, /dupedisgay|duplace\.net|breadisgay/i);
+  }
 });

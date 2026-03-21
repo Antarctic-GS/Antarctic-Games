@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+  <base href="https://cdn.jsdelivr.net/gh/aukak/hollow-knight@2fc2e7149f0d5b2609b135ab48f00fd973930635/">
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="author" content="Team Cherry">
+  <title>Hollow Knight</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #231f20;
+    }
+
+    #loading-text {
+      color: #fff;
+      font-size: 48px;
+      font-family: cursive;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #unity-container {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading-text">LOADING...</div>
+  <div id="unity-container" class="unity-desktop" hidden>
+    <canvas id="unity-canvas"></canvas>
+    <div id="unity-loading-bar">
+      <div id="unity-logo"></div>
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
+      </div>
+    </div>
+    <div id="unity-mobile-warning">WebGL builds are not supported on mobile devices.</div>
+  </div>
+
+  <script>
+    var DB_NAME = "cachedb";
+    var STORE_NAME = "files";
+
+    function openCacheDB() {
+      return new Promise(function (resolve, reject) {
+        var request = indexedDB.open(DB_NAME, 1);
+
+        request.onupgradeneeded = function () {
+          var db = request.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME);
+          }
+        };
+
+        request.onsuccess = function () {
+          resolve(request.result);
+        };
+        request.onerror = function () {
+          reject(request.error);
+        };
+      });
+    }
+
+    async function saveToCache(key, blob) {
+      var db = await openCacheDB();
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).put(blob, key);
+        tx.oncomplete = function () {
+          resolve();
+        };
+        tx.onerror = function () {
+          reject(tx.error);
+        };
+      });
+    }
+
+    async function loadFromCache(key) {
+      var db = await openCacheDB();
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(STORE_NAME, "readonly");
+        var request = tx.objectStore(STORE_NAME).get(key);
+        request.onsuccess = function () {
+          resolve(request.result || null);
+        };
+        request.onerror = function () {
+          reject(request.error);
+        };
+      });
+    }
+
+    async function deleteFromCache(key) {
+      var db = await openCacheDB();
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).delete(key);
+        tx.oncomplete = function () {
+          resolve();
+        };
+        tx.onerror = function () {
+          reject(tx.error);
+        };
+      });
+    }
+  </script>
+  <script>
+    var loadingText = document.getElementById("loading-text");
+    var loadedBytes = 0;
+
+    async function fetchWithProgress(url) {
+      var response = await fetch(url);
+      var reader = response.body.getReader();
+      var chunks = [];
+      var received = 0;
+
+      while (true) {
+        var next = await reader.read();
+        if (next.done) {
+          break;
+        }
+        received += next.value.length;
+        loadedBytes += next.value.length;
+        chunks.push(next.value);
+        var mbDone = (loadedBytes / (1024 * 1024)).toFixed(2);
+        loadingText.textContent = "LOADING... " + mbDone + " MB / 912.81 MB";
+      }
+
+      var fullBuffer = new Uint8Array(received);
+      var offset = 0;
+      for (var index = 0; index < chunks.length; index += 1) {
+        fullBuffer.set(chunks[index], offset);
+        offset += chunks[index].length;
+      }
+      return fullBuffer.buffer;
+    }
+
+    async function mergeFiles(fileParts, cacheKey) {
+      var cached = await loadFromCache(cacheKey);
+      if (cached) {
+        return URL.createObjectURL(cached);
+      }
+
+      var buffers = await Promise.all(fileParts.map(fetchWithProgress));
+      var mergedBlob = new Blob(buffers);
+      await saveToCache(cacheKey, mergedBlob);
+      return URL.createObjectURL(mergedBlob);
+    }
+
+    function getParts(file, start, end) {
+      var parts = [];
+      for (var index = start; index <= end; index += 1) {
+        parts.push(file + ".part" + index);
+      }
+      return parts;
+    }
+
+    (async function bootUnity() {
+      var mergedAssets = await Promise.all([
+        mergeFiles(getParts("Build/hktruffled.data", 1, 45), "hktruffled.data"),
+        mergeFiles(getParts("Build/hktruffled.wasm", 1, 2), "hktruffled.wasm")
+      ]);
+
+      var dataUrl = mergedAssets[0];
+      var wasmUrl = mergedAssets[1];
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/hktruffled.loader.js";
+      var config = {
+        dataUrl: dataUrl,
+        frameworkUrl: buildUrl + "/hktruffled.framework.js",
+        codeUrl: wasmUrl,
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Team Cherry & Truffled",
+        productName: "Hollow Knight",
+        productVersion: "1.1"
+      };
+
+      var container = document.getElementById("unity-container");
+      var canvas = document.getElementById("unity-canvas");
+      var loadingBar = document.getElementById("unity-loading-bar");
+      var progressBarFull = document.getElementById("unity-progress-bar-full");
+      var mobileWarning = document.getElementById("unity-mobile-warning");
+
+      container.hidden = false;
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        var meta = document.createElement("meta");
+        meta.name = "viewport";
+        meta.content = "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+        document.head.appendChild(meta);
+        container.className = "unity-mobile";
+        canvas.className = "unity-mobile";
+        config.devicePixelRatio = 1;
+        mobileWarning.style.display = "block";
+        setTimeout(function () {
+          mobileWarning.style.display = "none";
+        }, 5000);
+      } else {
+        function resizeCanvas() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          canvas.style.width = window.innerWidth + "px";
+          canvas.style.height = window.innerHeight + "px";
+        }
+
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+      }
+
+      loadingBar.style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = function () {
+        createUnityInstance(canvas, config, function (progress) {
+          progressBarFull.style.width = String(100 * progress) + "%";
+        })
+          .then(function () {
+            loadingText.remove();
+            loadingBar.style.display = "none";
+            canvas.style.display = "block";
+          })
+          .catch(async function (message) {
+            await deleteFromCache("hktruffled.wasm");
+            alert(message);
+          });
+      };
+
+      document.body.appendChild(script);
+    })();
+  </script>
+</body>
+</html>
