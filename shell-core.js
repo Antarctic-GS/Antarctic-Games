@@ -1,4 +1,5 @@
 (function () {
+  var PRIMARY_SCHEME = "antarctic://";
   var INTERNAL_ROUTES = {
     home: "Home",
     newtab: "New Tab",
@@ -40,7 +41,7 @@
     if (!INTERNAL_ROUTES[normalized]) {
       normalized = "newtab";
     }
-    return "palladium://" + normalized;
+    return PRIMARY_SCHEME + normalized;
   }
 
   function buildGameUri(gamePath, title, author) {
@@ -61,12 +62,12 @@
       query.push("author=" + encodeURIComponent(normalizedAuthor));
     }
 
-    return "palladium://gamelauncher?" + query.join("&");
+    return PRIMARY_SCHEME + "gamelauncher?" + query.join("&");
   }
 
   function parseInternalUri(value) {
     var raw = cleanText(value);
-    if (!raw || !/^palladium:\/\//i.test(raw)) {
+    if (!raw || !/^(?:antarctic|antarcticgames|palladium):\/\//i.test(raw)) {
       return null;
     }
 
@@ -181,7 +182,7 @@
     };
   }
 
-  window.PalladiumShellCore = {
+  var api = {
     buildGameUri: buildGameUri,
     buildInternalUri: buildInternalUri,
     cleanText: cleanText,
@@ -193,4 +194,7 @@
     normalizeWebTarget: normalizeWebTarget,
     parseInternalUri: parseInternalUri
   };
+
+  window.AntarcticGamesShellCore = api;
+  window.PalladiumShellCore = api;
 })();

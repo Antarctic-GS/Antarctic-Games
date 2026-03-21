@@ -1,4 +1,7 @@
 (function () {
+  var LAUNCH_SCHEME = "antarctic://";
+  var PRIMARY_CATALOG_GLOBAL = "ANTARCTIC_GAMES_CATALOG";
+  var LEGACY_CATALOG_GLOBAL = "PALLADIUM_GAMES_CATALOG";
   var LOCAL_MANIFEST_PATH = "data/games-catalog.js";
   var catalogCache = null;
   var catalogLoadPromise = null;
@@ -24,7 +27,7 @@
   function buildLaunchUri(gamePath, title, author) {
     var normalizedPath = normalizeGamePath(gamePath);
     if (!normalizedPath) {
-      return "palladium://gamelauncher";
+      return LAUNCH_SCHEME + "gamelauncher";
     }
 
     var parts = ["path=" + encodeURIComponent(normalizedPath)];
@@ -39,7 +42,7 @@
       parts.push("author=" + encodeURIComponent(normalizedAuthor));
     }
 
-    return "palladium://gamelauncher?" + parts.join("&");
+    return LAUNCH_SCHEME + "gamelauncher?" + parts.join("&");
   }
 
   function matchesCatalogQuery(game, rawQuery) {
@@ -78,7 +81,7 @@
   }
 
   function readEmbeddedCatalog() {
-    var payload = window.PALLADIUM_GAMES_CATALOG;
+    var payload = window[PRIMARY_CATALOG_GLOBAL] || window[LEGACY_CATALOG_GLOBAL];
     return Array.isArray(payload && payload.games) ? payload.games : null;
   }
 
@@ -167,7 +170,7 @@
     return loadLocalCatalog(Boolean(settings.forceRefresh));
   }
 
-  window.PalladiumGames = {
+  var api = {
     buildLaunchUri: buildLaunchUri,
     filterCatalog: filterCatalog,
     getCachedCatalog: function () {
@@ -179,4 +182,7 @@
     normalizeGamePath: normalizeGamePath,
     pickFeaturedGame: pickFeaturedGame
   };
+
+  window.AntarcticGames = api;
+  window.PalladiumGames = api;
 })();

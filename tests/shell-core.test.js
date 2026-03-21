@@ -16,41 +16,41 @@ function loadCore() {
   };
 
   vm.runInNewContext(source, context, { filename: "shell-core.js" });
-  return context.window.PalladiumShellCore;
+  return context.window.AntarcticGamesShellCore;
 }
 
-test("internal Palladium routes normalize into view descriptors", () => {
+test("internal Antarctic routes normalize into view descriptors", () => {
   const core = loadCore();
-  const home = core.describeInput("palladium://home");
-  const games = core.describeInput("palladium://games");
-  const settings = core.describeInput("palladium://settings");
-  const launcher = core.describeInput("palladium://gamelauncher");
+  const home = core.describeInput("antarctic://home");
+  const games = core.describeInput("antarctic://games");
+  const settings = core.describeInput("antarctic://settings");
+  const launcher = core.describeInput("antarctic://gamelauncher");
 
   assert.equal(home.view, "home");
   assert.equal(home.route, "home");
   assert.equal(home.title, "Home");
-  assert.equal(home.uri, "palladium://home");
+  assert.equal(home.uri, "antarctic://home");
 
   assert.equal(games.view, "games");
   assert.equal(games.route, "games");
   assert.equal(games.title, "Games");
-  assert.equal(games.uri, "palladium://games");
+  assert.equal(games.uri, "antarctic://games");
 
   assert.equal(settings.view, "settings");
   assert.equal(settings.route, "settings");
   assert.equal(settings.title, "Settings");
-  assert.equal(settings.uri, "palladium://settings");
+  assert.equal(settings.uri, "antarctic://settings");
 
   assert.equal(launcher.view, "gamelauncher");
   assert.equal(launcher.route, "gamelauncher");
   assert.equal(launcher.title, "Game Launcher");
-  assert.equal(launcher.uri, "palladium://gamelauncher");
+  assert.equal(launcher.uri, "antarctic://gamelauncher");
 });
 
-test("game launcher routes carry the game path inside the Palladium protocol", () => {
+test("game launcher routes carry the game path inside the Antarctic protocol", () => {
   const core = loadCore();
   const descriptor = core.describeInput(
-    "palladium://gamelauncher?path=games%2Fplatformer%2Fachievement-unlocked.html&title=Achievement%20Unlocked"
+    "antarctic://gamelauncher?path=games%2Fplatformer%2Fachievement-unlocked.html&title=Achievement%20Unlocked"
   );
 
   assert.equal(descriptor.view, "gamelauncher");
@@ -59,7 +59,7 @@ test("game launcher routes carry the game path inside the Palladium protocol", (
   assert.equal(descriptor.title, "Achievement Unlocked");
 });
 
-test("legacy game routes still normalize into the new game launcher route", () => {
+test("legacy Palladium routes still normalize into the new Antarctic launcher route", () => {
   const core = loadCore();
   const descriptor = core.describeInput(
     "palladium://game?path=games%2Fplatformer%2Fovo.html&title=OvO"
@@ -67,7 +67,7 @@ test("legacy game routes still normalize into the new game launcher route", () =
 
   assert.equal(descriptor.view, "gamelauncher");
   assert.equal(descriptor.route, "gamelauncher");
-  assert.equal(descriptor.uri, "palladium://gamelauncher?path=games%2Fplatformer%2Fovo.html&title=OvO");
+  assert.equal(descriptor.uri, "antarctic://gamelauncher?path=games%2Fplatformer%2Fovo.html&title=OvO");
 });
 
 test("plain browser input falls back to web navigation or search", () => {

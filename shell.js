@@ -1,5 +1,5 @@
 (function () {
-  var core = window.PalladiumShellCore;
+  var core = window.AntarcticGamesShellCore || window.PalladiumShellCore;
   if (!core) return;
 
   var STORAGE_KEY = "palladium.shell.state.v1";
@@ -225,9 +225,10 @@
   }
 
   function setDocumentTitle(tab) {
-    var baseTitle = (tab && tab.title ? tab.title + " | " : "") + "Palladium";
-    if (window.PalladiumSiteSettings && typeof window.PalladiumSiteSettings.decorateTitle === "function") {
-      document.title = window.PalladiumSiteSettings.decorateTitle(baseTitle);
+    var baseTitle = (tab && tab.title ? tab.title + " | " : "") + "Antarctic Games";
+    var siteSettings = window.AntarcticGamesSiteSettings || window.PalladiumSiteSettings;
+    if (siteSettings && typeof siteSettings.decorateTitle === "function") {
+      document.title = siteSettings.decorateTitle(baseTitle);
       return;
     }
     document.title = baseTitle;
@@ -587,7 +588,7 @@
     if (!tab.aiState.memory.length) {
       tab.aiState.memory.push({
         role: "assistant",
-        content: "Ask me about the Palladium site, the game catalog, or anything else you want."
+        content: "Ask me about Antarctic Games, the game catalog, or anything else you want."
       });
     }
 
@@ -597,7 +598,7 @@
   }
 
   function getSiteSettingsApi() {
-    return window.PalladiumSiteSettings || null;
+    return window.AntarcticGamesSiteSettings || window.PalladiumSiteSettings || null;
   }
 
   function readSiteSettings() {
@@ -659,7 +660,7 @@
       return (
         '<button type="button" class="theme-chip' + (themeName === activeTheme ? ' theme-chip--active' : '') + '" data-theme-option="' + escapeHtml(themeName) + '">' +
           '<span class="theme-chip__name">' + escapeHtml(displayName) + "</span>" +
-          '<span class="theme-chip__meta">' + escapeHtml(themeName === "default" ? "Palladium default" : displayName + " palette") + "</span>" +
+          '<span class="theme-chip__meta">' + escapeHtml(themeName === "default" ? "Antarctic Games default" : displayName + " palette") + "</span>" +
         "</button>"
       );
     }).join("");
@@ -691,7 +692,7 @@
 
     if (titleInput) titleInput.value = cleanText(settings.title);
     if (faviconInput) faviconInput.value = cleanText(settings.favicon);
-    if (previewTitle) previewTitle.textContent = cleanText(settings.title) || "Palladium Games";
+    if (previewTitle) previewTitle.textContent = cleanText(settings.title) || "Antarctic Games";
     if (previewFavicon) previewFavicon.textContent = cleanText(settings.favicon) || "images/favicon.png?v=4";
     if (previewTheme) previewTheme.textContent = "Theme: " + humanizeThemeName(settings.theme || "default");
 
@@ -781,7 +782,7 @@
 
     var result = api.openInAboutBlank(buildShellLaunchUrl(tab && tab.uri));
     if (result && result.ok) {
-      syncSettingsPane(pane, "Opened Palladium in about:blank.");
+      syncSettingsPane(pane, "Opened Antarctic Games in about:blank.");
       return;
     }
 
@@ -854,12 +855,12 @@
       '<div class="game-launcher">' +
         '<div class="game-launcher__header">' +
           '<div class="game-launcher__copy">' +
-            '<p class="game-launcher__eyebrow">palladium://gamelauncher</p>' +
+            '<p class="game-launcher__eyebrow">antarctic://gamelauncher</p>' +
             '<h2 class="game-launcher__title">' + escapeHtml(title) + "</h2>" +
             '<p class="game-launcher__meta">' + escapeHtml(details.join(" · ") || "Pick a game from the library to launch it here.") + "</p>" +
           "</div>" +
           '<div class="game-launcher__actions">' +
-            '<button type="button" class="toolbar-button" data-route="palladium://games">Game Library</button>' +
+            '<button type="button" class="toolbar-button" data-route="antarctic://games">Game Library</button>' +
           "</div>" +
         "</div>" +
         '<div class="game-launcher__viewport" data-role="game-launcher-viewport"></div>' +
@@ -872,7 +873,7 @@
       viewport.innerHTML =
         '<div class="empty-state empty-state--launcher">' +
           "<strong>No game selected yet.</strong>" +
-          "<span>Open a title from palladium://games and it will launch here.</span>" +
+          "<span>Open a title from antarctic://games and it will launch here.</span>" +
         "</div>";
       return pane;
     }
@@ -1225,7 +1226,7 @@
           '<div class="featured-launch__body">' +
             '<h3 class="featured-launch__title">' + escapeHtml(featuredGame.title) + "</h3>" +
             '<p class="featured-launch__meta">' + escapeHtml(featuredGame.author || "Unknown") + " · " + escapeHtml(featuredGame.category || "game") + "</p>" +
-            '<p class="featured-launch__meta">Launch it in its own Palladium tab.</p>' +
+            '<p class="featured-launch__meta">Launch it in its own Antarctic Games tab.</p>' +
             '<button type="button" class="toolbar-button toolbar-button--accent featured-launch__cta" data-launch-uri="' + escapeHtml(makeLaunchUri(featuredGame)) + '">Play now</button>' +
           "</div>";
       }
@@ -1330,7 +1331,7 @@
     var bubble = document.createElement("article");
     bubble.className = "ai-message ai-message--" + role;
     bubble.innerHTML =
-      '<div class="ai-message__label">' + (role === "user" ? "You" : "Palladium AI") + "</div>" +
+      '<div class="ai-message__label">' + (role === "user" ? "You" : "Antarctic Games AI") + "</div>" +
       '<div class="ai-message__body">' + renderMarkdown(text || "") + "</div>";
     return bubble;
   }
@@ -1635,7 +1636,7 @@
 
   function buildAiSystemPrompt(userText) {
     var lines = [
-      "You are Palladium AI for the Palladium browser shell.",
+      "You are Antarctic Games AI for the Antarctic Games browser shell.",
       "Never make up games, links, or site features.",
       "Always format replies in Markdown.",
       "Prefer short, direct answers."

@@ -28,9 +28,9 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellPage, /id="sidebar-toggle"/);
   assert.match(shellPage, /baremux\/index\.js/);
   assert.match(shellPage, /scram\/scramjet\.all\.js/);
-  assert.match(shellPage, /palladium:\/\/settings/);
-  assert.match(shellPage, /Open Palladium In About:Blank/);
-  assert.match(shellPage, /palladium:\/\/ai/);
+  assert.match(shellPage, /antarctic:\/\/settings/);
+  assert.match(shellPage, /Open Antarctic Games In About:Blank/);
+  assert.match(shellPage, /antarctic:\/\/ai/);
 });
 
 test("service worker bootstraps Scramjet from the static frontend origin", () => {

@@ -49,7 +49,7 @@ async function main() {
   );
   await fsp.writeFile(
     LOCAL_MANIFEST_SCRIPT_PATH,
-    "window.PALLADIUM_GAMES_CATALOG = " + JSON.stringify(payload, null, 2) + ";\n",
+    "window.ANTARCTIC_GAMES_CATALOG = " + JSON.stringify(payload, null, 2) + ";\n",
     "utf8"
   );
 
@@ -295,7 +295,7 @@ function humanizeFilename(value) {
 
 function buildLaunchUri(gamePath, title, author) {
   return (
-    "palladium://gamelauncher?path=" +
+    "antarctic://gamelauncher?path=" +
     encodeURIComponent(gamePath) +
     "&title=" +
     encodeURIComponent(title) +

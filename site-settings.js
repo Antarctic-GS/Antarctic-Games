@@ -1,8 +1,11 @@
 (function () {
-  var TITLE_KEY = "palladium.site.title";
-  var FAVICON_KEY = "palladium.site.favicon";
-  var THEME_KEY = "palladium.site.theme";
-  var DEFAULT_TITLE = "Palladium Games";
+  var TITLE_KEY = "antarctic.site.title";
+  var LEGACY_TITLE_KEY = "palladium.site.title";
+  var FAVICON_KEY = "antarctic.site.favicon";
+  var LEGACY_FAVICON_KEY = "palladium.site.favicon";
+  var THEME_KEY = "antarctic.site.theme";
+  var LEGACY_THEME_KEY = "palladium.site.theme";
+  var DEFAULT_TITLE = "Antarctic Games";
   var DEFAULT_FAVICON = "images/favicon.png?v=4";
   var DEFAULT_THEME = "default";
   var ALLOWED_THEMES = {
@@ -40,6 +43,18 @@
     }
   }
 
+  function getStoredSetting(primaryKey, legacyKey) {
+    return safeGetStorage(primaryKey) || safeGetStorage(legacyKey);
+  }
+
+  function clearLegacyKey(legacyKey) {
+    try {
+      localStorage.removeItem(legacyKey);
+    } catch (error) {
+      // Ignore storage write failures.
+    }
+  }
+
   function normalizeFavicon(value) {
     var raw = String(value || "").trim();
     if (!raw) return "";
@@ -67,7 +82,7 @@
     var raw = String(href || "").trim();
     if (!raw || /^data:image\//i.test(raw)) return raw;
     var divider = raw.indexOf("?") === -1 ? "?" : "&";
-    return raw + divider + "palladium_fv=" + Date.now();
+    return raw + divider + "antarctic_fv=" + Date.now();
   }
 
   function normalizeTheme(value) {
@@ -83,9 +98,9 @@
 
   function getSettings() {
     return {
-      title: safeGetStorage(TITLE_KEY),
-      favicon: normalizeFavicon(safeGetStorage(FAVICON_KEY)),
-      theme: normalizeTheme(safeGetStorage(THEME_KEY))
+      title: getStoredSetting(TITLE_KEY, LEGACY_TITLE_KEY),
+      favicon: normalizeFavicon(getStoredSetting(FAVICON_KEY, LEGACY_FAVICON_KEY)),
+      theme: normalizeTheme(getStoredSetting(THEME_KEY, LEGACY_THEME_KEY))
     };
   }
 
@@ -142,11 +157,13 @@
 
   function setTitle(value) {
     safeSetStorage(TITLE_KEY, value);
+    clearLegacyKey(LEGACY_TITLE_KEY);
     applyDocumentSettings();
   }
 
   function setFavicon(value) {
     safeSetStorage(FAVICON_KEY, normalizeFavicon(value));
+    clearLegacyKey(LEGACY_FAVICON_KEY);
     applyDocumentSettings();
   }
 
@@ -157,6 +174,7 @@
     } else {
       safeSetStorage(THEME_KEY, normalized);
     }
+    clearLegacyKey(LEGACY_THEME_KEY);
     applyDocumentSettings();
   }
 
@@ -164,6 +182,9 @@
     safeSetStorage(TITLE_KEY, "");
     safeSetStorage(FAVICON_KEY, "");
     safeSetStorage(THEME_KEY, "");
+    clearLegacyKey(LEGACY_TITLE_KEY);
+    clearLegacyKey(LEGACY_FAVICON_KEY);
+    clearLegacyKey(LEGACY_THEME_KEY);
     applyDocumentSettings();
   }
 
@@ -215,8 +236,8 @@
   }
 
   function attachLeaveWarning() {
-    if (window.__palladiumLeaveWarningAttached) return;
-    window.__palladiumLeaveWarningAttached = true;
+    if (window.__antarcticGamesLeaveWarningAttached) return;
+    window.__antarcticGamesLeaveWarningAttached = true;
     var suppressPrompt = false;
     var suppressTimer = null;
 
@@ -263,7 +284,7 @@
     });
   }
 
-  window.PalladiumSiteSettings = {
+  var api = {
     defaultTitle: DEFAULT_TITLE,
     defaultFavicon: DEFAULT_FAVICON,
     defaultTheme: DEFAULT_THEME,
@@ -277,6 +298,9 @@
     applyDocumentSettings: applyDocumentSettings,
     openInAboutBlank: openInAboutBlank
   };
+
+  window.AntarcticGamesSiteSettings = api;
+  window.PalladiumSiteSettings = api;
 
   attachLeaveWarning();
   applyDocumentSettings();

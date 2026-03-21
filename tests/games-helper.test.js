@@ -30,7 +30,7 @@ function createHelperContext(overrides) {
   };
 
   vm.runInNewContext(helperSource, context, { filename: "games-static.js" });
-  return { api: context.window.PalladiumGames, calls };
+  return { api: context.window.AntarcticGames, calls };
 }
 
 test("normalizeAssetPath keeps local game assets on the frontend origin", () => {
@@ -41,12 +41,12 @@ test("normalizeAssetPath keeps local game assets on the frontend origin", () => 
   assert.equal(api.normalizeAssetPath("https://cdn.example.com/game.html"), "https://cdn.example.com/game.html");
 });
 
-test("buildLaunchUri points game launches into the Palladium tab protocol", () => {
+test("buildLaunchUri points game launches into the Antarctic tab protocol", () => {
   const { api } = createHelperContext();
 
   assert.equal(
     api.buildLaunchUri("games/platformer/ovo.html", "OvO", "Dedra Games"),
-    "palladium://gamelauncher?path=games%2Fplatformer%2Fovo.html&title=OvO&author=Dedra%20Games"
+    "antarctic://gamelauncher?path=games%2Fplatformer%2Fovo.html&title=OvO&author=Dedra%20Games"
   );
 });
 
@@ -78,7 +78,7 @@ test("loadCatalog prefers the committed local manifest", async () => {
   const sampleGames = [{ title: "Brotato", path: "games/bullet-hell/brotato.html" }];
   const { api, calls } = createHelperContext({
     window: {
-      PALLADIUM_GAMES_CATALOG: { games: sampleGames }
+      ANTARCTIC_GAMES_CATALOG: { games: sampleGames }
     }
   });
 
