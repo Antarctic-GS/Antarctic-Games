@@ -23,6 +23,7 @@ test("frontend ships a committed local games manifest and bundled assets", () =>
   assert.equal(payload.ok, true);
   assert.ok(Array.isArray(payload.games));
   assert.ok(payload.games.length >= 30);
+  assert.ok(!payload.games.some((entry) => /stick-war/i.test(entry.path)), "Stick War games should not remain in the local manifest.");
 
   for (const entry of payload.games) {
     assert.match(entry.path, /^games\//);
@@ -53,12 +54,8 @@ test("frontend root keeps a single app shell entrypoint", () => {
   assert.deepEqual(topLevelHtmlFiles, ["index.html"]);
 });
 
-test("frontend ships the Stick War 1 Ruffle launcher and SWF asset", () => {
-  const launcherPath = path.join(FRONTEND_DIR, "games", "swf", "stick-war-1.html");
-  const swfPath = path.join(FRONTEND_DIR, "swf", "stick-war-1.swf");
-  const source = fs.readFileSync(launcherPath, "utf8");
-
-  assert.ok(fs.existsSync(swfPath));
-  assert.match(source, /@ruffle-rs\/ruffle/);
-  assert.match(source, /\/swf\/stick-war-1\.swf/);
+test("frontend Cookie Clicker launcher uses the GitHub-backed mirror", () => {
+  const launcher = fs.readFileSync(path.join(FRONTEND_DIR, "games", "clickers", "cookie-clicker.html"), "utf8");
+  assert.match(launcher, /rawcdn\.githack\.com\/bubbls\/UGS-Assets\/main\/cookieclicker\/index\.html/);
+  assert.doesNotMatch(launcher, /cdn\.jsdelivr\.net\/gh\/bubbls\/UGS-Assets/);
 });

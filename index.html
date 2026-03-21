@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Antarctic Games</title>
+  <title>Antarctic</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -26,27 +26,28 @@
           </div>
         </div>
         <div class="shell-sidebar__rest shell-sidebar__rest--brand">
-          <h1 class="shell-sidebar__title">ANTARCTIC GAMES</h1>
+          <h1 class="shell-sidebar__title">ANTARCTIC</h1>
         </div>
+        <div class="shell-sidebar__actions" aria-hidden="true"></div>
       </div>
 
       <div class="sidebar-toggle-row">
-        <button type="button" id="sidebar-toggle" class="sidebar-toggle-btn" aria-expanded="true">
-          <span class="sidebar-toggle-btn__rail" aria-hidden="true">
+        <button type="button" id="sidebar-toggle" class="sidebar-toggle-btn shell-sidebar__row" aria-expanded="true">
+          <span class="shell-sidebar__rail sidebar-toggle-btn__rail" aria-hidden="true">
             <svg class="ui-icon" viewBox="0 0 24 24">
               <path d="M9 6l6 6-6 6" />
             </svg>
           </span>
-          <span class="sidebar-toggle-btn__label">
+          <span class="shell-sidebar__rest sidebar-toggle-btn__label">
             <span class="sidebar-toggle-btn__word">Retract</span>
-            <span class="sidebar-toggle-btn__lt">&lt;</span>
           </span>
+          <span class="shell-sidebar__actions" aria-hidden="true"></span>
         </button>
       </div>
 
       <section class="sidebar-block sidebar-block--tabs">
         <div class="sidebar-block__header sidebar-block__header--tabs shell-sidebar__row">
-          <div class="shell-sidebar__rail">
+          <div class="shell-sidebar__rail shell-sidebar__rail--action">
             <button type="button" id="shell-new-tab" class="sidebar-block__action sidebar-block__action--icon" aria-label="New tab" title="New tab">
               <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 5v14M5 12h14" />
@@ -56,6 +57,7 @@
           <div class="shell-sidebar__rest shell-sidebar__rest--header">
             <span class="sidebar-block__heading">Tabs</span>
           </div>
+          <div class="shell-sidebar__actions" aria-hidden="true"></div>
         </div>
         <div id="tab-list" class="tab-list" aria-live="polite"></div>
       </section>
@@ -66,33 +68,59 @@
           <div class="shell-sidebar__rest shell-sidebar__rest--header">
             <span class="sidebar-block__heading">Links</span>
           </div>
+          <div class="shell-sidebar__actions" aria-hidden="true"></div>
         </div>
         <div class="route-list">
           <button type="button" class="route-link" data-route="antarctic://home">
-            <svg class="ui-icon route-link__icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 11.5 12 4l9 7.5M6.5 10.5V20h11V10.5" />
-            </svg>
+            <span class="route-link__rail" aria-hidden="true">
+              <svg class="ui-icon route-link__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 11.5 12 4l9 7.5M6.5 10.5V20h11V10.5" />
+              </svg>
+            </span>
             <span class="route-link__label">Home</span>
           </button>
           <button type="button" class="route-link" data-route="antarctic://games">
-            <svg class="ui-icon route-link__icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6.5 9h11a3.5 3.5 0 0 1 3.5 3.5v0A3.5 3.5 0 0 1 17.5 16H6.5A3.5 3.5 0 0 1 3 12.5v0A3.5 3.5 0 0 1 6.5 9Z" />
-              <path d="M8.5 12.5h3M10 11v3M15.5 12h0M17.5 13.5h0" />
-            </svg>
+            <!-- viewBox crops ~top 58px to drop the cord; controller uses fill -->
+            <span class="route-link__rail" aria-hidden="true">
+              <svg
+                class="ui-icon ui-icon--filled route-link__icon"
+                viewBox="0 58 512 454"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M373.1,256.2H267.4v-21.4c0-17,13.9-30.9,30.9-30.9h102.3c30.6,0,55.4-24.9,55.4-55.4s-24.9-55.4-55.4-55.4H111.4c-17,0-30.9-13.9-30.9-30.9V23.8c0-6.8-5.5-12.3-12.3-12.3S56,17.1,56,23.8v38.3c0,30.6,24.9,55.4,55.4,55.4h289.2c17,0,30.9,13.9,30.9,30.9s-13.9,30.9-30.9,30.9H298.3c-30.6,0-55.4,24.9-55.4,55.4v21.4h-104c-67.3,0-122.1,54.8-122.1,122.1c0,67.3,54.8,122.1,122.1,122.1c36.4,0,66.3-16.3,86.8-47.1h60.7c20.6,30.9,50.4,47.1,86.8,47.1c67.3,0,122.1-54.8,122.1-122.1C495.3,311,440.5,256.2,373.1,256.2z M373.1,475.9c-30.4,0-53.1-13.5-69.5-41.1c-2.2-3.7-6.2-6-10.5-6h-74.2c-4.3,0-8.3,2.3-10.5,6c-16.4,27.7-39.1,41.1-69.5,41.1c-53.8,0-97.6-43.8-97.6-97.6c0-53.8,43.8-97.6,97.6-97.6h234.3c53.8,0,97.6,43.8,97.6,97.6C470.8,432.1,427,475.9,373.1,475.9z"
+                />
+                <circle cx="334.8" cy="373.8" r="16.3" />
+                <circle cx="413.7" cy="373.8" r="16.3" />
+                <circle cx="374.2" cy="413.3" r="16.3" />
+                <circle cx="374.2" cy="334.3" r="16.3" />
+                <path
+                  d="M171.7,361.6h-25v-25c0-6.8-5.5-12.3-12.3-12.3c-6.8,0-12.3,5.5-12.3,12.3v25h-25c-6.8,0-12.3,5.5-12.3,12.3c0,6.8,5.5,12.3,12.3,12.3h25v25c0,6.8,5.5,12.3,12.3,12.3c6.8,0,12.3-5.5,12.3-12.3v-25h25c6.8,0,12.3-5.5,12.3-12.3C184,367,178.5,361.6,171.7,361.6z"
+                />
+              </svg>
+            </span>
             <span class="route-link__label">Games</span>
           </button>
           <button type="button" class="route-link" data-route="antarctic://ai">
-            <svg class="ui-icon route-link__icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 3v4M12 17v4M4.8 7.2l2.8 2.8M16.4 14.8l2.8 2.8M3 12h4M17 12h4M4.8 16.8l2.8-2.8M16.4 9.2l2.8-2.8" />
-              <circle cx="12" cy="12" r="4" />
-            </svg>
+            <span class="route-link__rail" aria-hidden="true">
+              <svg class="ui-icon ui-icon--filled route-link__icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5M3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.6 26.6 0 0 0 4.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.93.93 0 0 1-.765.935c-.845.147-2.34.346-4.235.346s-3.39-.2-4.235-.346A.93.93 0 0 1 3 9.219zm4.542-.827a.25.25 0 0 0-.217.068l-.92.9a25 25 0 0 1-1.871-.183.25.25 0 0 0-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 0 0 .189-.071l.754-.736.847 1.71a.25.25 0 0 0 .404.062l.932-.97a25 25 0 0 0 1.922-.188.25.25 0 0 0-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 0 0-.166.076l-.754.785-.842-1.7a.25.25 0 0 0-.182-.135"
+                />
+                <path
+                  d="M8.5 1.866a1 1 0 1 0-1 0V3h-2A4.5 4.5 0 0 0 1 7.5V8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1v-.5A4.5 4.5 0 0 0 10.5 3h-2zM14 7.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.5A3.5 3.5 0 0 1 5.5 4h5A3.5 3.5 0 0 1 14 7.5"
+                />
+              </svg>
+            </span>
             <span class="route-link__label">AI</span>
           </button>
           <button type="button" class="route-link" data-route="antarctic://settings">
-            <svg class="ui-icon route-link__icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 3.5 14 5l2.5-.2 1 2.3 2 1.5-.8 2.4.8 2.4-2 1.5-1 2.3L14 19l-2 1.5L10 19l-2.5.2-1-2.3-2-1.5.8-2.4-.8-2.4 2-1.5 1-2.3L10 5l2-1.5Z" />
-              <circle cx="12" cy="12" r="3.2" />
-            </svg>
+            <span class="route-link__rail" aria-hidden="true">
+              <svg class="ui-icon ui-icon--filled route-link__icon" viewBox="0 0 15 15" aria-hidden="true">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M7.07.65a.85.85 0 0 0-.828.662l-.238 1.05c-.38.11-.74.262-1.08.448l-.91-.574a.85.85 0 0 0-1.055.118l-.606.606a.85.85 0 0 0-.118 1.054l.574.912c-.186.338-.337.7-.447 1.079l-1.05.238a.85.85 0 0 0-.662.829v.857a.85.85 0 0 0 .662.829l1.05.238c.11.379.261.74.448 1.08l-.575.91a.85.85 0 0 0 .118 1.055l.607.606a.85.85 0 0 0 1.054.118l.911-.574c.339.186.7.337 1.079.447l.238 1.05a.85.85 0 0 0 .829.662h.857a.85.85 0 0 0 .829-.662l.238-1.05c.38-.11.74-.26 1.08-.447l.911.574a.85.85 0 0 0 1.054-.118l.606-.606a.85.85 0 0 0 .118-1.054l-.574-.911c.187-.34.338-.7.448-1.08l1.05-.238a.85.85 0 0 0 .662-.829v-.857a.85.85 0 0 0-.662-.83l-1.05-.237c-.11-.38-.26-.74-.447-1.08l.574-.91a.85.85 0 0 0-.118-1.055l-.606-.606a.85.85 0 0 0-1.055-.118l-.91.574a5.323 5.323 0 0 0-1.08-.448l-.239-1.05A.85.85 0 0 0 7.928.65zM4.92 3.813a4.476 4.476 0 0 1 1.795-.745L7.071 1.5h.857l.356 1.568a4.48 4.48 0 0 1 1.795.744l1.36-.857l.607.606l-.858 1.36c.37.527.628 1.136.744 1.795l1.568.356v.857l-1.568.355a4.475 4.475 0 0 1-.744 1.796l.857 1.36l-.606.606l-1.36-.857a4.476 4.476 0 0 1-1.795.743L7.928 13.5h-.857l-.356-1.568a4.475 4.475 0 0 1-1.794-.744l-1.36.858l-.607-.606l.858-1.36a4.476 4.476 0 0 1-.744-1.796L1.5 7.93v-.857l1.568-.356a4.476 4.476 0 0 1 .744-1.794L2.954 3.56l.606-.606zM9.026 7.5a1.525 1.525 0 1 1-3.05 0a1.525 1.525 0 0 1 3.05 0m.9 0a2.425 2.425 0 1 1-4.85 0a2.425 2.425 0 0 1 4.85 0" />
+              </svg>
+            </span>
             <span class="route-link__label">Settings</span>
           </button>
         </div>
@@ -102,7 +130,7 @@
 
     <main class="shell-main">
       <header class="shell-toolbar">
-        <form id="address-form" class="address-bar">
+        <form id="address-form" class="address-bar" aria-label="Address bar">
           <div class="shell-toolbar__controls">
             <button type="button" id="toolbar-home" class="toolbar-button toolbar-button--icon" aria-label="Home" title="Home">
               <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -126,8 +154,35 @@
             autocapitalize="none"
             placeholder="Enter a URL, search term, or antarctic:// route"
           />
+          <button
+            type="button"
+            id="toolbar-address-undo"
+            class="toolbar-button toolbar-button--icon address-bar__history"
+            aria-label="Undo address bar"
+            title="Undo"
+            disabled
+          >
+            <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 14 4 9l5-5" />
+              <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H8" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            id="toolbar-address-redo"
+            class="toolbar-button toolbar-button--icon address-bar__history"
+            aria-label="Redo address bar"
+            title="Redo"
+            disabled
+          >
+            <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15 14l5-5-5-5" />
+              <path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H16" />
+            </svg>
+          </button>
           <button type="submit" class="address-bar__submit">Go</button>
         </form>
+        <time id="shell-clock" class="shell-toolbar__clock" datetime="">--:--:--</time>
       </header>
 
       <section id="shell-stage" class="shell-stage">
@@ -147,59 +202,56 @@
 
   <template id="home-pane-template">
     <section class="shell-pane shell-pane--internal shell-pane--home">
-      <div class="hero-panel">
-        <p class="hero-panel__eyebrow">antarctic://newtab</p>
-        <h2 class="hero-panel__title">A cooler built-in browser shell for Antarctic Games.</h2>
-        <p class="hero-panel__text">
-          The main screen is the proxy now. Scramjet runs right inside the shell, internal tabs live
-          in the browser chrome, and the live backend stays tucked away at api.sethpang.com.
+      <div class="home-landing">
+        <h1 class="home-wordmark" aria-label="Antarctic Games">Antarctic</h1>
+        <p class="home-tagline">
+          Your Daily Dose Of Games
         </p>
-        <div class="hero-panel__actions">
-          <button type="button" class="hero-action" data-route="antarctic://games">Open Games</button>
-          <button type="button" class="hero-action" data-route="antarctic://ai">Open AI</button>
-          <button type="button" class="hero-action hero-action--muted" data-query="news games">
-            Search Web
-          </button>
-        </div>
-      </div>
 
-      <div class="home-grid">
-        <section class="content-card">
-          <div class="content-card__header">
-            <div>
-              <p class="content-card__eyebrow">Quick routes</p>
-              <h3 class="content-card__title">Launch pads</h3>
-            </div>
-          </div>
-          <div class="shortcut-grid">
-            <button type="button" class="shortcut-card" data-route="antarctic://home">
-              <span class="shortcut-card__title">Home</span>
-            </button>
-            <button type="button" class="shortcut-card" data-route="antarctic://games">
-              <span class="shortcut-card__title">Games</span>
-            </button>
-            <button type="button" class="shortcut-card" data-route="antarctic://ai">
-              <span class="shortcut-card__title">AI</span>
-            </button>
-            <button type="button" class="shortcut-card" data-route="antarctic://settings">
-              <span class="shortcut-card__title">Settings</span>
-            </button>
-            <button type="button" class="shortcut-card" data-query="speed test">
-              <span class="shortcut-card__title">Search</span>
+        <form class="home-search-bar" data-role="home-search-form" action="#" method="post">
+          <div class="home-search-bar__field">
+            <svg class="home-search-bar__icon ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M20 20l-4.3-4.3" />
+            </svg>
+            <input
+              type="text"
+              class="home-search-bar__input"
+              name="q"
+              placeholder="Search the web or type a URL"
+              autocomplete="off"
+              spellcheck="false"
+              autocapitalize="none"
+            />
+            <button type="submit" class="home-search-bar__submit" aria-label="Search">
+              <svg class="home-search-bar__submit-icon ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-4.3-4.3" />
+              </svg>
             </button>
           </div>
-        </section>
+        </form>
 
-        <section class="content-card">
-          <div class="content-card__header">
-            <div>
-              <p class="content-card__eyebrow">Library picks</p>
-              <h3 class="content-card__title">Play something fast</h3>
-            </div>
-          </div>
-          <div class="mini-game-grid" data-role="home-library"></div>
-        </section>
+        <nav class="home-shortcuts" aria-label="Quick links">
+          <button type="button" class="home-shortcut-pill" data-route="antarctic://games">Games</button>
+          <button type="button" class="home-shortcut-pill" data-route="antarctic://ai">AI</button>
+          <button type="button" class="home-shortcut-pill" data-route="antarctic://settings">Settings</button>
+        </nav>
       </div>
+      <a
+        class="shell-pane__repo-link home-repo-link"
+        href="https://github.com/Palladium-Games/Palladium-Games"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Antarctic Games on GitHub"
+      >
+        <svg class="shell-pane__repo-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.465-1.11-1.465-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.272.098-2.65 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.379.202 2.398.1 2.651.64.699 1.028 1.59 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"
+          />
+        </svg>
+        <span class="shell-pane__repo-text">GitHub</span>
+      </a>
     </section>
   </template>
 
@@ -209,9 +261,9 @@
         <div>
           <p class="section-hero__eyebrow">antarctic://games</p>
           <h2 class="section-hero__title">Game Library</h2>
-          <p class="section-hero__text">Search the catalog and launch any game into its own tab.</p>
+          <p class="section-hero__text">Search the catalog and launch any game.</p>
         </div>
-        <div class="section-hero__status" data-role="games-status">Loading local catalog...</div>
+        <div class="section-hero__status" data-role="games-status">Loading catalog...</div>
       </div>
 
       <label class="search-field">
@@ -306,7 +358,7 @@
           <p class="section-hero__eyebrow">antarctic://settings</p>
           <h2 class="section-hero__title">Shell Settings</h2>
           <p class="section-hero__text">
-            Pick a theme, cloak the tab, and launch Antarctic Games inside an about:blank wrapper.
+            Thanks a lot GoGuardian
           </p>
         </div>
         <div class="section-hero__status" data-role="settings-status">Saved locally in this browser.</div>
@@ -356,7 +408,7 @@
           </div>
           <div class="settings-actions settings-actions--stacked">
             <button type="button" class="toolbar-button toolbar-button--accent" data-settings-action="aboutblank-shell">
-              Open Antarctic Games In About:Blank
+              Open Antarctic In About:Blank
             </button>
             <button type="button" class="toolbar-button" data-settings-action="reset-all">
               Reset Theme And Cloak

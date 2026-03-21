@@ -6,8 +6,8 @@ window.ANTARCTIC_GAMES_CATALOG = {
     {
       "file": "achievement-unlocked.html",
       "title": "Achievement Unlocked",
-      "author": "Revelance Match",
-      "category": "platformer",
+      "author": "Armor Games",
+      "category": "Platformer",
       "path": "games/platformer/achievement-unlocked.html",
       "image": "images/game-img/achievement-unlocked.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fplatformer%2Fachievement-unlocked.html&title=Achievement%20Unlocked&author=Revelance%20Match"
@@ -15,8 +15,8 @@ window.ANTARCTIC_GAMES_CATALOG = {
     {
       "file": "achievement-unlocked-2.html",
       "title": "Achievement Unlocked 2",
-      "author": "Revelance Match",
-      "category": "platformer",
+      "author": "Armor Games",
+      "category": "Platformer",
       "path": "games/platformer/achievement-unlocked-2.html",
       "image": "images/game-img/achievement-unlocked.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fplatformer%2Fachievement-unlocked-2.html&title=Achievement%20Unlocked%202&author=Revelance%20Match"
@@ -25,7 +25,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "baseballbros.html",
       "title": "Baseball Bros",
       "author": "Blue Wizard Digital",
-      "category": "sports",
+      "category": "Sports",
       "path": "games/sports/bros-games/baseballbros.html",
       "image": "images/game-img/baseball-bros.jpeg",
       "launchUri": "antarctic://gamelauncher?path=games%2Fsports%2Fbros-games%2Fbaseballbros.html&title=Baseball%20Bros&author=Blue%20Wizard%20Digital"
@@ -34,7 +34,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "basketbros.html",
       "title": "Basket Bros",
       "author": "Blue Wizard Digital",
-      "category": "sports",
+      "category": "Sports",
       "path": "games/sports/bros-games/basketbros.html",
       "image": "images/game-img/basketbros.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fsports%2Fbros-games%2Fbasketbros.html&title=Basket%20Bros&author=Blue%20Wizard%20Digital"
@@ -43,7 +43,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "bitlife.html",
       "title": "BitLife",
       "author": "Candywriter",
-      "category": "others",
+      "category": "Simulation",
       "path": "games/others/bitlife.html",
       "image": "images/game-img/bitlife.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fothers%2Fbitlife.html&title=BitLife&author=Candywriter"
@@ -52,7 +52,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "blockblast.html",
       "title": "Block Blast",
       "author": "reunbozdo",
-      "category": "others",
+      "category": "Puzzle",
       "path": "games/others/blockblast.html",
       "image": "images/game-img/blockblast.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fothers%2Fblockblast.html&title=Block%20Blast&author=reunbozdo"
@@ -61,7 +61,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "brotato.html",
       "title": "Brotato",
       "author": "Blobfish",
-      "category": "bullet-hell",
+      "category": "Action",
       "path": "games/bullet-hell/brotato.html",
       "image": "images/game-img/brotato.jpeg",
       "launchUri": "antarctic://gamelauncher?path=games%2Fbullet-hell%2Fbrotato.html&title=Brotato&author=Blobfish"
@@ -70,7 +70,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "chibi-knight.html",
       "title": "Chibi Knight",
       "author": "Armor Games",
-      "category": "swf",
+      "category": "Action",
       "path": "games/swf/chibi-knight.html",
       "image": "images/game-img/chibi-knight.jpg",
       "launchUri": "antarctic://gamelauncher?path=games%2Fswf%2Fchibi-knight.html&title=Chibi%20Knight&author=Armor%20Games"
@@ -79,7 +79,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "cookie-clicker.html",
       "title": "Cookie Clicker",
       "author": "Orteil",
-      "category": "clickers",
+      "category": "Clicker",
       "path": "games/clickers/cookie-clicker.html",
       "image": "images/game-img/cookie-clicker.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fclickers%2Fcookie-clicker.html&title=Cookie%20Clicker&author=Orteil"
@@ -88,7 +88,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "eaglercraft-1.12.2.html",
       "title": "Eaglercraft 1.12.2",
       "author": "lax1dude + PeytonPlayz585",
-      "category": "others",
+      "category": "Sandbox",
       "path": "games/others/eaglercraft-1.12.2.html",
       "image": "images/game-img/eaglercraft-1.12.2.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fothers%2Feaglercraft-1.12.2.html&title=Eaglercraft%201.12.2&author=lax1dude%20%2B%20PeytonPlayz585"
@@ -97,7 +97,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "escape-road.html",
       "title": "Escape Road",
       "author": "AZgames",
-      "category": "escape-road",
+      "category": "Racing",
       "path": "games/escape-road/escape-road.html",
       "image": "images/game-img/escape-road.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fescape-road%2Fescape-road.html&title=Escape%20Road&author=AZgames"
@@ -106,7 +106,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "fnaw.html",
       "title": "Five Night's At Winston's",
       "author": "lax1dude",
-      "category": "fnaf",
+      "category": "Horror",
       "path": "games/fnaf/fnaw.html",
       "image": "images/game-img/fnaw.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Ffnaf%2Ffnaw.html&title=Five%20Night's%20At%20Winston's&author=lax1dude"
@@ -115,7 +115,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "fnae.html",
       "title": "Five Nights at Epstein's",
       "author": "EvanProductions",
-      "category": "others",
+      "category": "Horror",
       "path": "games/others/fnae.html",
       "image": "images/game-img/fnae.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fothers%2Ffnae.html&title=Five%20Nights%20at%20Epstein's&author=EvanProductions"
@@ -124,7 +124,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "fnaf-1.html",
       "title": "Five Nights at Freddy's 1",
       "author": "Scott Cawthon",
-      "category": "fnaf",
+      "category": "Horror",
       "path": "games/fnaf/fnaf-1.html",
       "image": "images/game-img/fnaf-icon.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Ffnaf%2Ffnaf-1.html&title=Five%20Nights%20at%20Freddy's%201&author=Scott%20Cawthon"
@@ -133,7 +133,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "fnaf-2.html",
       "title": "Five Nights at Freddy's 2",
       "author": "Scott Cawthon",
-      "category": "fnaf",
+      "category": "Horror",
       "path": "games/fnaf/fnaf-2.html",
       "image": "images/game-img/fnaf2-icon.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Ffnaf%2Ffnaf-2.html&title=Five%20Nights%20at%20Freddy's%202&author=Scott%20Cawthon"
@@ -142,7 +142,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "fnaf-3.html",
       "title": "Five Nights at Freddy's 3",
       "author": "Scott Cawthon",
-      "category": "fnaf",
+      "category": "Horror",
       "path": "games/fnaf/fnaf-3.html",
       "image": "images/game-img/fnaf3-icon.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Ffnaf%2Ffnaf-3.html&title=Five%20Nights%20at%20Freddy's%203&author=Scott%20Cawthon"
@@ -151,7 +151,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "fnaf-4.html",
       "title": "Five Nights at Freddy's 4",
       "author": "Scott Cawthon",
-      "category": "fnaf",
+      "category": "Horror",
       "path": "games/fnaf/fnaf-4.html",
       "image": "images/game-img/fnaf4-icon.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Ffnaf%2Ffnaf-4.html&title=Five%20Nights%20at%20Freddy's%204&author=Scott%20Cawthon"
@@ -160,7 +160,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "fnaf-sl.html",
       "title": "Five Nights at Freddy's: Sister Location",
       "author": "Scott Cawthon",
-      "category": "fnaf",
+      "category": "Horror",
       "path": "games/fnaf/fnaf-sl.html",
       "image": "images/game-img/fnaf-sl.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Ffnaf%2Ffnaf-sl.html&title=Five%20Nights%20at%20Freddy's%3A%20Sister%20Location&author=Scott%20Cawthon"
@@ -169,7 +169,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "fnaf-customnight.html",
       "title": "FNAF Custom Night",
       "author": "Scott Cawthon",
-      "category": "fnaf",
+      "category": "Horror",
       "path": "games/fnaf/fnaf-customnight.html",
       "image": "images/game-img/fnaf-ucn.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Ffnaf%2Ffnaf-customnight.html&title=FNAF%20Custom%20Night&author=Scott%20Cawthon"
@@ -178,7 +178,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "fnaf-pizzasim.html",
       "title": "FNAF Pizza Simulator",
       "author": "Scott Cawthon",
-      "category": "fnaf",
+      "category": "Horror",
       "path": "games/fnaf/fnaf-pizzasim.html",
       "image": "images/game-img/fnaf-pizzasim.jpg",
       "launchUri": "antarctic://gamelauncher?path=games%2Ffnaf%2Ffnaf-pizzasim.html&title=FNAF%20Pizza%20Simulator&author=Scott%20Cawthon"
@@ -187,7 +187,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "footballbros.html",
       "title": "Football Bros",
       "author": "Blue Wizard Digital",
-      "category": "sports",
+      "category": "Sports",
       "path": "games/sports/bros-games/footballbros.html",
       "image": "images/game-img/football-bros.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fsports%2Fbros-games%2Ffootballbros.html&title=Football%20Bros&author=Blue%20Wizard%20Digital"
@@ -196,7 +196,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "geodash-lite.html",
       "title": "Geometry Dash Lite",
       "author": "RobTop Games",
-      "category": "platformer",
+      "category": "Platformer",
       "path": "games/platformer/geodash-lite.html",
       "image": "images/game-img/geometry-dash.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fplatformer%2Fgeodash-lite.html&title=Geometry%20Dash%20Lite&author=RobTop%20Games"
@@ -205,7 +205,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "learn-to-fly.html",
       "title": "Learn to Fly",
       "author": "Light Bringer",
-      "category": "l2f",
+      "category": "Tycoon",
       "path": "games/l2f/learn-to-fly.html",
       "image": "images/game-img/learn-to-fly.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fl2f%2Flearn-to-fly.html&title=Learn%20to%20Fly&author=Light%20Bringer"
@@ -214,7 +214,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "learn-to-fly2.html",
       "title": "Learn to Fly 2",
       "author": "Light Bringer",
-      "category": "l2f",
+      "category": "Tycoon",
       "path": "games/l2f/learn-to-fly2.html",
       "image": "images/game-img/learn-to-fly2.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fl2f%2Flearn-to-fly2.html&title=Learn%20to%20Fly%202&author=Light%20Bringer"
@@ -223,7 +223,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "learn-to-fly3.html",
       "title": "Learn to Fly 3",
       "author": "Light Bringer",
-      "category": "l2f",
+      "category": "Tycoon",
       "path": "games/l2f/learn-to-fly3.html",
       "image": "images/game-img/learn-to-fly3.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fl2f%2Flearn-to-fly3.html&title=Learn%20to%20Fly%203&author=Light%20Bringer"
@@ -232,7 +232,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "ovo.html",
       "title": "OvO",
       "author": "Dedra Games",
-      "category": "platformer",
+      "category": "Platformer",
       "path": "games/platformer/ovo.html",
       "image": "images/game-img/ovo.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fplatformer%2Fovo.html&title=OvO&author=Dedra%20Games"
@@ -241,7 +241,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "ragdoll-archers.html",
       "title": "Ragdoll Archers",
       "author": "Studio Minus",
-      "category": "ragdoll",
+      "category": "Action",
       "path": "games/stick-ragdoll/ragdoll-archers.html",
       "image": "images/game-img/ragdoll-archers.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fstick-ragdoll%2Fragdoll-archers.html&title=Ragdoll%20Archers&author=Studio%20Minus"
@@ -250,7 +250,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "ragdoll-hit.html",
       "title": "Ragdoll Hit",
       "author": "Studio Minus",
-      "category": "ragdoll",
+      "category": "Action",
       "path": "games/stick-ragdoll/ragdoll-hit.html",
       "image": "images/game-img/ragdoll-hit.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fstick-ragdoll%2Fragdoll-hit.html&title=Ragdoll%20Hit&author=Studio%20Minus"
@@ -259,7 +259,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "retro-bowl.html",
       "title": "Retro Bowl",
       "author": "New Star Games",
-      "category": "sports",
+      "category": "Sports",
       "path": "games/sports/retro-bowl.html",
       "image": "images/game-img/retro-bowl.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fsports%2Fretro-bowl.html&title=Retro%20Bowl&author=New%20Star%20Games"
@@ -268,7 +268,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "retro-bowl-college.html",
       "title": "Retro Bowl College",
       "author": "New Star Games",
-      "category": "sports",
+      "category": "Sports",
       "path": "games/sports/retro-bowl-college.html",
       "image": "images/game-img/retro-bowl-college.jpg",
       "launchUri": "antarctic://gamelauncher?path=games%2Fsports%2Fretro-bowl-college.html&title=Retro%20Bowl%20College&author=New%20Star%20Games"
@@ -277,7 +277,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "smashkarts.html",
       "title": "Smash Karts",
       "author": "Tall Team",
-      "category": "racing",
+      "category": "Racing",
       "path": "games/racing/smashkarts.html",
       "image": "images/game-img/smash-karts.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fracing%2Fsmashkarts.html&title=Smash%20Karts&author=Tall%20Team"
@@ -286,34 +286,16 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "snow-rider.html",
       "title": "Snow Rider",
       "author": "Unknown",
-      "category": "racing",
+      "category": "Racing",
       "path": "games/racing/snow-rider.html",
       "image": "images/game-img/snow-rider.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fracing%2Fsnow-rider.html&title=Snow%20Rider&author=Unknown"
     },
     {
-      "file": "stick-war-1.html",
-      "title": "Stick War 1",
-      "author": "Max Games Studios",
-      "category": "swf",
-      "path": "games/swf/stick-war-1.html",
-      "image": "images/game-img/stick-war-legacy.png",
-      "launchUri": "antarctic://gamelauncher?path=games%2Fswf%2Fstick-war-1.html&title=Stick%20War%201&author=Max%20Games%20Studios"
-    },
-    {
-      "file": "stick-war-legacy.html",
-      "title": "Stick War Legacy",
-      "author": "Max Games Studios",
-      "category": "ragdoll",
-      "path": "games/stick-ragdoll/stick-war-legacy.html",
-      "image": "images/game-img/stick-war-legacy.png",
-      "launchUri": "antarctic://gamelauncher?path=games%2Fstick-ragdoll%2Fstick-war-legacy.html&title=Stick%20War%20Legacy&author=Max%20Games%20Studios"
-    },
-    {
       "file": "thats-not-my-neighbor.html",
       "title": "That's Not My Neighbor",
       "author": "Nacho Games",
-      "category": "rpg",
+      "category": "RPG",
       "path": "games/rpg/thats-not-my-neighbor.html",
       "image": "images/game-img/thats-not-my-neighbor.jpeg",
       "launchUri": "antarctic://gamelauncher?path=games%2Frpg%2Fthats-not-my-neighbor.html&title=That's%20Not%20My%20Neighbor&author=Nacho%20Games"
@@ -322,7 +304,7 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "file": "the-impossible-quiz.html",
       "title": "The Impossible Quiz",
       "author": "Splapp-me-do",
-      "category": "swf",
+      "category": "Puzzle",
       "path": "games/swf/the-impossible-quiz.html",
       "image": "images/game-img/the-impossible-quiz.png",
       "launchUri": "antarctic://gamelauncher?path=games%2Fswf%2Fthe-impossible-quiz.html&title=The%20Impossible%20Quiz&author=Splapp-me-do"

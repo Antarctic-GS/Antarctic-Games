@@ -29,7 +29,7 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellPage, /baremux\/index\.js/);
   assert.match(shellPage, /scram\/scramjet\.all\.js/);
   assert.match(shellPage, /antarctic:\/\/settings/);
-  assert.match(shellPage, /Open Antarctic Games In About:Blank/);
+  assert.match(shellPage, /Open Antarctic In About:Blank/);
   assert.match(shellPage, /antarctic:\/\/ai/);
 });
 
@@ -44,6 +44,7 @@ test("service worker bootstraps Scramjet from the static frontend origin", () =>
 test("settings shell keeps the sidebar on a fixed attached rail", () => {
   const settingsShellCss = fs.readFileSync(path.join(FRONTEND_DIR, "settings-shell.css"), "utf8");
   const baseShellCss = fs.readFileSync(path.join(FRONTEND_DIR, "styles.css"), "utf8");
+  const shellPage = fs.readFileSync(path.join(FRONTEND_DIR, "index.html"), "utf8");
 
   assert.match(settingsShellCss, /\.shell\s*\{[\s\S]*padding:\s*0;/);
   assert.match(settingsShellCss, /\.shell-sidebar\s*\{[\s\S]*border-radius:\s*0 calc\(var\(--radius-xl\) \+ 0\.35rem\) calc\(var\(--radius-xl\) \+ 0\.35rem\) 0;/);
@@ -52,13 +53,20 @@ test("settings shell keeps the sidebar on a fixed attached rail", () => {
   assert.match(settingsShellCss, /\.shell-sidebar__row,\s*\.sidebar-toggle-btn,\s*\.tab-card,\s*\.route-link\s*\{[\s\S]*grid-template-columns:\s*var\(--sidebar-row-template\);/);
   assert.match(settingsShellCss, /\.tab-list\s*\{[\s\S]*flex:\s*0 0 auto;/);
   assert.match(settingsShellCss, /\.sidebar-block--links,\s*\.shell--sidebar-collapsed \.sidebar-block--links\s*\{[\s\S]*margin-top:\s*auto;/);
-  assert.match(settingsShellCss, /\.sidebar-block__header--tabs \.shell-sidebar__actions\s*\{[\s\S]*grid-column:\s*1;/);
-  assert.match(settingsShellCss, /\.sidebar-block__header--tabs \.shell-sidebar__rail\s*\{[\s\S]*pointer-events:\s*none;/);
-  assert.match(settingsShellCss, /\.tab-card::before\s*\{[\s\S]*inset-inline:\s*calc\(0\.16rem \+ var\(--gutter\)\) calc\(0\.16rem \+ var\(--gutter\)\);/);
+  assert.match(settingsShellCss, /\.shell-sidebar__rail--action \.sidebar-block__action--icon\s*\{[\s\S]*width:\s*var\(--sidebar-tile\);/);
+  assert.match(settingsShellCss, /--sidebar-active-inset:\s*calc\(0\.04rem \+ var\(--gutter\)\);/);
+  assert.match(settingsShellCss, /\.tab-card::before\s*\{[\s\S]*inset-inline:\s*var\(--sidebar-active-inset\) var\(--sidebar-active-inset\);/);
   assert.match(settingsShellCss, /\.shell--sidebar-collapsed \.shell-sidebar__row,\s*\.shell--sidebar-collapsed \.sidebar-toggle-btn,\s*\.shell--sidebar-collapsed \.tab-card,\s*\.shell--sidebar-collapsed \.route-link\s*\{[\s\S]*grid-template-columns:\s*var\(--sidebar-row-template\);/);
   assert.doesNotMatch(settingsShellCss, /\.shell--sidebar-collapsed \.shell-sidebar__row\s*\{[\s\S]*justify-content:\s*center;/);
+  assert.doesNotMatch(settingsShellCss, /\.shell--sidebar-collapsed \.sidebar-block__header--tabs \.shell-sidebar__actions\s*\{/);
+  assert.doesNotMatch(baseShellCss, /\.shell--sidebar-collapsed \.shell-sidebar__row\s*\{[\s\S]*grid-template-columns:\s*var\(--sidebar-rail-width\) 0 minmax\(0, max-content\);/);
+  assert.doesNotMatch(baseShellCss, /\.shell--sidebar-collapsed \.tab-card,\s*\.shell--sidebar-collapsed \.route-link\s*\{[\s\S]*justify-content:\s*center;/);
   assert.match(settingsShellCss, /@media \(max-width: 1100px\)\s*\{[\s\S]*\.shell,\s*\.shell--sidebar-collapsed\s*\{[\s\S]*flex-direction:\s*row;/);
   assert.match(settingsShellCss, /\.shell--sidebar-collapsed \.shell-sidebar\s*\{[\s\S]*flex:\s*0 0 var\(--sidebar-collapsed-width\);/);
   assert.match(settingsShellCss, /\.shell-pane--active\.shell-pane--ai\s*\{[\s\S]*display:\s*grid;/);
+  assert.match(shellPage, /sidebar-block__header sidebar-block__header--tabs shell-sidebar__row[\s\S]*shell-sidebar__rail shell-sidebar__rail--action[\s\S]*id="shell-new-tab"/);
   assert.match(baseShellCss, /\.shell-pane--active\.shell-pane--home\s*\{[\s\S]*display:\s*flex;/);
+  assert.match(baseShellCss, /body\s*\{[\s\S]*animation:\s*none;/);
+  assert.match(baseShellCss, /body::before\s*\{[\s\S]*animation:\s*none;/);
+  assert.match(baseShellCss, /body::after\s*\{[\s\S]*animation:\s*none;/);
 });
