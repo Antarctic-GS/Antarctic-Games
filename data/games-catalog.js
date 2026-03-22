@@ -85,6 +85,15 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "launchUri": "antarctic://gamelauncher?path=games%2Fbullet-hell%2Fbrotato.html&title=Brotato&author=Blobfish"
     },
     {
+      "file": "survivor-io.html",
+      "title": "Survivor.io",
+      "author": "Mad Kid Games",
+      "category": "Action",
+      "path": "games/bullet-hell/survivor-io.html",
+      "image": "images/game-img/survivor-io.png",
+      "launchUri": "antarctic://gamelauncher?path=games%2Fbullet-hell%2Fsurvivor-io.html&title=Survivor.io&author=Mad%20Kid%20Games"
+    },
+    {
       "file": "chibi-knight.html",
       "title": "Chibi Knight",
       "author": "Armor Games",

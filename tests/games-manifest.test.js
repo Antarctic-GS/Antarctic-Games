@@ -47,6 +47,12 @@ test("frontend ships a committed local games manifest and bundled assets", () =>
   assert.equal(crossyRoad.author, "Hipster Whale");
   assert.equal(crossyRoad.image, "images/game-img/crossy-road.png");
 
+  const survivorIo = payload.games.find((entry) => entry.path === "games/bullet-hell/survivor-io.html");
+  assert.ok(survivorIo, "Expected Survivor.io in the local manifest");
+  assert.equal(survivorIo.title, "Survivor.io");
+  assert.equal(survivorIo.author, "Mad Kid Games");
+  assert.equal(survivorIo.image, "images/game-img/survivor-io.png");
+
   const hollowKnight = payload.games.find((entry) => entry.path === "games/platformer/hollow-knight.html");
   assert.ok(hollowKnight, "Expected Hollow Knight in the local manifest");
   assert.equal(hollowKnight.title, "Hollow Knight");
@@ -125,8 +131,12 @@ test("Unity launchers stay free of the injected sidebar ad script", () => {
     path.join(FRONTEND_DIR, "games", "platformer", "hollow-knight.html"),
     "utf8"
   );
+  const survivorIo = fs.readFileSync(
+    path.join(FRONTEND_DIR, "games", "bullet-hell", "survivor-io.html"),
+    "utf8"
+  );
 
-  for (const source of [baldisBasics, adventureCapitalist, hollowKnight]) {
+  for (const source of [baldisBasics, adventureCapitalist, hollowKnight, survivorIo]) {
     assert.doesNotMatch(source, /googletagmanager\.com/);
     assert.doesNotMatch(source, /sidebarad1/);
     assert.doesNotMatch(source, /dupedisgay|duplace\.net|breadisgay/i);

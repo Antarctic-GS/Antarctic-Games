@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+  <base href="https://cdn.jsdelivr.net/gh/genizy/survivor@main/">
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="author" content="Mad Kid Games">
+  <title>Survivor.io</title>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #unity-canvas {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: block;
+      margin: 0 auto;
+    }
+
+    #loading-text {
+      color: #fff;
+      font-size: 48px;
+      font-family: cursive;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading-text">LOADING...</div>
+  <canvas id="unity-canvas"></canvas>
+
+  <script src="Build/7a2dbded24d57e056180125b1583e7c4.loader.js"></script>
+  <script>
+    var loadingText = document.getElementById("loading-text");
+    var loadedBytes = 0;
+
+    async function fetchWithProgress(url) {
+      var response = await fetch(url);
+      var reader = response.body.getReader();
+      var chunks = [];
+      var received = 0;
+
+      while (true) {
+        var next = await reader.read();
+        if (next.done) {
+          break;
+        }
+        received += next.value.length;
+        loadedBytes += next.value.length;
+        chunks.push(next.value);
+        loadingText.textContent =
+          "LOADING... " + (loadedBytes / (1024 * 1024)).toFixed(2) + " MB / 87.7 MB";
+      }
+
+      var fullBuffer = new Uint8Array(received);
+      var offset = 0;
+      for (var index = 0; index < chunks.length; index += 1) {
+        fullBuffer.set(chunks[index], offset);
+        offset += chunks[index].length;
+      }
+      return fullBuffer.buffer;
+    }
+
+    async function mergeFiles(parts) {
+      var buffers = await Promise.all(parts.map(fetchWithProgress));
+      var mergedBlob = new Blob(buffers);
+      return URL.createObjectURL(mergedBlob);
+    }
+
+    function getParts(file, start, end) {
+      var parts = [];
+      for (var index = start; index <= end; index += 1) {
+        parts.push(file + ".part" + index);
+      }
+      return parts;
+    }
+
+    function resizeCanvas() {
+      var canvas = document.getElementById("unity-canvas");
+      if (!canvas) return;
+
+      var targetAspect = 9 / 16;
+      var viewportHeight = window.innerHeight;
+      var viewportWidth = Math.min(window.innerWidth, viewportHeight * targetAspect);
+
+      canvas.style.height = viewportHeight + "px";
+      canvas.style.width = viewportWidth + "px";
+    }
+
+    (async function bootUnity() {
+      var mergedAssets = await Promise.all([
+        mergeFiles(getParts("Build/46b4b31a113ea8dea963ad56252333b5.data.br", 1, 3)),
+        mergeFiles(getParts("Build/85546b86fc5c6deaf6ce95da9fa3aadd.wasm.br", 1, 3))
+      ]);
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        var viewport = document.createElement("meta");
+        viewport.name = "viewport";
+        viewport.content = "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+        document.head.appendChild(viewport);
+      }
+
+      var canvas = document.getElementById("unity-canvas");
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+      window.addEventListener("orientationchange", resizeCanvas);
+
+      createUnityInstance(canvas, {
+        dataUrl: mergedAssets[0],
+        frameworkUrl: "Build/c38019a83ea4c8d041a01438387f1e7e.framework.js",
+        codeUrl: mergedAssets[1],
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "madkidgames.com",
+        productName: "Survivor.io",
+        productVersion: "1.0"
+      }).then(function () {
+        if (loadingText && loadingText.parentNode) {
+          loadingText.parentNode.removeChild(loadingText);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
