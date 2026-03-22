@@ -38,6 +38,7 @@ test("frontend ships a Netlify config for the static shell", () => {
 test("frontend shell references Scramjet assets and sidebar controls", () => {
   const shellPage = fs.readFileSync(path.join(FRONTEND_DIR, "index.html"), "utf8");
   const shellScript = fs.readFileSync(path.join(FRONTEND_DIR, "shell.js"), "utf8");
+  const gamesHelper = fs.readFileSync(path.join(FRONTEND_DIR, "games-static.js"), "utf8");
   const socialClient = fs.readFileSync(path.join(FRONTEND_DIR, "social-client.js"), "utf8");
 
   assert.match(shellPage, /id="sidebar-toggle"/);
@@ -63,7 +64,13 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /var PROXY_STORAGE_VERSION_KEY = "antarctic\.proxy\.storage\.version\.v1"/);
   assert.match(shellScript, /window\.AntarcticGamesStorage \|\| window\.PalladiumSiteStorage/);
   assert.match(shellScript, /window\.AntarcticSocialClient \|\| window\.PalladiumSocialClient/);
+  assert.match(shellScript, /var LOCAL_APP_ASSET_PARAM = "antarctic_asset"/);
+  assert.match(shellScript, /var LOCAL_APP_ASSET_VERSION = "2026-03-22-asset-1"/);
   assert.match(shellScript, /function resolveLocalAppUrl\(value\)/);
+  assert.match(shellScript, /function getLocalAppBaseUrl\(\)/);
+  assert.match(shellScript, /function appendLocalAssetVersion\(resolvedUrl\)/);
+  assert.match(shellScript, /assetUrl\.searchParams\.set\(LOCAL_APP_ASSET_PARAM, LOCAL_APP_ASSET_VERSION\)/);
+  assert.match(shellScript, /new URL\(normalized, getLocalAppBaseUrl\(\)\)\.toString\(\)/);
   assert.match(shellScript, /function renderAccountMetrics\(pane, bootstrap\)/);
   assert.match(shellScript, /function renderAccountQuickActions\(pane, session, bootstrap\)/);
   assert.match(shellScript, /function renderChatSessionCard\(pane, community\)/);
@@ -87,6 +94,11 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /window\.indexedDB\.deleteDatabase\(name\)/);
   assert.match(shellScript, /Resetting proxy storage and retrying/);
   assert.match(shellScript, /return initializeProxyRuntime\(config, false\);/);
+  assert.match(gamesHelper, /var LOCAL_MANIFEST_ASSET_PARAM = "antarctic_asset"/);
+  assert.match(gamesHelper, /var LOCAL_MANIFEST_VERSION = "2026-03-22-asset-1"/);
+  assert.match(gamesHelper, /function resolveCatalogScriptUrl\(\)/);
+  assert.match(gamesHelper, /script\.src = resolveCatalogScriptUrl\(\);/);
+  assert.match(gamesHelper, /manifestUrl\.searchParams\.set\(LOCAL_MANIFEST_ASSET_PARAM, LOCAL_MANIFEST_VERSION\)/);
   assert.match(socialClient, /function getBootstrap\(forceRefresh\)/);
   assert.match(socialClient, /requestJson\("\/api\/community\/bootstrap"/);
   assert.match(socialClient, /credentials:\s*"same-origin"/);

@@ -6,6 +6,8 @@
   var LEGACY_STORAGE_KEY = "palladium.shell.state.v1";
   var PROXY_STORAGE_VERSION_KEY = "antarctic.proxy.storage.version.v1";
   var PROXY_STORAGE_VERSION = "scramjet-storage-2026-03-22";
+  var LOCAL_APP_ASSET_PARAM = "antarctic_asset";
+  var LOCAL_APP_ASSET_VERSION = "2026-03-22-asset-1";
   var SCRAMJET_PREFIX = "/service/scramjet/";
   var SCRAMJET_SW_PATH = "/sw.js";
   var BAREMUX_WORKER_PATH = "/baremux/worker.js";
@@ -226,25 +228,139 @@
     return window.AntarcticGamesStorage || window.PalladiumSiteStorage || null;
   }
 
-  function isRemoteAssetUrl(value) {
-    return /^(?:[a-z]+:)?\/\//i.test(String(value || "").trim()) || /^(?:data|blob):/i.test(String(value || "").trim());
-  }
+  var localAppBaseUrlCache = "";
 
-  function resolveLocalAppUrl(value) {
-    var text = cleanText(value);
-    if (!text || isRemoteAssetUrl(text)) {
-      return text;
+  function resolveDocumentUrl(raw) {
+    var text = cleanText(raw);
+    if (!text) return "";
+
+    var baseHref = "";
+    try {
+      baseHref = cleanText((document && document.baseURI) || "");
+    } catch (error) {
+      baseHref = "";
     }
 
-    var normalized = text.replace(/\\/g, "/").replace(/^\/+/, "");
-    if (!normalized) {
+    if (!baseHref) {
+      try {
+        baseHref = cleanText((window.location && window.location.href) || "");
+      } catch (error) {
+        baseHref = "";
+      }
+    }
+
+    try {
+      return baseHref ? new URL(text, baseHref).toString() : new URL(text).toString();
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function inferLocalAppBaseUrl() {
+    if (document && typeof document.querySelectorAll === "function") {
+      var scripts = document.querySelectorAll("script[src]");
+      for (var index = 0; index < scripts.length; index += 1) {
+        var src = cleanText(scripts[index].getAttribute("src"));
+        if (!/(?:^|\/)(?:shell|games-static|site-settings|site-storage|social-client|backend)\.js(?:[?#].*)?$/i.test(src)) {
+          continue;
+        }
+
+        var resolvedScriptUrl = resolveDocumentUrl(src);
+        if (!resolvedScriptUrl) continue;
+
+        try {
+          var scriptUrl = new URL(resolvedScriptUrl);
+          scriptUrl.search = "";
+          scriptUrl.hash = "";
+          scriptUrl.pathname = scriptUrl.pathname.replace(/[^/]*$/, "");
+          return scriptUrl.toString();
+        } catch (error) {
+          // Keep trying the next candidate.
+        }
+      }
+    }
+
+    var fallbackUrl = resolveDocumentUrl((window.location && window.location.href) || "");
+    if (!fallbackUrl) {
       return "/";
     }
 
     try {
-      return new URL("/" + normalized, window.location.origin).toString();
+      var pageUrl = new URL(fallbackUrl);
+      pageUrl.search = "";
+      pageUrl.hash = "";
+      pageUrl.pathname = pageUrl.pathname.replace(/[^/]*$/, "");
+      return pageUrl.toString();
     } catch (error) {
-      return "/" + normalized;
+      return "/";
+    }
+  }
+
+  function getLocalAppBaseUrl() {
+    if (!localAppBaseUrlCache) {
+      localAppBaseUrlCache = inferLocalAppBaseUrl();
+    }
+    return localAppBaseUrlCache;
+  }
+
+  function appendLocalAssetVersion(resolvedUrl) {
+    var text = cleanText(resolvedUrl);
+    if (!text || /^(?:data|blob):/i.test(text)) {
+      return text;
+    }
+
+    try {
+      var assetUrl = new URL(text, getLocalAppBaseUrl());
+      var baseUrl = new URL(getLocalAppBaseUrl());
+      if (assetUrl.origin !== baseUrl.origin) {
+        return assetUrl.toString();
+      }
+      assetUrl.searchParams.set(LOCAL_APP_ASSET_PARAM, LOCAL_APP_ASSET_VERSION);
+      return assetUrl.toString();
+    } catch (error) {
+      return text;
+    }
+  }
+
+  function isRemoteAssetUrl(value) {
+    var text = cleanText(value);
+    if (!text) return false;
+    if (/^(?:data|blob):/i.test(text)) return true;
+
+    try {
+      var assetUrl = new URL(text, getLocalAppBaseUrl());
+      var baseUrl = new URL(getLocalAppBaseUrl());
+      return assetUrl.origin !== baseUrl.origin;
+    } catch (error) {
+      return /^(?:[a-z]+:)?\/\//i.test(text);
+    }
+  }
+
+  function resolveLocalAppUrl(value) {
+    var text = cleanText(value);
+    if (!text) {
+      return text;
+    }
+    if (/^(?:data|blob):/i.test(text)) {
+      return text;
+    }
+    if (isRemoteAssetUrl(text)) {
+      try {
+        return new URL(text).toString();
+      } catch (error) {
+        return text;
+      }
+    }
+
+    var normalized = text.replace(/\\/g, "/").replace(/^\/+/, "");
+    if (!normalized) {
+      return getLocalAppBaseUrl() || "/";
+    }
+
+    try {
+      return appendLocalAssetVersion(new URL(normalized, getLocalAppBaseUrl()).toString());
+    } catch (error) {
+      return appendLocalAssetVersion("/" + normalized);
     }
   }
 

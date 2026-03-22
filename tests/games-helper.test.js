@@ -116,5 +116,9 @@ test("loadCatalog stays local-only when the embedded manifest is unavailable", a
 
 test("games helper targets the committed absolute manifest path", () => {
   assert.match(helperSource, /var LOCAL_MANIFEST_PATH = "\/data\/games-catalog\.js";/);
+  assert.match(helperSource, /var LOCAL_MANIFEST_VERSION = "2026-03-22-asset-1";/);
+  assert.match(helperSource, /function getLocalAppBaseUrl\(\)/);
+  assert.match(helperSource, /function resolveCatalogScriptUrl\(\)/);
+  assert.match(helperSource, /manifestUrl\.searchParams\.set\(LOCAL_MANIFEST_ASSET_PARAM, LOCAL_MANIFEST_VERSION\);/);
   assert.match(helperSource, /data-antarctic-games-catalog/);
 });

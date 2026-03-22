@@ -3,13 +3,81 @@
   var PRIMARY_CATALOG_GLOBAL = "ANTARCTIC_GAMES_CATALOG";
   var LEGACY_CATALOG_GLOBAL = "PALLADIUM_GAMES_CATALOG";
   var LOCAL_MANIFEST_PATH = "/data/games-catalog.js";
+  var LOCAL_MANIFEST_ASSET_PARAM = "antarctic_asset";
+  var LOCAL_MANIFEST_VERSION = "2026-03-22-asset-1";
   var PRIMARY_SCRIPT_SELECTOR = 'script[data-antarctic-games-catalog="true"]';
   var LEGACY_SCRIPT_SELECTOR = 'script[data-palladium-games-catalog="true"]';
   var catalogCache = null;
   var catalogLoadPromise = null;
+  var localAppBaseUrlCache = "";
 
   function sanitizeText(value) {
     return String(value == null ? "" : value).trim();
+  }
+
+  function resolveDocumentUrl(raw) {
+    var text = sanitizeText(raw);
+    if (!text) return "";
+
+    var baseHref = "";
+    try {
+      baseHref = sanitizeText((document && document.baseURI) || "");
+    } catch (error) {
+      baseHref = "";
+    }
+
+    try {
+      return baseHref ? new URL(text, baseHref).toString() : new URL(text).toString();
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function inferLocalAppBaseUrl() {
+    if (document && typeof document.querySelectorAll === "function") {
+      var scripts = document.querySelectorAll("script[src]");
+      for (var index = 0; index < scripts.length; index += 1) {
+        var src = sanitizeText(scripts[index].getAttribute("src"));
+        if (!/(?:^|\/)(?:games-static|shell|site-settings|site-storage|social-client|backend)\.js(?:[?#].*)?$/i.test(src)) {
+          continue;
+        }
+
+        var resolvedScriptUrl = resolveDocumentUrl(src);
+        if (!resolvedScriptUrl) continue;
+
+        try {
+          var scriptUrl = new URL(resolvedScriptUrl);
+          scriptUrl.search = "";
+          scriptUrl.hash = "";
+          scriptUrl.pathname = scriptUrl.pathname.replace(/[^/]*$/, "");
+          return scriptUrl.toString();
+        } catch (error) {
+          // Keep trying other candidates.
+        }
+      }
+    }
+
+    var fallbackUrl = resolveDocumentUrl((window.location && window.location.href) || "");
+    if (!fallbackUrl) {
+      return "/";
+    }
+
+    try {
+      var pageUrl = new URL(fallbackUrl);
+      pageUrl.search = "";
+      pageUrl.hash = "";
+      pageUrl.pathname = pageUrl.pathname.replace(/[^/]*$/, "");
+      return pageUrl.toString();
+    } catch (error) {
+      return "/";
+    }
+  }
+
+  function getLocalAppBaseUrl() {
+    if (!localAppBaseUrlCache) {
+      localAppBaseUrlCache = inferLocalAppBaseUrl();
+    }
+    return localAppBaseUrlCache;
   }
 
   function isRemoteAsset(value) {
@@ -24,6 +92,21 @@
 
   function normalizeGamePath(value) {
     return normalizeAssetPath(value).replace(/\\/g, "/");
+  }
+
+  function resolveCatalogScriptUrl() {
+    var manifestPath = normalizeAssetPath(LOCAL_MANIFEST_PATH);
+    if (!manifestPath) {
+      return LOCAL_MANIFEST_PATH;
+    }
+
+    try {
+      var manifestUrl = new URL(manifestPath, getLocalAppBaseUrl());
+      manifestUrl.searchParams.set(LOCAL_MANIFEST_ASSET_PARAM, LOCAL_MANIFEST_VERSION);
+      return manifestUrl.toString();
+    } catch (error) {
+      return LOCAL_MANIFEST_PATH;
+    }
   }
 
   function buildLaunchUri(gamePath, title, author) {
@@ -147,7 +230,7 @@
 
       if (!script) {
         script = document.createElement("script");
-        script.src = LOCAL_MANIFEST_PATH;
+        script.src = resolveCatalogScriptUrl();
         script.async = true;
         script.setAttribute("data-antarctic-games-catalog", "true");
         script.setAttribute("data-palladium-games-catalog", "true");
