@@ -63,6 +63,8 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /normalized === "\$scramjet"/);
   assert.match(shellScript, /window\.indexedDB\.databases\(\)/);
   assert.match(shellScript, /window\.navigator\.serviceWorker\.getRegistrations\(\)/);
+  assert.match(shellScript, /controller\.db && typeof controller\.db\.close === "function"/);
+  assert.match(shellScript, /controller\.db\.close\(\)/);
   assert.match(shellScript, /window\.indexedDB\.deleteDatabase\(name\)/);
   assert.match(shellScript, /Resetting proxy storage and retrying/);
   assert.match(shellScript, /return initializeProxyRuntime\(config, false\);/);

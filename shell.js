@@ -2255,6 +2255,23 @@
     });
   }
 
+  function closeProxyRuntimeHandles() {
+    var controller = state.proxyRuntime.controller;
+    if (!controller) {
+      return Promise.resolve();
+    }
+
+    try {
+      if (controller.db && typeof controller.db.close === "function") {
+        controller.db.close();
+      }
+    } catch (error) {
+      // Ignore close failures; the deletion pass below is still best-effort.
+    }
+
+    return Promise.resolve();
+  }
+
   function waitForProxyRepairWindow() {
     return new Promise(function (resolve) {
       window.setTimeout(resolve, 80);
@@ -2292,7 +2309,9 @@
 
     setProxyHealth(false, "Resetting proxy storage and retrying...", "Repairing");
 
-    state.proxyRuntime.repairPromise = unregisterProxyServiceWorkers().then(function () {
+    state.proxyRuntime.repairPromise = closeProxyRuntimeHandles().then(function () {
+      return unregisterProxyServiceWorkers();
+    }).then(function () {
       return waitForProxyRepairWindow();
     }).then(function () {
       return listProxyDatabaseNames();
