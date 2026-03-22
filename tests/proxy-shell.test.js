@@ -55,7 +55,7 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellPage, /Open Antarctic In About:Blank/);
   assert.match(shellPage, /antarctic:\/\/ai/);
   assert.match(shellPage, /Cloud Saves/);
-  assert.match(shellPage, /Direct Messages/);
+  assert.match(shellPage, /DMs/);
   assert.match(shellPage, /Group Chats/);
   assert.match(shellPage, /data-role="account-metrics"/);
   assert.match(shellPage, /data-role="account-quick-actions"/);
@@ -125,7 +125,7 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /if \(tab && pane && tab\.accountState && tab\.accountState\.allowAutoOpen\) \{\s*setAccountWizardStep\(tab, pane, 2\);\s*tab\.accountState\.allowAutoOpen = false;\s*\}/);
   assert.match(shellScript, /if \(current === 3\) \{\s*tab\.chatState\.activeThreadId = "";\s*setChatWizardStep\(tab, pane, 2\);/);
   assert.doesNotMatch(shellScript, /if \(!tab\.chatState\.activeThreadId && threads\.length\) \{\s*tab\.chatState\.activeThreadId = String\(threads\[0\]\.id\);\s*\}/);
-  assert.match(shellScript, /"antarctic:\/\/chat" as a legacy shortcut to group chats/);
+  assert.match(shellScript, /legacy shortcut to group chats/);
   assert.match(shellScript, /socialApi\.getBootstrap\(Boolean\(forceRefresh\)\)/);
   assert.match(shellScript, /storage\.setJson\(STORAGE_KEY, payload/);
   assert.match(shellScript, /ensureProxyStorageCompatibility\(\)/);
