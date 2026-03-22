@@ -328,6 +328,15 @@
       "launchUri": "antarctic://gamelauncher?path=games%2Fracing%2Fsnow-rider.html&title=Snow%20Rider&author=drippy-cat"
     },
     {
+      "file": "survivor-io.html",
+      "title": "Survivor.io",
+      "author": "Mad Kid Games",
+      "category": "Action",
+      "path": "games/bullet-hell/survivor-io.html",
+      "image": "images/game-img/survivor-io.png",
+      "launchUri": "antarctic://gamelauncher?path=games%2Fbullet-hell%2Fsurvivor-io.html&title=Survivor.io&author=Mad%20Kid%20Games"
+    },
+    {
       "file": "thats-not-my-neighbor.html",
       "title": "That's Not My Neighbor",
       "author": "Nacho Games",

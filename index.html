@@ -124,13 +124,24 @@
             </span>
             <span class="route-link__label">Account</span>
           </button>
-          <button type="button" class="route-link" data-route="antarctic://chat">
+          <button type="button" class="route-link" data-route="antarctic://dms">
             <span class="route-link__rail" aria-hidden="true">
               <svg class="ui-icon route-link__icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6A2.5 2.5 0 0 1 16.5 15H11l-4 4v-4H7.5A2.5 2.5 0 0 1 5 12.5Z" />
               </svg>
             </span>
-            <span class="route-link__label">Chat</span>
+            <span class="route-link__label">DMs</span>
+          </button>
+          <button type="button" class="route-link" data-route="antarctic://groupchats">
+            <span class="route-link__rail" aria-hidden="true">
+              <svg class="ui-icon route-link__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 11a3 3 0 1 0-3-3a3 3 0 0 0 3 3Z" />
+                <path d="M16.5 10a2.5 2.5 0 1 0-2.5-2.5A2.5 2.5 0 0 0 16.5 10Z" />
+                <path d="M2.5 19a5.5 5.5 0 0 1 11 0" />
+                <path d="M14 19a4.5 4.5 0 0 1 7.5-3.35" />
+              </svg>
+            </span>
+            <span class="route-link__label">Group Chats</span>
           </button>
           <button type="button" class="route-link" data-route="antarctic://settings">
             <span class="route-link__rail" aria-hidden="true">
@@ -549,10 +560,10 @@
         <div class="pane-wizard__track">
           <div class="pane-wizard__step is-active" data-chat-step="1">
             <div class="pane-wizard__step-body">
-              <p class="pane-wizard__eyebrow">antarctic://chat</p>
-              <h2 class="pane-wizard__title">Community Chat</h2>
-              <p class="pane-wizard__lede">
-                Join rooms, start direct messages, and talk with other Antarctic users.
+              <p class="pane-wizard__eyebrow" data-role="chat-intro-eyebrow">antarctic://groupchats</p>
+              <h2 class="pane-wizard__title" data-role="chat-intro-title">Group Chats</h2>
+              <p class="pane-wizard__lede" data-role="chat-intro-lede">
+                Create public or private rooms, invite people, and hang out with other Antarctic users.
               </p>
             </div>
           </div>
@@ -562,8 +573,8 @@
               <aside class="content-card chat-sidebar">
                 <div class="content-card__header">
                   <div>
-                    <p class="content-card__eyebrow">Threads</p>
-                    <h3 class="content-card__title">Rooms and DMs</h3>
+                    <p class="content-card__eyebrow" data-role="chat-list-eyebrow">Threads</p>
+                    <h3 class="content-card__title" data-role="chat-list-title">Rooms</h3>
                   </div>
                 </div>
                 <div class="chat-session" data-role="chat-session"></div>

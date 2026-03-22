@@ -50,13 +50,17 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellPage, /<script src="data\/games-catalog\.js" data-antarctic-games-catalog="true" data-palladium-games-catalog="true"><\/script>/);
   assert.match(shellPage, /antarctic:\/\/settings/);
   assert.match(shellPage, /antarctic:\/\/account/);
-  assert.match(shellPage, /antarctic:\/\/chat/);
+  assert.match(shellPage, /antarctic:\/\/dms/);
+  assert.match(shellPage, /antarctic:\/\/groupchats/);
   assert.match(shellPage, /Open Antarctic In About:Blank/);
   assert.match(shellPage, /antarctic:\/\/ai/);
   assert.match(shellPage, /Cloud Saves/);
-  assert.match(shellPage, /Community Chat/);
+  assert.match(shellPage, /Direct Messages/);
+  assert.match(shellPage, /Group Chats/);
   assert.match(shellPage, /data-role="account-metrics"/);
   assert.match(shellPage, /data-role="account-quick-actions"/);
+  assert.match(shellPage, /data-role="chat-intro-eyebrow"/);
+  assert.match(shellPage, /data-role="chat-list-title"/);
   assert.match(shellPage, /data-role="chat-session"/);
   assert.match(shellPage, /data-role="chat-incoming-requests"/);
   assert.match(shellPage, /name="room-visibility"/);
@@ -96,6 +100,9 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /function renderAccountMetrics\(pane, bootstrap\)/);
   assert.match(shellScript, /function renderAccountQuickActions\(pane, session, bootstrap\)/);
   assert.match(shellScript, /function renderChatSessionCard\(pane, community\)/);
+  assert.match(shellScript, /function getChatModeConfig\(tab\)/);
+  assert.match(shellScript, /function applyChatPaneMode\(tab, pane\)/);
+  assert.match(shellScript, /function filterThreadsForChatMode\(threads, tab\)/);
   assert.match(shellScript, /incomingDirectRequestCount/);
   assert.match(shellScript, /var CHAT_MESSAGE_MAX_LENGTH = 2000;/);
   assert.match(shellScript, /function syncRoomInviteField\(pane\)/);
@@ -104,7 +111,8 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /function shouldRenderChatRoomCard\(room\)/);
   assert.match(shellScript, /function renderChatRoomAction\(room\)/);
   assert.match(shellScript, /room && room\.invited \? "Accept invite" : "Join"/);
-  assert.match(shellScript, /var visibleRooms = rooms\.filter\(function \(room\) \{\s*return shouldRenderChatRoomCard\(room\);/);
+  assert.match(shellScript, /var threads = filterThreadsForChatMode\(payload && payload\.threads, tab\);/);
+  assert.match(shellScript, /var visibleRooms = modeConfig\.showRoomCatalog/);
   assert.doesNotMatch(shellScript, /roomCatalogEl\.innerHTML[\s\S]*\(rooms\.length/);
   assert.match(shellScript, /function leaveChatRoom\(tab, pane, threadId\)/);
   assert.match(shellScript, /data-chat-leave/);
@@ -117,6 +125,7 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /if \(tab && pane && tab\.accountState && tab\.accountState\.allowAutoOpen\) \{\s*setAccountWizardStep\(tab, pane, 2\);\s*tab\.accountState\.allowAutoOpen = false;\s*\}/);
   assert.match(shellScript, /if \(current === 3\) \{\s*tab\.chatState\.activeThreadId = "";\s*setChatWizardStep\(tab, pane, 2\);/);
   assert.doesNotMatch(shellScript, /if \(!tab\.chatState\.activeThreadId && threads\.length\) \{\s*tab\.chatState\.activeThreadId = String\(threads\[0\]\.id\);\s*\}/);
+  assert.match(shellScript, /"antarctic:\/\/chat" as a legacy shortcut to group chats/);
   assert.match(shellScript, /socialApi\.getBootstrap\(Boolean\(forceRefresh\)\)/);
   assert.match(shellScript, /storage\.setJson\(STORAGE_KEY, payload/);
   assert.match(shellScript, /ensureProxyStorageCompatibility\(\)/);

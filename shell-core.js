@@ -6,7 +6,9 @@
     games: "Games",
     ai: "AI",
     account: "Account",
-    chat: "Chat",
+    chat: "Group Chats",
+    dms: "DMs",
+    groupchats: "Group Chats",
     settings: "Settings",
     gamelauncher: "Game Launcher"
   };
@@ -117,7 +119,19 @@
         };
       }
 
-      if (route === "games" || route === "ai" || route === "account" || route === "chat" || route === "settings" || route === "gamelauncher") {
+      if (route === "chat") {
+        route = "groupchats";
+      }
+
+      if (
+        route === "games" ||
+        route === "ai" ||
+        route === "account" ||
+        route === "dms" ||
+        route === "groupchats" ||
+        route === "settings" ||
+        route === "gamelauncher"
+      ) {
         return {
           view: route,
           route: route,

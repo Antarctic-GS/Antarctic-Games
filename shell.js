@@ -556,6 +556,17 @@
     return core.describeInput(value || core.buildInternalUri("home"));
   }
 
+  function isChatViewName(value) {
+    return value === "chat" || value === "dms" || value === "groupchats";
+  }
+
+  function getChatMode(tab) {
+    if (!tab || tab.view === "dms") {
+      return "dms";
+    }
+    return "groupchats";
+  }
+
   function createTab(uri, existingId) {
     var descriptor = describeUri(uri);
     return {
@@ -612,7 +623,7 @@
         memory: []
       };
     }
-    if (tab.view !== "chat") {
+    if (!isChatViewName(tab.view)) {
       tab.chatState = {
         activeThreadId: "",
         pollHandle: 0,
@@ -863,7 +874,7 @@
     if (tab.view === "games") return "games";
     if (tab.view === "ai") return "ai";
     if (tab.view === "account") return "account";
-    if (tab.view === "chat") return "chat";
+    if (isChatViewName(tab.view)) return "chat";
     if (tab.view === "settings") return "settings";
     if (tab.view === "gamelauncher") return "games";
     return "web";
@@ -1074,7 +1085,7 @@
       tab.paneEl = createAiPane(tab);
     } else if (tab.view === "account") {
       tab.paneEl = createAccountPane(tab);
-    } else if (tab.view === "chat") {
+    } else if (isChatViewName(tab.view)) {
       tab.paneEl = createChatPane(tab);
     } else if (tab.view === "settings") {
       tab.paneEl = createSettingsPane(tab);
@@ -1301,6 +1312,94 @@
     };
   }
 
+  function getChatModeConfig(tab) {
+    var mode = getChatMode(tab);
+    if (mode === "dms") {
+      return {
+        mode: "dms",
+        routeUri: "antarctic://dms",
+        introTitle: "Direct Messages",
+        introLede: "Review incoming requests, start one-on-one conversations, and jump back into your private threads.",
+        listEyebrow: "DMs",
+        listTitle: "Direct Threads",
+        nextLabel: "Open DMs",
+        emptyThreadsTitle: "No direct messages yet.",
+        emptyThreadsBody: "Send a DM request to start talking.",
+        emptySelectionBody: "Pick a DM from the left.",
+        browseStatus: "Continue to browse your direct messages.",
+        emptyStatus: "Start a DM request to begin talking.",
+        unauthenticatedStatus: "Log in from Account to use direct messages.",
+        chattingStatus: "DMing as @",
+        showRoomForm: false,
+        showDirectForm: true,
+        showIncomingRequests: true,
+        showRoomCatalog: false
+      };
+    }
+
+    return {
+      mode: "groupchats",
+      routeUri: "antarctic://groupchats",
+      introTitle: "Group Chats",
+      introLede: "Create public or private rooms, invite people, and hang out with other Antarctic users.",
+      listEyebrow: "Rooms",
+      listTitle: "Group Chats",
+      nextLabel: "Open rooms",
+      emptyThreadsTitle: "No joined rooms yet.",
+      emptyThreadsBody: "Create a room or join one from the catalog.",
+      emptySelectionBody: "Pick a joined room from the left.",
+      browseStatus: "Continue to browse your joined rooms.",
+      emptyStatus: "Create a room or join one from the catalog.",
+      unauthenticatedStatus: "Log in from Account to use group chats.",
+      chattingStatus: "Chatting as @",
+      showRoomForm: true,
+      showDirectForm: false,
+      showIncomingRequests: false,
+      showRoomCatalog: true
+    };
+  }
+
+  function applyChatPaneMode(tab, pane) {
+    if (!tab || !pane) return;
+    var config = getChatModeConfig(tab);
+    pane.dataset.chatMode = config.mode;
+
+    var introEyebrow = pane.querySelector('[data-role="chat-intro-eyebrow"]');
+    var introTitle = pane.querySelector('[data-role="chat-intro-title"]');
+    var introLede = pane.querySelector('[data-role="chat-intro-lede"]');
+    var listEyebrow = pane.querySelector('[data-role="chat-list-eyebrow"]');
+    var listTitle = pane.querySelector('[data-role="chat-list-title"]');
+    var nextButton = pane.querySelector("[data-chat-wizard-next]");
+    var roomForm = pane.querySelector('[data-role="chat-room-form"]');
+    var directForm = pane.querySelector('[data-role="chat-direct-form"]');
+    var incomingRequests = pane.querySelector('[data-role="chat-incoming-requests"]');
+    var roomCatalog = pane.querySelector('[data-role="chat-room-catalog"]');
+
+    if (introEyebrow) introEyebrow.textContent = config.routeUri;
+    if (introTitle) introTitle.textContent = config.introTitle;
+    if (introLede) introLede.textContent = config.introLede;
+    if (listEyebrow) listEyebrow.textContent = config.listEyebrow;
+    if (listTitle) listTitle.textContent = config.listTitle;
+    if (nextButton) nextButton.textContent = config.nextLabel;
+    if (roomForm) roomForm.hidden = !config.showRoomForm;
+    if (directForm) directForm.hidden = !config.showDirectForm;
+    if (incomingRequests) incomingRequests.hidden = !config.showIncomingRequests;
+    if (roomCatalog) roomCatalog.hidden = !config.showRoomCatalog;
+  }
+
+  function isDirectThread(thread) {
+    return Boolean(thread && thread.type === "direct");
+  }
+
+  function isRoomThread(thread) {
+    return Boolean(thread && thread.type === "room");
+  }
+
+  function filterThreadsForChatMode(threads, tab) {
+    var list = Array.isArray(threads) ? threads : [];
+    return getChatMode(tab) === "dms" ? list.filter(isDirectThread) : list.filter(isRoomThread);
+  }
+
   function bindSocialPaneListener(pane, callback) {
     var socialApi = getSocialApi();
     if (!pane || !socialApi || typeof socialApi.onSessionChange !== "function" || pane.__socialUnsubscribe) {
@@ -1320,6 +1419,14 @@
     if (wizard) {
       wizard.classList.toggle("is-authenticated", Boolean(authenticated));
     }
+  }
+
+  function getPrimaryCommunityRoute(bootstrap) {
+    var stats = bootstrap && bootstrap.stats ? bootstrap.stats : emptyCommunityBootstrap().stats;
+    if (Number(stats.incomingDirectRequestCount || 0) > 0 || Number(stats.directCount || 0) > 0) {
+      return "antarctic://dms";
+    }
+    return "antarctic://groupchats";
   }
 
   function createAccountPane(tab) {
@@ -1426,6 +1533,7 @@
     }
 
     var stats = bootstrap && bootstrap.stats ? bootstrap.stats : emptyCommunityBootstrap().stats;
+    var primaryCommunityRoute = getPrimaryCommunityRoute(bootstrap);
     summaryEl.innerHTML =
       '<div class="account-summary__hero">' +
         '<div class="account-summary__identity">' +
@@ -1435,7 +1543,9 @@
           '<span>' + escapeHtml(String(stats.threadCount || 0)) + " conversations synced in this browser.</span>" +
         "</div>" +
         '<div class="account-summary__actions">' +
-          '<button type="button" class="toolbar-button toolbar-button--accent" data-account-route="antarctic://chat">Open chat</button>' +
+          '<button type="button" class="toolbar-button toolbar-button--accent" data-account-route="' + escapeHtml(primaryCommunityRoute) + '">Open community</button>' +
+          '<button type="button" class="toolbar-button" data-account-route="antarctic://groupchats">Group chats</button>' +
+          '<button type="button" class="toolbar-button" data-account-route="antarctic://dms">DMs</button>' +
           '<button type="button" class="toolbar-button" data-account-action="logout">Log out</button>' +
         "</div>" +
       "</div>";
@@ -1478,12 +1588,15 @@
 
     var stats = bootstrap && bootstrap.stats ? bootstrap.stats : emptyCommunityBootstrap().stats;
     var incomingCount = Number(stats.incomingDirectRequestCount || 0);
+    var primaryCommunityRoute = getPrimaryCommunityRoute(bootstrap);
     quickActionsEl.innerHTML =
-      '<button type="button" class="toolbar-button toolbar-button--accent" data-account-route="antarctic://chat">' +
+      '<button type="button" class="toolbar-button toolbar-button--accent" data-account-route="' + escapeHtml(primaryCommunityRoute) + '">' +
         (incomingCount > 0
           ? "Review " + escapeHtml(String(incomingCount)) + " incoming DMs"
           : "Jump into " + escapeHtml(String(stats.threadCount || 0)) + " chats") +
       "</button>" +
+      '<button type="button" class="toolbar-button" data-account-route="antarctic://groupchats">Open group chats</button>' +
+      '<button type="button" class="toolbar-button" data-account-route="antarctic://dms">Open DMs</button>' +
       '<button type="button" class="toolbar-button" data-account-route="antarctic://games">Explore games</button>' +
       '<button type="button" class="toolbar-button" data-account-route="antarctic://home">Back home</button>';
   }
@@ -1565,6 +1678,7 @@
   function createChatPane(tab) {
     var pane = cloneTemplate("chat-pane-template");
     if (!pane) return null;
+    applyChatPaneMode(tab, pane);
 
     var form = pane.querySelector('[data-role="chat-form"]');
     if (form) {
@@ -1616,7 +1730,7 @@
     if (typeof tab.chatState.wizardStep !== "number") tab.chatState.wizardStep = 1;
     wireChatWizard(tab, pane);
     bindSocialPaneListener(pane, function () {
-      syncChatPane(pane, tab, "Chat updated.");
+      syncChatPane(pane, tab, "Conversations updated.");
     });
     setChatWizardStep(tab, pane, tab.chatState.wizardStep);
 
@@ -1711,35 +1825,41 @@
     var incomingRequestsEl = pane.querySelector('[data-role="chat-incoming-requests"]');
     if (!listEl || !roomCatalogEl || !incomingRequestsEl) return;
 
-    var threads = Array.isArray(payload && payload.threads) ? payload.threads : [];
+    var modeConfig = getChatModeConfig(tab);
+    var threads = filterThreadsForChatMode(payload && payload.threads, tab);
     var rooms = Array.isArray(payload && payload.rooms) ? payload.rooms : [];
     var incomingDirectRequests = Array.isArray(payload && payload.incomingDirectRequests)
       ? payload.incomingDirectRequests
       : [];
-    var visibleRooms = rooms.filter(function (room) {
-      return shouldRenderChatRoomCard(room);
-    });
+    var visibleRooms = modeConfig.showRoomCatalog
+      ? rooms.filter(function (room) {
+          return shouldRenderChatRoomCard(room);
+        })
+      : [];
 
-    incomingRequestsEl.innerHTML =
-      '<div class="chat-room-catalog__title">Incoming DMs</div>' +
-      (incomingDirectRequests.length
-        ? incomingDirectRequests.map(function (request) {
-            var requester = request && request.requester ? request.requester : null;
-            var username = requester && requester.username ? "@" + requester.username : "Unknown user";
-            return (
-              '<article class="chat-request-card">' +
-                '<div class="chat-request-card__content">' +
-                  '<strong>' + escapeHtml(username) + "</strong>" +
-                  '<span>Wants to start a direct message with you.</span>' +
-                "</div>" +
-                '<div class="chat-request-card__actions">' +
-                  '<button type="button" class="toolbar-button toolbar-button--accent" data-chat-request-accept="' + escapeHtml(request.id) + '">Accept</button>' +
-                  '<button type="button" class="toolbar-button" data-chat-request-deny="' + escapeHtml(request.id) + '">Deny</button>' +
-                "</div>" +
-              "</article>"
-            );
-          }).join("")
-        : '<div class="empty-state empty-state--stacked"><strong>No incoming DMs.</strong><span>New requests will show up here.</span></div>');
+    incomingRequestsEl.innerHTML = modeConfig.showIncomingRequests
+      ? (
+          '<div class="chat-room-catalog__title">Incoming DMs</div>' +
+          (incomingDirectRequests.length
+            ? incomingDirectRequests.map(function (request) {
+                var requester = request && request.requester ? request.requester : null;
+                var username = requester && requester.username ? "@" + requester.username : "Unknown user";
+                return (
+                  '<article class="chat-request-card">' +
+                    '<div class="chat-request-card__content">' +
+                      '<strong>' + escapeHtml(username) + "</strong>" +
+                      '<span>Wants to start a direct message with you.</span>' +
+                    "</div>" +
+                    '<div class="chat-request-card__actions">' +
+                      '<button type="button" class="toolbar-button toolbar-button--accent" data-chat-request-accept="' + escapeHtml(request.id) + '">Accept</button>' +
+                      '<button type="button" class="toolbar-button" data-chat-request-deny="' + escapeHtml(request.id) + '">Deny</button>' +
+                    "</div>" +
+                  "</article>"
+                );
+              }).join("")
+            : '<div class="empty-state empty-state--stacked"><strong>No incoming DMs.</strong><span>New requests will show up here.</span></div>')
+        )
+      : "";
 
     listEl.innerHTML = threads.length
       ? threads.map(function (thread) {
@@ -1756,25 +1876,28 @@
             "</button>"
           );
         }).join("")
-      : '<div class="empty-state empty-state--stacked"><strong>No joined chats yet.</strong><span>Create a room or start a DM.</span></div>';
+      : '<div class="empty-state empty-state--stacked"><strong>' + escapeHtml(modeConfig.emptyThreadsTitle) + '</strong><span>' + escapeHtml(modeConfig.emptyThreadsBody) + "</span></div>";
 
-    roomCatalogEl.innerHTML =
-      '<div class="chat-room-catalog__title">Rooms</div>' +
-      (visibleRooms.length
-        ? visibleRooms.map(function (room) {
-            var visibility = cleanText(room.visibility || "public").toLowerCase() === "private" ? "Private" : "Public";
-            var detail = visibility + " • " + escapeHtml(String(room.memberCount || 0)) + " members";
-            return (
-              '<div class="chat-room-card">' +
-                '<div class="chat-room-card__content">' +
-                  '<strong>' + escapeHtml(room.name) + "</strong>" +
-                  '<span>' + detail + "</span>" +
-                "</div>" +
-                renderChatRoomAction(room) +
-              "</div>"
-            );
-          }).join("")
-        : '<div class="empty-state empty-state--stacked"><strong>No rooms yet.</strong><span>Create the first one above.</span></div>');
+    roomCatalogEl.innerHTML = modeConfig.showRoomCatalog
+      ? (
+          '<div class="chat-room-catalog__title">Rooms</div>' +
+          (visibleRooms.length
+            ? visibleRooms.map(function (room) {
+                var visibility = cleanText(room.visibility || "public").toLowerCase() === "private" ? "Private" : "Public";
+                var detail = visibility + " • " + escapeHtml(String(room.memberCount || 0)) + " members";
+                return (
+                  '<div class="chat-room-card">' +
+                    '<div class="chat-room-card__content">' +
+                      '<strong>' + escapeHtml(room.name) + "</strong>" +
+                      '<span>' + detail + "</span>" +
+                    "</div>" +
+                    renderChatRoomAction(room) +
+                  "</div>"
+                );
+              }).join("")
+            : '<div class="empty-state empty-state--stacked"><strong>No rooms yet.</strong><span>Create the first one above or wait for an invite.</span></div>')
+        )
+      : "";
   }
 
   function isChatRoomJoinable(room) {
@@ -1810,12 +1933,13 @@
     var headerEl = pane.querySelector('[data-role="chat-thread-header"]');
     var messagesEl = pane.querySelector('[data-role="chat-messages"]');
     if (!headerEl || !messagesEl) return;
+    var modeConfig = getChatModeConfig({ view: pane.dataset.chatMode });
 
     if (!thread) {
       headerEl.innerHTML =
         '<div class="empty-state empty-state--compact">' +
           "<strong>Select a conversation.</strong>" +
-          "<span>Pick a joined room or DM from the left.</span>" +
+          "<span>" + escapeHtml(modeConfig.emptySelectionBody) + "</span>" +
         "</div>";
       messagesEl.innerHTML = "";
       return;
@@ -1861,6 +1985,8 @@
 
   function syncChatPane(pane, tab, message, forceRefresh) {
     var socialApi = getSocialApi();
+    var modeConfig = getChatModeConfig(tab);
+    applyChatPaneMode(tab, pane);
     if (!socialApi) {
       setPaneAuthenticatedState(pane, false);
       renderChatSessionCard(pane, null);
@@ -1873,7 +1999,7 @@
     socialApi.getBootstrap(Boolean(forceRefresh)).then(function (community) {
       var authenticated = Boolean(community && community.authenticated && community.user);
       var bootstrap = community && community.bootstrap ? community.bootstrap : emptyCommunityBootstrap();
-      var threads = Array.isArray(bootstrap.threads) ? bootstrap.threads : [];
+      var threads = filterThreadsForChatMode(bootstrap.threads, tab);
       setPaneAuthenticatedState(pane, authenticated);
       renderChatSessionCard(pane, authenticated ? community : null);
 
@@ -1882,7 +2008,7 @@
         setChatWizardStep(tab, pane, 1);
         renderChatThreads(pane, tab, emptyCommunityBootstrap());
         renderChatMessages(pane, null, [], "");
-        setChatStatus(pane, "Log in from Account to use community chat.");
+        setChatStatus(pane, modeConfig.unauthenticatedStatus);
         return null;
       }
 
@@ -1904,8 +2030,8 @@
         setChatStatus(
           pane,
           message || ((tab.chatState.wizardStep || 1) <= 1
-            ? "Continue to browse your rooms and DMs."
-            : "Create a room or open a DM to start talking.")
+            ? modeConfig.browseStatus
+            : modeConfig.emptyStatus)
         );
         return null;
       }
@@ -1918,7 +2044,7 @@
           messagesPayload && messagesPayload.messages,
           community.user && community.user.id
         );
-        setChatStatus(pane, message || ("Chatting as @" + community.user.username + "."));
+        setChatStatus(pane, message || (modeConfig.chattingStatus + community.user.username + "."));
       });
     }).catch(function (error) {
       setPaneAuthenticatedState(pane, false);
@@ -4056,7 +4182,9 @@
       "- `antarctic://ai`",
       "- `antarctic://settings`",
       "- `antarctic://account`",
-      "- `antarctic://chat`",
+      "- `antarctic://dms`",
+      "- `antarctic://groupchats`",
+      "- `antarctic://chat` as a legacy shortcut to group chats",
       "- a normal URL like `https://duckduckgo.com`",
       "- or plain search terms like `horror games`"
     ].join("\n");
@@ -4414,7 +4542,7 @@
       ensurePane(active);
     } else if (active.view === "account") {
       syncAccountPane(active.paneEl, "Account refreshed.");
-    } else if (active.view === "chat") {
+    } else if (isChatViewName(active.view)) {
       syncChatPane(active.paneEl, active, "Chat refreshed.");
     } else if (active.view === "settings") {
       syncSettingsPane(active.paneEl, "Settings refreshed.");

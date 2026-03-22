@@ -24,7 +24,9 @@ test("internal Antarctic routes normalize into view descriptors", () => {
   const home = core.describeInput("antarctic://home");
   const games = core.describeInput("antarctic://games");
   const account = core.describeInput("antarctic://account");
-  const chat = core.describeInput("antarctic://chat");
+  const dms = core.describeInput("antarctic://dms");
+  const groupChats = core.describeInput("antarctic://groupchats");
+  const legacyChat = core.describeInput("antarctic://chat");
   const settings = core.describeInput("antarctic://settings");
   const launcher = core.describeInput("antarctic://gamelauncher");
 
@@ -43,10 +45,20 @@ test("internal Antarctic routes normalize into view descriptors", () => {
   assert.equal(account.title, "Account");
   assert.equal(account.uri, "antarctic://account");
 
-  assert.equal(chat.view, "chat");
-  assert.equal(chat.route, "chat");
-  assert.equal(chat.title, "Chat");
-  assert.equal(chat.uri, "antarctic://chat");
+  assert.equal(dms.view, "dms");
+  assert.equal(dms.route, "dms");
+  assert.equal(dms.title, "DMs");
+  assert.equal(dms.uri, "antarctic://dms");
+
+  assert.equal(groupChats.view, "groupchats");
+  assert.equal(groupChats.route, "groupchats");
+  assert.equal(groupChats.title, "Group Chats");
+  assert.equal(groupChats.uri, "antarctic://groupchats");
+
+  assert.equal(legacyChat.view, "groupchats");
+  assert.equal(legacyChat.route, "groupchats");
+  assert.equal(legacyChat.title, "Group Chats");
+  assert.equal(legacyChat.uri, "antarctic://groupchats");
 
   assert.equal(settings.view, "settings");
   assert.equal(settings.route, "settings");
