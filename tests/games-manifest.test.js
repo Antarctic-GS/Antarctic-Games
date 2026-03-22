@@ -41,6 +41,12 @@ test("frontend ships a committed local games manifest and bundled assets", () =>
   assert.ok(cookieClicker, "Expected Cookie Clicker in the local manifest");
   assert.equal(cookieClicker.path, "games/clickers/cookie-clicker.zip/index.html");
 
+  const crossyRoad = payload.games.find((entry) => entry.path === "games/platformer/crossy-road.html");
+  assert.ok(crossyRoad, "Expected Crossy Road in the local manifest");
+  assert.equal(crossyRoad.title, "Crossy Road");
+  assert.equal(crossyRoad.author, "Hipster Whale");
+  assert.equal(crossyRoad.image, "images/game-img/crossy-road.png");
+
   const hollowKnight = payload.games.find((entry) => entry.path === "games/platformer/hollow-knight.html");
   assert.ok(hollowKnight, "Expected Hollow Knight in the local manifest");
   assert.equal(hollowKnight.title, "Hollow Knight");
@@ -91,6 +97,19 @@ test("frontend Cookie Clicker launcher stays on the bundled local mirror", () =>
   assert.doesNotMatch(launcher, /rawcdn\.githack\.com\/bubbls\/UGS-Assets/);
   assert.doesNotMatch(launcher, /cdn\.jsdelivr\.net\/gh\/bubbls\/UGS-Assets/);
   assert.doesNotMatch(bundledSource, /<script src="\/js\/main\.js"><\/script>/);
+});
+
+test("frontend Crossy Road launcher stays local and does not redirect off-site", () => {
+  const launcher = fs.readFileSync(path.join(FRONTEND_DIR, "games", "platformer", "crossy-road.html"), "utf8");
+  const bundledIndex = fs.readFileSync(
+    path.join(FRONTEND_DIR, "games", "platformer", "crossy-road", "index.html"),
+    "utf8"
+  );
+
+  assert.match(launcher, /<base href="\.\/crossy-road\/">/);
+  assert.match(launcher, /scripts\/bootstrap\.min\.f\.js/);
+  assert.doesNotMatch(launcher, /window\.location\s*=/);
+  assert.match(bundledIndex, /window\.location\s*=\s*"https:\/\/ubg98\.github\.io\/CrossyRoad\/"/);
 });
 
 test("Unity launchers stay free of the injected sidebar ad script", () => {

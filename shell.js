@@ -1698,6 +1698,9 @@
     var incomingDirectRequests = Array.isArray(payload && payload.incomingDirectRequests)
       ? payload.incomingDirectRequests
       : [];
+    var visibleRooms = rooms.filter(function (room) {
+      return shouldRenderChatRoomCard(room);
+    });
 
     incomingRequestsEl.innerHTML =
       '<div class="chat-room-catalog__title">Incoming DMs</div>' +
@@ -1739,8 +1742,8 @@
 
     roomCatalogEl.innerHTML =
       '<div class="chat-room-catalog__title">Rooms</div>' +
-      (rooms.length
-        ? rooms.map(function (room) {
+      (visibleRooms.length
+        ? visibleRooms.map(function (room) {
             var visibility = cleanText(room.visibility || "public").toLowerCase() === "private" ? "Private" : "Public";
             var detail = visibility + " • " + escapeHtml(String(room.memberCount || 0)) + " members";
             return (
@@ -1749,15 +1752,40 @@
                   '<strong>' + escapeHtml(room.name) + "</strong>" +
                   '<span>' + detail + "</span>" +
                 "</div>" +
-                (room.joined
-                  ? '<span class="chat-room-card__joined">Joined</span>'
-                  : '<button type="button" class="toolbar-button" data-chat-join="' + escapeHtml(room.id) + '">' +
-                      (room.invited ? "Accept invite" : "Join") +
-                    "</button>") +
+                renderChatRoomAction(room) +
               "</div>"
             );
           }).join("")
         : '<div class="empty-state empty-state--stacked"><strong>No rooms yet.</strong><span>Create the first one above.</span></div>');
+  }
+
+  function isChatRoomJoinable(room) {
+    if (!room || typeof room !== "object") return false;
+    if (room.joined) return true;
+    if (Object.prototype.hasOwnProperty.call(room, "joinable")) {
+      return Boolean(room.joinable);
+    }
+    return cleanText(room.visibility || "public").toLowerCase() !== "private" || Boolean(room.invited);
+  }
+
+  function shouldRenderChatRoomCard(room) {
+    if (!room || typeof room !== "object") return false;
+    if (room.joined) return true;
+    return isChatRoomJoinable(room);
+  }
+
+  function renderChatRoomAction(room) {
+    if (room && room.joined) {
+      return '<span class="chat-room-card__joined">Joined</span>';
+    }
+    if (!isChatRoomJoinable(room)) {
+      return '<span class="chat-room-card__joined">Invite only</span>';
+    }
+    return (
+      '<button type="button" class="toolbar-button" data-chat-join="' + escapeHtml(room && room.id) + '">' +
+        (room && room.invited ? "Accept invite" : "Join") +
+      "</button>"
+    );
   }
 
   function renderChatMessages(pane, thread, messages, currentUserId) {
@@ -3007,6 +3035,47 @@
 
     return window.navigator.serviceWorker.register(SCRAMJET_SW_PATH).then(function () {
       return window.navigator.serviceWorker.ready;
+    }).then(function (registration) {
+      return waitForProxyServiceWorkerController().then(function () {
+        return registration;
+      });
+    });
+  }
+
+  function waitForProxyServiceWorkerController() {
+    if (
+      window.navigator &&
+      window.navigator.serviceWorker &&
+      window.navigator.serviceWorker.controller
+    ) {
+      return Promise.resolve();
+    }
+
+    return new Promise(function (resolve) {
+      if (!window.navigator || !window.navigator.serviceWorker) {
+        resolve();
+        return;
+      }
+
+      var settled = false;
+      var timeoutId = 0;
+
+      function finish() {
+        if (settled) return;
+        settled = true;
+        if (timeoutId) {
+          window.clearTimeout(timeoutId);
+        }
+        window.navigator.serviceWorker.removeEventListener("controllerchange", handleControllerChange);
+        resolve();
+      }
+
+      function handleControllerChange() {
+        finish();
+      }
+
+      timeoutId = window.setTimeout(finish, 1200);
+      window.navigator.serviceWorker.addEventListener("controllerchange", handleControllerChange);
     });
   }
 

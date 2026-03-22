@@ -88,6 +88,7 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /function resolveProxyFetchUrl\(config\)/);
   assert.match(shellScript, /function probeWispTransport\(wispUrl\)/);
   assert.match(shellScript, /function createHttpProxyTransport\(config\)/);
+  assert.match(shellScript, /function waitForProxyServiceWorkerController\(\)/);
   assert.match(shellScript, /function shouldSkipFrontendProxyHeader\(name\)/);
   assert.match(shellScript, /assetUrl\.searchParams\.set\(LOCAL_APP_ASSET_PARAM, LOCAL_APP_ASSET_VERSION\)/);
   assert.match(shellScript, /new URL\(normalized, getLocalAppBaseUrl\(\)\)\.toString\(\)/);
@@ -98,7 +99,12 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /var CHAT_MESSAGE_MAX_LENGTH = 2000;/);
   assert.match(shellScript, /function syncRoomInviteField\(pane\)/);
   assert.match(shellScript, /function syncChatMessageCounter\(pane\)/);
-  assert.match(shellScript, /room\.invited \? "Accept invite" : "Join"/);
+  assert.match(shellScript, /function isChatRoomJoinable\(room\)/);
+  assert.match(shellScript, /function shouldRenderChatRoomCard\(room\)/);
+  assert.match(shellScript, /function renderChatRoomAction\(room\)/);
+  assert.match(shellScript, /room && room\.invited \? "Accept invite" : "Join"/);
+  assert.match(shellScript, /var visibleRooms = rooms\.filter\(function \(room\) \{\s*return shouldRenderChatRoomCard\(room\);/);
+  assert.doesNotMatch(shellScript, /roomCatalogEl\.innerHTML[\s\S]*\(rooms\.length/);
   assert.match(shellScript, /function leaveChatRoom\(tab, pane, threadId\)/);
   assert.match(shellScript, /data-chat-leave/);
   assert.match(shellScript, /function acceptIncomingDirectRequest\(tab, pane, requestId\)/);

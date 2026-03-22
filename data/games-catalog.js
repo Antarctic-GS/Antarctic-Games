@@ -103,6 +103,15 @@ window.ANTARCTIC_GAMES_CATALOG = {
       "launchUri": "antarctic://gamelauncher?path=games%2Fclickers%2Fcookie-clicker.zip%2Findex.html&title=Cookie%20Clicker&author=Orteil"
     },
     {
+      "file": "crossy-road.html",
+      "title": "Crossy Road",
+      "author": "Hipster Whale",
+      "category": "Arcade",
+      "path": "games/platformer/crossy-road.html",
+      "image": "images/game-img/crossy-road.png",
+      "launchUri": "antarctic://gamelauncher?path=games%2Fplatformer%2Fcrossy-road.html&title=Crossy%20Road&author=Hipster%20Whale"
+    },
+    {
       "file": "eaglercraft-1.12.2.html",
       "title": "Eaglercraft 1.12.2",
       "author": "lax1dude + PeytonPlayz585",
