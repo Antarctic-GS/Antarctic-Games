@@ -86,6 +86,11 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /function renderAccountMetrics\(pane, bootstrap\)/);
   assert.match(shellScript, /function renderAccountQuickActions\(pane, session, bootstrap\)/);
   assert.match(shellScript, /function renderChatSessionCard\(pane, community\)/);
+  assert.match(shellScript, /accountState:\s*\{\s*allowAutoOpen:\s*true\s*\}/);
+  assert.match(shellScript, /if \(tab && tab\.accountState\) \{\s*tab\.accountState\.allowAutoOpen = true;\s*\}/);
+  assert.match(shellScript, /if \(tab && pane && tab\.accountState && tab\.accountState\.allowAutoOpen\) \{\s*setAccountWizardStep\(tab, pane, 2\);\s*tab\.accountState\.allowAutoOpen = false;\s*\}/);
+  assert.match(shellScript, /if \(current === 3\) \{\s*tab\.chatState\.activeThreadId = "";\s*setChatWizardStep\(tab, pane, 2\);/);
+  assert.doesNotMatch(shellScript, /if \(!tab\.chatState\.activeThreadId && threads\.length\) \{\s*tab\.chatState\.activeThreadId = String\(threads\[0\]\.id\);\s*\}/);
   assert.match(shellScript, /socialApi\.getBootstrap\(Boolean\(forceRefresh\)\)/);
   assert.match(shellScript, /storage\.setJson\(STORAGE_KEY, payload/);
   assert.match(shellScript, /ensureProxyStorageCompatibility\(\)/);

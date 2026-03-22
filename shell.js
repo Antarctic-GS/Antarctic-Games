@@ -540,6 +540,9 @@
   function createTab(uri, existingId) {
     var descriptor = describeUri(uri);
     return {
+      accountState: {
+        allowAutoOpen: true
+      },
       aiState: {
         busy: false,
         memory: []
@@ -579,6 +582,11 @@
     tab.uri = descriptor.uri;
     tab.view = descriptor.view;
     tab.gamesQuery = tab.view === "games" ? tab.gamesQuery : "";
+    if (tab.view === "account") {
+      tab.accountState = {
+        allowAutoOpen: true
+      };
+    }
     if (tab.view !== "ai") {
       tab.aiState = {
         busy: false,
@@ -1242,6 +1250,7 @@
       backBtn.addEventListener("click", function () {
         var current = (tab.chatState && tab.chatState.wizardStep) || 1;
         if (current === 3) {
+          tab.chatState.activeThreadId = "";
           setChatWizardStep(tab, pane, 2);
         } else {
           setChatWizardStep(tab, pane, current - 1);
@@ -1503,12 +1512,18 @@
       renderAccountSaves(pane, authenticated ? bootstrap.saves : []);
 
       if (!authenticated) {
+        if (tab && tab.accountState) {
+          tab.accountState.allowAutoOpen = true;
+        }
         if (tab && pane) setAccountWizardStep(tab, pane, 1);
         setAccountStatus(pane, message || "Log in to sync your saves and community profile.");
         return;
       }
 
-      if (tab && pane) setAccountWizardStep(tab, pane, 2);
+      if (tab && pane && tab.accountState && tab.accountState.allowAutoOpen) {
+        setAccountWizardStep(tab, pane, 2);
+        tab.accountState.allowAutoOpen = false;
+      }
       setAccountStatus(pane, message || ("Logged in as @" + community.user.username + "."));
     }).catch(function (error) {
       setPaneAuthenticatedState(pane, false);
@@ -1750,15 +1765,18 @@
         }
       }
 
-      if (!tab.chatState.activeThreadId && threads.length) {
-        tab.chatState.activeThreadId = String(threads[0].id);
-      }
-
       renderChatThreads(pane, tab, bootstrap);
       if (!tab.chatState.activeThreadId) {
-        setChatWizardStep(tab, pane, 2);
+        if ((tab.chatState.wizardStep || 1) > 2) {
+          setChatWizardStep(tab, pane, 2);
+        }
         renderChatMessages(pane, null, [], community.user && community.user.id);
-        setChatStatus(pane, message || "Create a room or open a DM to start talking.");
+        setChatStatus(
+          pane,
+          message || ((tab.chatState.wizardStep || 1) <= 1
+            ? "Continue to browse your rooms and DMs."
+            : "Create a room or open a DM to start talking.")
+        );
         return null;
       }
 
