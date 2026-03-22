@@ -66,6 +66,8 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /window\.AntarcticSocialClient \|\| window\.PalladiumSocialClient/);
   assert.match(shellScript, /var LOCAL_APP_ASSET_PARAM = "antarctic_asset"/);
   assert.match(shellScript, /var LOCAL_APP_ASSET_VERSION = "2026-03-22-asset-1"/);
+  assert.match(shellScript, /async function requestAi\(payload, onDelta\)/);
+  assert.match(shellScript, /function readAiResponseText\(response\)/);
   assert.match(shellScript, /function resolveLocalAppUrl\(value\)/);
   assert.match(shellScript, /function getLocalAppBaseUrl\(\)/);
   assert.match(shellScript, /function appendLocalAssetVersion\(resolvedUrl\)/);
@@ -83,9 +85,10 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /frame\.src = resolveLocalAppUrl\(gamePath\)/);
   assert.match(shellScript, /frame\.src = resolveLocalAppUrl\(tab\.path\)/);
   assert.match(shellScript, /escapeHtml\(resolveLocalAppUrl\(image\)\)/);
-  assert.match(shellScript, /keep_alive:\s*"24h"/);
-  assert.match(shellScript, /num_predict:\s*64/);
-  assert.match(shellScript, /num_ctx:\s*768/);
+  assert.match(shellScript, /keep_alive:\s*"48h"/);
+  assert.match(shellScript, /num_predict:\s*48/);
+  assert.match(shellScript, /num_ctx:\s*512/);
+  assert.match(shellScript, /temperature:\s*0/);
   assert.match(shellScript, /normalized === "\$scramjet"/);
   assert.match(shellScript, /window\.indexedDB\.databases\(\)/);
   assert.match(shellScript, /window\.navigator\.serviceWorker\.getRegistrations\(\)/);
@@ -100,6 +103,8 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(gamesHelper, /script\.src = resolveCatalogScriptUrl\(\);/);
   assert.match(gamesHelper, /manifestUrl\.searchParams\.set\(LOCAL_MANIFEST_ASSET_PARAM, LOCAL_MANIFEST_VERSION\)/);
   assert.match(socialClient, /function getBootstrap\(forceRefresh\)/);
+  assert.match(socialClient, /function hasStoredToken\(\)/);
+  assert.match(socialClient, /if \(!hasStoredToken\(\)\) \{/);
   assert.match(socialClient, /requestJson\("\/api\/community\/bootstrap"/);
   assert.match(socialClient, /credentials:\s*"same-origin"/);
   assert.match(socialClient, /return currentCommunityState\(\);/);

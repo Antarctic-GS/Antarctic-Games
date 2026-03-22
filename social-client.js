@@ -63,6 +63,10 @@
     return normalized;
   }
 
+  function hasStoredToken() {
+    return Boolean(readStoredToken());
+  }
+
   function emitSessionChange(session) {
     listeners.slice().forEach(function (listener) {
       try {
@@ -245,7 +249,18 @@
       headers: headers,
       credentials: "same-origin"
     }));
-    var text = await response.text();
+    var text = "";
+    if (response && typeof response.text === "function") {
+      text = await response.text();
+    } else if (response && typeof response.json === "function") {
+      try {
+        text = JSON.stringify(await response.json());
+      } catch (error) {
+        text = "";
+      }
+    } else if (typeof response === "string") {
+      text = response;
+    }
     var payload = {};
 
     try {
@@ -276,6 +291,11 @@
       return currentSession();
     }
 
+    if (!hasStoredToken()) {
+      setSessionFromPayload({ authenticated: false, user: null, token: "" });
+      return currentSession();
+    }
+
     if (sessionRequest) {
       return sessionRequest;
     }
@@ -297,6 +317,11 @@
 
   async function getBootstrap(forceRefresh) {
     if (!forceRefresh && cachedSession !== undefined && cachedBootstrap !== undefined) {
+      return currentCommunityState();
+    }
+
+    if (!hasStoredToken()) {
+      setSessionFromPayload({ authenticated: false, user: null, token: "" });
       return currentCommunityState();
     }
 

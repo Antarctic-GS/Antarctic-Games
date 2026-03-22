@@ -3256,33 +3256,61 @@
     );
   }
 
-  function requestAi(payload, onDelta) {
-    return fetch(getBackendApi().apiUrl("/api/ai/chat"), {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(payload)
-    }).catch(function (error) {
+  function readAiResponseText(response) {
+    if (!response) {
+      return Promise.resolve("");
+    }
+
+    if (typeof response.text === "function") {
+      return response.text().catch(function () {
+        return "";
+      });
+    }
+
+    if (typeof response.json === "function") {
+      return response.json().then(function (payload) {
+        return JSON.stringify(payload || {});
+      }).catch(function () {
+        return "";
+      });
+    }
+
+    return Promise.resolve(typeof response === "string" ? response : "");
+  }
+
+  async function requestAi(payload, onDelta) {
+    var response;
+
+    try {
+      response = await fetch(getBackendApi().apiUrl("/api/ai/chat"), {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch (error) {
       if (payload.stream && isRecoverableStreamError(error)) {
         return requestAi(Object.assign({}, payload, { stream: false }), null);
       }
       throw error;
-    }).then(function (response) {
-      if (!response.ok) {
-        return response.text().then(function (raw) {
-          throw new Error(extractErrorText(raw) || raw || ("AI request failed: " + response.status));
-        });
-      }
+    }
 
-      if (payload.stream && response.body && typeof response.body.getReader === "function") {
-        return streamAiResponse(response, payload, onDelta);
-      }
+    if (!response || typeof response !== "object") {
+      return extractAssistantText(response) || cleanText(response);
+    }
 
-      return response.text().then(function (raw) {
-        var err = extractErrorText(raw);
-        if (err) throw new Error(err);
-        return extractAssistantText(raw);
-      });
-    });
+    if (!response.ok) {
+      var failedRaw = await readAiResponseText(response);
+      throw new Error(extractErrorText(failedRaw) || failedRaw || ("AI request failed: " + response.status));
+    }
+
+    if (payload.stream && response.body && typeof response.body.getReader === "function") {
+      return streamAiResponse(response, payload, onDelta);
+    }
+
+    var raw = await readAiResponseText(response);
+    var err = extractErrorText(raw);
+    if (err) throw new Error(err);
+    return extractAssistantText(raw);
   }
 
   function streamAiResponse(response, payload, onDelta) {
@@ -3372,7 +3400,7 @@
       lines.push("When answering about games, use ONLY this catalog.");
       lines.push("Catalog:");
       lines.push(
-        games.slice(0, 24).map(function (game) {
+        games.slice(0, 16).map(function (game) {
           return "- " + game.title + " | " + game.author + " | " + game.path;
         }).join("\n")
       );
@@ -3389,18 +3417,18 @@
 
     return buildAiSystemPrompt(userText).then(function (systemPrompt) {
       var messages = [{ role: "system", content: systemPrompt }];
-      tab.aiState.memory.slice(-8).forEach(function (message) {
+      tab.aiState.memory.slice(-6).forEach(function (message) {
         messages.push(message);
       });
 
       return requestAi({
         messages: messages,
         stream: true,
-        keep_alive: "24h",
+        keep_alive: "48h",
         options: {
-          num_predict: 64,
-          num_ctx: 768,
-          temperature: 0.1
+          num_predict: 48,
+          num_ctx: 512,
+          temperature: 0
         }
       }, onDelta);
     });

@@ -159,3 +159,20 @@ test("social client clears cached session and bootstrap state on logout", async 
   assert.equal(bootstrap.bootstrap.saves.length, 0);
   assert.equal(calls.length, 2);
 });
+
+test("social client short-circuits anonymous session and bootstrap checks without a token", async () => {
+  const calls = [];
+  const { api } = createClient(async (url) => {
+    calls.push(url);
+    throw new Error(`Unexpected fetch for ${url}`);
+  });
+
+  const session = await api.getSession();
+  const bootstrap = await api.getBootstrap();
+
+  assert.equal(session.authenticated, false);
+  assert.equal(session.token, "");
+  assert.equal(bootstrap.authenticated, false);
+  assert.equal(bootstrap.bootstrap.threads.length, 0);
+  assert.equal(calls.length, 0);
+});
