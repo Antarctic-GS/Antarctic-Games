@@ -191,3 +191,38 @@ test("social client short-circuits anonymous session and bootstrap checks withou
   assert.equal(bootstrap.bootstrap.incomingDirectRequests.length, 0);
   assert.equal(calls.length, 0);
 });
+
+test("social client sends room visibility and invite usernames when creating a room", async () => {
+  const calls = [];
+  const { api } = createClient(async (url, init = {}) => {
+    calls.push({ url, init });
+    return createJsonResponse(201, {
+      ok: true,
+      threads: [],
+      rooms: [],
+      saves: [],
+      incomingDirectRequests: [],
+      stats: {
+        threadCount: 0,
+        roomCount: 0,
+        joinedRoomCount: 0,
+        directCount: 0,
+        incomingDirectRequestCount: 0,
+        saveCount: 0
+      }
+    });
+  });
+
+  await api.createRoom("Secret Ops", {
+    visibility: "private",
+    invitedUsers: ["guest", "aurora"]
+  });
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://api.example.test/api/chat/rooms");
+  assert.deepEqual(JSON.parse(calls[0].init.body), {
+    name: "Secret Ops",
+    visibility: "private",
+    invitedUsers: ["guest", "aurora"]
+  });
+});

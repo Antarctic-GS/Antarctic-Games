@@ -40,6 +40,7 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   const shellScript = fs.readFileSync(path.join(FRONTEND_DIR, "shell.js"), "utf8");
   const gamesHelper = fs.readFileSync(path.join(FRONTEND_DIR, "games-static.js"), "utf8");
   const socialClient = fs.readFileSync(path.join(FRONTEND_DIR, "social-client.js"), "utf8");
+  const backendHelper = fs.readFileSync(path.join(FRONTEND_DIR, "backend.js"), "utf8");
 
   assert.match(shellPage, /id="sidebar-toggle"/);
   assert.match(shellPage, /<script src="site-storage\.js"><\/script>\s*<script src="site-settings\.js"><\/script>/);
@@ -58,6 +59,11 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellPage, /data-role="account-quick-actions"/);
   assert.match(shellPage, /data-role="chat-session"/);
   assert.match(shellPage, /data-role="chat-incoming-requests"/);
+  assert.match(shellPage, /name="room-visibility"/);
+  assert.match(shellPage, /data-role="room-invites-field"/);
+  assert.match(shellPage, /name="room-invites"/);
+  assert.match(shellPage, /data-role="chat-message-counter"/);
+  assert.match(shellPage, /maxlength="2000"/);
   assert.match(shellPage, /Send DM request/);
   assert.match(shellPage, /prompt-list--composer/);
   assert.doesNotMatch(shellPage, /data-account-wizard-next/);
@@ -89,6 +95,10 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /function renderAccountQuickActions\(pane, session, bootstrap\)/);
   assert.match(shellScript, /function renderChatSessionCard\(pane, community\)/);
   assert.match(shellScript, /incomingDirectRequestCount/);
+  assert.match(shellScript, /var CHAT_MESSAGE_MAX_LENGTH = 2000;/);
+  assert.match(shellScript, /function syncRoomInviteField\(pane\)/);
+  assert.match(shellScript, /function syncChatMessageCounter\(pane\)/);
+  assert.match(shellScript, /room\.invited \? "Accept invite" : "Join"/);
   assert.match(shellScript, /function acceptIncomingDirectRequest\(tab, pane, requestId\)/);
   assert.match(shellScript, /function denyIncomingDirectRequest\(tab, pane, requestId\)/);
   assert.match(shellScript, /data-chat-request-accept/);
@@ -136,6 +146,9 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(gamesHelper, /manifestUrl\.searchParams\.set\(LOCAL_MANIFEST_ASSET_PARAM, LOCAL_MANIFEST_VERSION\)/);
   assert.match(socialClient, /function getBootstrap\(forceRefresh\)/);
   assert.match(socialClient, /incomingDirectRequests:\s*\[\]/);
+  assert.match(socialClient, /createRoom:\s*function \(name, options\)/);
+  assert.match(socialClient, /visibility:\s*cleanText\(roomOptions\.visibility \|\| "public"\)/);
+  assert.match(socialClient, /invitedUsers:\s*invitedUsers/);
   assert.match(socialClient, /acceptDirectRequest:\s*function \(requestId\)/);
   assert.match(socialClient, /denyDirectRequest:\s*function \(requestId\)/);
   assert.match(socialClient, /function hasStoredToken\(\)/);
@@ -143,6 +156,9 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(socialClient, /requestJson\("\/api\/community\/bootstrap"/);
   assert.match(socialClient, /credentials:\s*"same-origin"/);
   assert.match(socialClient, /return currentCommunityState\(\);/);
+  assert.match(backendHelper, /host === "sethpang\.com" \|\| host === "www\.sethpang\.com"/);
+  assert.match(backendHelper, /return "https:\/\/sethpang\.com";/);
+  assert.doesNotMatch(backendHelper, /https:\/\/api\.sethpang\.com/);
 });
 
 test("service worker bootstraps Scramjet from the static frontend origin", () => {
@@ -187,6 +203,7 @@ test("settings shell keeps the sidebar on a fixed attached rail", () => {
   assert.match(settingsShellCss, /\.chat-session-card\s*\{/);
   assert.match(settingsShellCss, /\.chat-request-list\s*\{/);
   assert.match(settingsShellCss, /\.chat-request-card__actions\s*\{/);
+  assert.match(settingsShellCss, /\.chat-room__counter\s*\{/);
   assert.match(settingsShellCss, /\.chat-thread-card__badge\s*\{/);
   assert.match(settingsShellCss, /\.chat-message--own\s*\{/);
   assert.match(settingsShellCss, /\.game-launcher__action\s*\{/);

@@ -209,7 +209,7 @@
             <p class="stage-overlay__eyebrow">Proxy status</p>
             <h2 class="stage-overlay__title">The proxy is not reachable right now.</h2>
             <p id="stage-overlay-text" class="stage-overlay__text">
-              Check the backend transport at api.sethpang.com and try again.
+              Check the backend transport at sethpang.com and try again.
             </p>
           </div>
         </div>
@@ -572,6 +572,18 @@
                     <span class="settings-field__label">Create room</span>
                     <input class="settings-field__input" type="text" name="room-name" placeholder="Late Night Games" autocomplete="off" />
                   </label>
+                  <label class="settings-field">
+                    <span class="settings-field__label">Visibility</span>
+                    <select class="settings-field__input" name="room-visibility">
+                      <option value="public">Public</option>
+                      <option value="private">Private</option>
+                    </select>
+                  </label>
+                  <label class="settings-field" data-role="room-invites-field" hidden>
+                    <span class="settings-field__label">Invite usernames</span>
+                    <input class="settings-field__input" type="text" name="room-invites" placeholder="guest, aurora" autocomplete="off" />
+                    <span class="settings-field__hint">Comma-separated usernames. Private rooms only.</span>
+                  </label>
                   <button type="submit" class="toolbar-button toolbar-button--accent">Create room</button>
                 </form>
                 <form class="chat-create-form" data-role="chat-direct-form">
@@ -594,8 +606,9 @@
                 <div class="chat-room__header" data-role="chat-thread-header"></div>
                 <div class="chat-room__messages" data-role="chat-messages"></div>
                 <form class="chat-room__composer" data-role="chat-form">
-                  <textarea class="ai-chat__input chat-room__input" name="chat-message" rows="1" placeholder="Send a message"></textarea>
+                  <textarea class="ai-chat__input chat-room__input" name="chat-message" rows="1" maxlength="2000" placeholder="Send a message"></textarea>
                   <div class="chat-room__actions">
+                    <span class="chat-room__counter" data-role="chat-message-counter">0 / 2000</span>
                     <button type="submit" class="toolbar-button toolbar-button--accent">Send</button>
                   </div>
                 </form>

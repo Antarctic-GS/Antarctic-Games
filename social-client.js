@@ -424,11 +424,21 @@
     listThreads: function () {
       return requestJson("/api/chat/threads", { method: "GET" });
     },
-    createRoom: function (name) {
+    createRoom: function (name, options) {
+      var roomOptions = options && typeof options === "object" ? options : {};
+      var invitedUsers = Array.isArray(roomOptions.invitedUsers)
+        ? roomOptions.invitedUsers.map(function (entry) {
+            return cleanText(entry);
+          }).filter(Boolean)
+        : [];
       return requestJson("/api/chat/rooms", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name: cleanText(name) })
+        body: JSON.stringify({
+          name: cleanText(name),
+          visibility: cleanText(roomOptions.visibility || "public") || "public",
+          invitedUsers: invitedUsers
+        })
       });
     },
     createDirect: function (username) {

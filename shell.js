@@ -68,6 +68,7 @@
     eleven: 11,
     twelve: 12
   };
+  var CHAT_MESSAGE_MAX_LENGTH = 2000;
   var AI_CATALOG_STOPWORDS = {
     a: true,
     all: true,
@@ -1561,6 +1562,13 @@
         event.preventDefault();
         submitRoomCreate(tab, pane);
       });
+      var visibilityField = roomForm.querySelector('[name="room-visibility"]');
+      if (visibilityField) {
+        visibilityField.addEventListener("change", function () {
+          syncRoomInviteField(pane);
+        });
+      }
+      syncRoomInviteField(pane);
     }
 
     var directForm = pane.querySelector('[data-role="chat-direct-form"]');
@@ -1575,6 +1583,7 @@
     if (composer) {
       composer.addEventListener("input", function () {
         syncAiInputHeight(composer);
+        syncChatMessageCounter(pane);
       });
       composer.addEventListener("keydown", function (event) {
         if (event.key === "Enter" && !event.shiftKey) {
@@ -1583,6 +1592,7 @@
         }
       });
       syncAiInputHeight(composer);
+      syncChatMessageCounter(pane);
     }
 
     if (typeof tab.chatState.wizardStep !== "number") tab.chatState.wizardStep = 1;
@@ -1721,18 +1731,22 @@
       : '<div class="empty-state empty-state--stacked"><strong>No joined chats yet.</strong><span>Create a room or start a DM.</span></div>';
 
     roomCatalogEl.innerHTML =
-      '<div class="chat-room-catalog__title">Public rooms</div>' +
+      '<div class="chat-room-catalog__title">Rooms</div>' +
       (rooms.length
         ? rooms.map(function (room) {
+            var visibility = cleanText(room.visibility || "public").toLowerCase() === "private" ? "Private" : "Public";
+            var detail = visibility + " • " + escapeHtml(String(room.memberCount || 0)) + " members";
             return (
               '<div class="chat-room-card">' +
                 '<div class="chat-room-card__content">' +
                   '<strong>' + escapeHtml(room.name) + "</strong>" +
-                  '<span>' + escapeHtml(String(room.memberCount || 0)) + " members</span>" +
+                  '<span>' + detail + "</span>" +
                 "</div>" +
                 (room.joined
                   ? '<span class="chat-room-card__joined">Joined</span>'
-                  : '<button type="button" class="toolbar-button" data-chat-join="' + escapeHtml(room.id) + '">Join</button>') +
+                  : '<button type="button" class="toolbar-button" data-chat-join="' + escapeHtml(room.id) + '">' +
+                      (room.invited ? "Accept invite" : "Join") +
+                    "</button>") +
               "</div>"
             );
           }).join("")
@@ -1757,7 +1771,13 @@
     headerEl.innerHTML =
       '<div class="chat-room__title-wrap">' +
         '<strong class="chat-room__title">' + escapeHtml(thread.type === "direct" && thread.peer ? "@" + thread.peer.username : thread.name) + "</strong>" +
-        '<span class="chat-room__meta">' + escapeHtml(thread.type === "direct" ? "Direct message" : "Public room") + "</span>" +
+        '<span class="chat-room__meta">' +
+          escapeHtml(
+            thread.type === "direct"
+              ? "Direct message • 2000 character max"
+              : ((cleanText(thread.visibility || "public").toLowerCase() === "private" ? "Private room" : "Public room") + " • 2000 character max")
+          ) +
+        "</span>" +
       "</div>";
 
     if (!Array.isArray(messages) || !messages.length) {
@@ -1856,15 +1876,29 @@
     var form = pane.querySelector('[data-role="chat-room-form"]');
     if (!socialApi || !form) return;
     var input = form.querySelector('[name="room-name"]');
+    var visibilityField = form.querySelector('[name="room-visibility"]');
+    var invitesField = form.querySelector('[name="room-invites"]');
     var value = cleanText(input && input.value);
+    var visibility = cleanText(visibilityField && visibilityField.value).toLowerCase() === "private" ? "private" : "public";
+    var invitedUsers = visibility === "private"
+      ? cleanText(invitesField && invitesField.value).split(/[,\n]/g).map(function (entry) {
+          return cleanText(entry);
+        }).filter(Boolean)
+      : [];
     setChatStatus(pane, "Creating room...");
-    socialApi.createRoom(value).then(function (payload) {
+    socialApi.createRoom(value, {
+      visibility: visibility,
+      invitedUsers: invitedUsers
+    }).then(function (payload) {
       if (input) input.value = "";
+      if (invitesField) invitesField.value = "";
+      if (visibilityField) visibilityField.value = "public";
+      syncRoomInviteField(pane);
       if (payload && payload.thread && payload.thread.id) {
         tab.chatState.activeThreadId = String(payload.thread.id);
         setChatWizardStep(tab, pane, 3);
       }
-      syncChatPane(pane, tab, "Room created.");
+      syncChatPane(pane, tab, visibility === "private" ? "Private room created." : "Room created.");
     }).catch(function (error) {
       setChatStatus(pane, cleanText(error && error.message ? error.message : error));
     });
@@ -1944,6 +1978,7 @@
     socialApi.sendMessage(tab.chatState.activeThreadId, value).then(function (payload) {
       input.value = "";
       syncAiInputHeight(input);
+      syncChatMessageCounter(pane);
       renderChatMessages(
         pane,
         payload && payload.thread,
@@ -2070,6 +2105,30 @@
 
     textarea.style.height = nextHeight + "px";
     textarea.style.overflowY = textarea.scrollHeight > nextHeight + 2 ? "auto" : "hidden";
+  }
+
+  function syncRoomInviteField(pane) {
+    if (!pane) return;
+    var roomForm = pane.querySelector('[data-role="chat-room-form"]');
+    if (!roomForm) return;
+    var visibilityField = roomForm.querySelector('[name="room-visibility"]');
+    var inviteField = roomForm.querySelector('[data-role="room-invites-field"]');
+    var inviteInput = roomForm.querySelector('[name="room-invites"]');
+    if (!visibilityField || !inviteField) return;
+
+    var isPrivate = cleanText(visibilityField.value).toLowerCase() === "private";
+    inviteField.hidden = !isPrivate;
+    if (!isPrivate && inviteInput) {
+      inviteInput.value = "";
+    }
+  }
+
+  function syncChatMessageCounter(pane) {
+    if (!pane) return;
+    var input = pane.querySelector(".chat-room__input");
+    var counter = pane.querySelector('[data-role="chat-message-counter"]');
+    if (!input || !counter) return;
+    counter.textContent = String(input.value.length) + " / " + String(CHAT_MESSAGE_MAX_LENGTH);
   }
 
   function renderCloakPresets(pane) {

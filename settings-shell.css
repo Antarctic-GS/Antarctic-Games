@@ -702,15 +702,15 @@
 
 .pane-wizard__step-body--threads .chat-sidebar {
   flex: 1;
-  min-height: min(28rem, 50dvh);
-  max-height: min(42rem, calc(100dvh - 14rem));
+  min-height: min(34rem, 64dvh);
+  max-height: min(54rem, calc(100dvh - 10.5rem));
   overflow-y: auto;
 }
 
 .pane-wizard__step-body--room .chat-room {
   flex: 1;
-  min-height: min(22rem, 38dvh);
-  max-height: min(48rem, calc(100dvh - 13rem));
+  min-height: min(30rem, 58dvh);
+  max-height: min(62rem, calc(100dvh - 9.5rem));
 }
 
 .pane-wizard__eyebrow {
@@ -931,7 +931,7 @@
 .chat-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 1rem;
 }
 
 .chat-session-card {
@@ -939,7 +939,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
-  padding: 0.95rem 1rem;
+  padding: 1.05rem 1.1rem;
   border-radius: 1.15rem;
   background:
     linear-gradient(135deg, rgba(45, 125, 255, 0.12), rgba(255, 255, 255, 0.02)),
@@ -966,6 +966,10 @@
 .chat-create-form {
   display: grid;
   gap: 0.75rem;
+  padding: 0.95rem 1rem;
+  border-radius: 1.15rem;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .chat-thread-list,
@@ -1090,10 +1094,10 @@
 
 .chat-room__messages {
   display: grid;
-  gap: 0.8rem;
+  gap: 0.95rem;
   align-content: start;
   overflow: auto;
-  padding: 1rem 1.1rem;
+  padding: 1.2rem 1.25rem;
 }
 
 .chat-message {
@@ -1130,19 +1134,28 @@
 
 .chat-room__composer {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.75rem;
-  padding: 0.9rem 1rem 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.8rem;
+  padding: 1rem 1.1rem 1.1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .chat-room__input {
-  min-height: 3.15rem;
+  min-height: 4.25rem;
 }
 
 .chat-room__actions {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.chat-room__counter {
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
 }
 
 .empty-state--compact {
