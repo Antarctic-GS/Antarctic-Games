@@ -68,6 +68,7 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /var LOCAL_APP_ASSET_VERSION = "2026-03-22-asset-1"/);
   assert.match(shellScript, /async function requestAi\(payload, onDelta\)/);
   assert.match(shellScript, /function readAiResponseText\(response\)/);
+  assert.match(shellScript, /function flattenAssistantContent\(value\)/);
   assert.match(shellScript, /function resolveLocalAppUrl\(value\)/);
   assert.match(shellScript, /function getLocalAppBaseUrl\(\)/);
   assert.match(shellScript, /function appendLocalAssetVersion\(resolvedUrl\)/);

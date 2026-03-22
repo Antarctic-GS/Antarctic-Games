@@ -3503,37 +3503,70 @@
     });
   }
 
-  function extractAssistantText(rawText) {
-    var trimmed = String(rawText || "").trim();
-    if (!trimmed) return "";
+  function flattenAssistantContent(value) {
+    if (typeof value === "string") {
+      return value.trim();
+    }
 
+    if (Array.isArray(value)) {
+      return value.map(function (item) {
+        if (typeof item === "string") {
+          return item;
+        }
+        if (item && typeof item.text === "string") {
+          return item.text;
+        }
+        if (item && typeof item.content === "string") {
+          return item.content;
+        }
+        return "";
+      }).join("").trim();
+    }
+
+    return "";
+  }
+
+  function extractAssistantText(rawText) {
     function contentFromParsed(parsed) {
       if (!parsed || typeof parsed !== "object") return "";
 
-      if (parsed.message && typeof parsed.message.content === "string") {
-        return parsed.message.content;
+      if (parsed.message && typeof parsed.message === "object") {
+        var messageText = flattenAssistantContent(parsed.message.content);
+        if (messageText) {
+          return messageText;
+        }
       }
 
-      if (typeof parsed.response === "string") {
-        return parsed.response;
+      if (typeof parsed.response === "string" && parsed.response.trim()) {
+        return parsed.response.trim();
       }
 
-      if (typeof parsed.content === "string") {
-        return parsed.content;
+      if (typeof parsed.content === "string" && parsed.content.trim()) {
+        return parsed.content.trim();
       }
 
       if (Array.isArray(parsed.choices) && parsed.choices.length) {
         var first = parsed.choices[0] || {};
-        if (first.message && typeof first.message.content === "string") {
-          return first.message.content;
+        if (first.message && typeof first.message === "object") {
+          var choiceText = flattenAssistantContent(first.message.content);
+          if (choiceText) {
+            return choiceText;
+          }
         }
-        if (typeof first.text === "string") {
-          return first.text;
+        if (typeof first.text === "string" && first.text.trim()) {
+          return first.text.trim();
         }
       }
 
       return "";
     }
+
+    if (rawText && typeof rawText === "object") {
+      return contentFromParsed(rawText);
+    }
+
+    var trimmed = String(rawText || "").trim();
+    if (!trimmed) return "";
 
     try {
       return contentFromParsed(JSON.parse(trimmed)) || trimmed;
