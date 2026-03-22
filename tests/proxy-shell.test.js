@@ -100,6 +100,8 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /function resolveProxyFetchUrl\(config\)/);
   assert.match(shellScript, /function probeWispTransport\(wispUrl\)/);
   assert.match(shellScript, /function createHttpProxyTransport\(config\)/);
+  assert.match(shellScript, /function readProxyServiceWorkerAssetVersion\(scriptUrl\)/);
+  assert.match(shellScript, /function hasCurrentProxyServiceWorkerController\(\)/);
   assert.match(shellScript, /function waitForProxyServiceWorkerController\(\)/);
   assert.match(shellScript, /function shouldSkipFrontendProxyHeader\(name\)/);
   assert.match(shellScript, /assetUrl\.searchParams\.set\(LOCAL_APP_ASSET_PARAM, LOCAL_APP_ASSET_VERSION\)/);
@@ -171,11 +173,15 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /window\.location\.reload\(\)/);
   assert.match(shellScript, /Proxy service worker controller is still unavailable\./);
   assert.match(shellScript, /writeProxyControllerReloadMarker\(""\)/);
+  assert.match(shellScript, /var activeVersion = readProxyServiceWorkerAssetVersion\(window\.navigator\.serviceWorker\.controller\.scriptURL\);/);
   assert.match(shellScript, /config && config\.services && config\.services\.proxyRequest/);
   assert.match(shellScript, /config && config\.services && \(config\.services\.proxyFetch \|\| config\.services\.proxy\)/);
-  assert.match(shellScript, /\.setRemoteTransport\(createHttpProxyTransport\(config\), proxyRequestUrl \|\| "antarctic-http-fallback"\)/);
+  assert.match(shellScript, /var httpTransportUrl = proxyRequestUrl \|\| proxyFetchUrl;/);
+  assert.match(shellScript, /\.setRemoteTransport\(createHttpProxyTransport\(config\), httpTransportUrl \|\| "antarctic-http-fallback"\)/);
   assert.match(shellScript, /state\.proxyRuntime\.transportMode = "http-fallback"/);
   assert.match(shellScript, /window\.navigator\.serviceWorker\.register\(appendProxyRuntimeAssetVersion\(SCRAMJET_SW_PATH\)\)/);
+  assert.match(shellScript, /window\.navigator\.serviceWorker\.getRegistration\(\)/);
+  assert.match(shellScript, /registration\.update\(\)\.catch\(function \(\) \{/);
   assert.match(shellScript, /new window\.BareMux\.BareMuxConnection\(appendProxyRuntimeAssetVersion\(BAREMUX_WORKER_PATH\)\)/);
   assert.match(shellScript, /mux\.setTransport\(appendProxyRuntimeAssetVersion\(LIBCURL_TRANSPORT_PATH\), \[\{ wisp: wispUrl \}\]\)/);
   assert.match(shellScript, /name === "cookie"/);
