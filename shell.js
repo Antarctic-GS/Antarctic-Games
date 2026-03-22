@@ -216,6 +216,10 @@
     return window.AntarcticGamesBackend || window.PalladiumBackend || null;
   }
 
+  function getSocialApi() {
+    return window.AntarcticSocialClient || window.PalladiumSocialClient || null;
+  }
+
   function getSiteStorageApi() {
     return window.AntarcticGamesStorage || window.PalladiumSiteStorage || null;
   }
@@ -313,6 +317,11 @@
         busy: false,
         memory: []
       },
+      chatState: {
+        activeThreadId: "",
+        pollHandle: 0,
+        wizardStep: 1
+      },
       gamesQuery: "",
       id: existingId || makeTabId(),
       paneEl: null,
@@ -349,6 +358,13 @@
         memory: []
       };
     }
+    if (tab.view !== "chat") {
+      tab.chatState = {
+        activeThreadId: "",
+        pollHandle: 0,
+        wizardStep: 1
+      };
+    }
   }
 
   function getActiveTab() {
@@ -361,6 +377,10 @@
   }
 
   function removePane(tab) {
+    if (tab && tab.chatState && tab.chatState.pollHandle) {
+      window.clearInterval(tab.chatState.pollHandle);
+      tab.chatState.pollHandle = 0;
+    }
     if (tab && tab.paneEl && tab.paneEl.parentNode) {
       tab.paneEl.parentNode.removeChild(tab.paneEl);
     }
@@ -584,6 +604,8 @@
     if (tab.view === "home") return "home";
     if (tab.view === "games") return "games";
     if (tab.view === "ai") return "ai";
+    if (tab.view === "account") return "account";
+    if (tab.view === "chat") return "chat";
     if (tab.view === "settings") return "settings";
     if (tab.view === "gamelauncher") return "games";
     return "web";
@@ -631,6 +653,15 @@
       svg.setAttribute("class", (className ? className + " " : "") + "ui-icon--filled");
       addPath(AI_ROBOT_PATH_FACE);
       addPath(AI_ROBOT_PATH_BODY);
+      return svg;
+    }
+    if (name === "account") {
+      addPath("M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12Z");
+      addPath("M4.5 20a7.5 7.5 0 0 1 15 0");
+      return svg;
+    }
+    if (name === "chat") {
+      addPath("M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6A2.5 2.5 0 0 1 16.5 15H11l-4 4v-4H7.5A2.5 2.5 0 0 1 5 12.5Z");
       return svg;
     }
     if (name === "play") {
@@ -783,6 +814,10 @@
       tab.paneEl = createGamesPane(tab);
     } else if (tab.view === "ai") {
       tab.paneEl = createAiPane(tab);
+    } else if (tab.view === "account") {
+      tab.paneEl = createAccountPane(tab);
+    } else if (tab.view === "chat") {
+      tab.paneEl = createChatPane(tab);
     } else if (tab.view === "settings") {
       tab.paneEl = createSettingsPane(tab);
     } else if (tab.view === "gamelauncher") {
@@ -878,13 +913,552 @@
     if (!tab.aiState.memory.length) {
       tab.aiState.memory.push({
         role: "assistant",
-        content: "Ask me about the Antarctic Games site, the game catalog, or anything else you want."
+        content: "How can I help?"
       });
     }
 
     renderAiConversation(pane, tab);
     refreshAiStatus(pane);
     return pane;
+  }
+
+  function formatTimestamp(value) {
+    var raw = cleanText(value);
+    if (!raw) return "";
+    try {
+      return new Date(raw).toLocaleString();
+    } catch (error) {
+      return raw;
+    }
+  }
+
+  function setAccountStatus(pane, message) {
+    if (!pane) return;
+    var statusEl = pane.querySelector('[data-role="account-status"]');
+    if (statusEl) {
+      statusEl.textContent = cleanText(message) || "Account ready.";
+    }
+  }
+
+  var ACCOUNT_WIZARD_STEPS = 3;
+  var CHAT_WIZARD_STEPS = 3;
+
+  function setAccountWizardStep(tab, pane, step) {
+    if (!tab || !pane) return;
+    var next = Math.max(1, Math.min(ACCOUNT_WIZARD_STEPS, step));
+    tab.accountWizardStep = next;
+    var steps = pane.querySelectorAll("[data-account-step]");
+    for (var i = 0; i < steps.length; i += 1) {
+      var el = steps[i];
+      var s = parseInt(el.getAttribute("data-account-step") || "0", 10);
+      el.classList.toggle("is-active", s === next);
+    }
+    var dots = pane.querySelectorAll(".pane-wizard--account .pane-wizard__dot");
+    for (var d = 0; d < dots.length; d += 1) {
+      dots[d].classList.toggle("is-active", d === next - 1);
+    }
+    var backBtn = pane.querySelector("[data-account-wizard-back]");
+    var nextBtn = pane.querySelector("[data-account-wizard-next]");
+    if (backBtn) backBtn.hidden = next <= 1;
+    if (nextBtn) nextBtn.hidden = next >= ACCOUNT_WIZARD_STEPS;
+  }
+
+  function wireAccountWizard(tab, pane) {
+    if (!pane || pane.dataset.accountWizardBound === "true") return;
+    pane.dataset.accountWizardBound = "true";
+    var backBtn = pane.querySelector("[data-account-wizard-back]");
+    var nextBtn = pane.querySelector("[data-account-wizard-next]");
+    if (backBtn) {
+      backBtn.addEventListener("click", function () {
+        var current = tab.accountWizardStep || 1;
+        setAccountWizardStep(tab, pane, current - 1);
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", function () {
+        var current = tab.accountWizardStep || 1;
+        setAccountWizardStep(tab, pane, current + 1);
+      });
+    }
+  }
+
+  function setChatWizardStep(tab, pane, step) {
+    if (!tab || !pane || !tab.chatState) return;
+    var next = Math.max(1, Math.min(CHAT_WIZARD_STEPS, step));
+    tab.chatState.wizardStep = next;
+    var steps = pane.querySelectorAll("[data-chat-step]");
+    for (var i = 0; i < steps.length; i += 1) {
+      var el = steps[i];
+      var s = parseInt(el.getAttribute("data-chat-step") || "0", 10);
+      el.classList.toggle("is-active", s === next);
+    }
+    var dots = pane.querySelectorAll(".pane-wizard--chat .pane-wizard__dot");
+    for (var d = 0; d < dots.length; d += 1) {
+      dots[d].classList.toggle("is-active", d === next - 1);
+    }
+    var backBtn = pane.querySelector("[data-chat-wizard-back]");
+    var nextBtn = pane.querySelector("[data-chat-wizard-next]");
+    if (backBtn) backBtn.hidden = next <= 1;
+    if (nextBtn) nextBtn.hidden = next !== 1;
+  }
+
+  function wireChatWizard(tab, pane) {
+    if (!pane || pane.dataset.chatWizardBound === "true") return;
+    pane.dataset.chatWizardBound = "true";
+    var backBtn = pane.querySelector("[data-chat-wizard-back]");
+    var nextBtn = pane.querySelector("[data-chat-wizard-next]");
+    if (backBtn) {
+      backBtn.addEventListener("click", function () {
+        var current = (tab.chatState && tab.chatState.wizardStep) || 1;
+        if (current === 3) {
+          setChatWizardStep(tab, pane, 2);
+        } else {
+          setChatWizardStep(tab, pane, current - 1);
+        }
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", function () {
+        var current = (tab.chatState && tab.chatState.wizardStep) || 1;
+        setChatWizardStep(tab, pane, current + 1);
+      });
+    }
+  }
+
+  function createAccountPane(tab) {
+    var pane = cloneTemplate("account-pane-template");
+    if (!pane) return null;
+
+    if (typeof tab.accountWizardStep !== "number" || tab.accountWizardStep < 1) {
+      tab.accountWizardStep = 1;
+    }
+
+    var form = pane.querySelector('[data-role="account-auth-form"]');
+    if (form) {
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        submitAccountForm(pane, "login", tab);
+      });
+    }
+
+    pane.addEventListener("click", function (event) {
+      var target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+
+      var actionButton = target.closest("[data-account-action]");
+      if (actionButton) {
+        var action = actionButton.getAttribute("data-account-action");
+        if (action === "login") return;
+        event.preventDefault();
+        submitAccountForm(pane, action, tab);
+        return;
+      }
+
+      var saveLaunchButton = target.closest("[data-save-launch]");
+      if (saveLaunchButton) {
+        openNewTab(saveLaunchButton.getAttribute("data-save-launch"));
+      }
+    });
+
+    wireAccountWizard(tab, pane);
+    setAccountWizardStep(tab, pane, tab.accountWizardStep);
+    syncAccountPane(pane);
+    return pane;
+  }
+
+  function submitAccountForm(pane, action, tab) {
+    var socialApi = getSocialApi();
+    if (!socialApi) {
+      setAccountStatus(pane, "Account service unavailable.");
+      return;
+    }
+
+    if (action === "logout") {
+      socialApi.logout().then(function () {
+        if (tab && pane) setAccountWizardStep(tab, pane, 2);
+        syncAccountPane(pane, "Logged out.");
+      }).catch(function (error) {
+        setAccountStatus(pane, cleanText(error && error.message ? error.message : error));
+      });
+      return;
+    }
+
+    var form = pane.querySelector('[data-role="account-auth-form"]');
+    if (!form) return;
+    var usernameInput = form.querySelector('[name="account-username"]');
+    var passwordInput = form.querySelector('[name="account-password"]');
+    var username = cleanText(usernameInput && usernameInput.value);
+    var password = cleanText(passwordInput && passwordInput.value);
+
+    setAccountStatus(pane, action === "signup" ? "Creating account..." : "Logging in...");
+
+    var request = action === "signup"
+      ? socialApi.signUp(username, password)
+      : socialApi.login(username, password);
+
+    request.then(function () {
+      if (passwordInput) passwordInput.value = "";
+      if (tab && pane) setAccountWizardStep(tab, pane, 3);
+      syncAccountPane(pane, action === "signup" ? "Account created." : "Logged in.");
+    }).catch(function (error) {
+      setAccountStatus(pane, cleanText(error && error.message ? error.message : error));
+    });
+  }
+
+  function renderAccountSummary(pane, session) {
+    var summaryEl = pane.querySelector('[data-role="account-summary"]');
+    if (!summaryEl) return;
+
+    if (!session || !session.authenticated || !session.user) {
+      summaryEl.innerHTML =
+        '<div class="empty-state">' +
+          "<strong>You are not logged in.</strong>" +
+          "<span>Create an account to unlock chat rooms, DMs, and cloud saves.</span>" +
+        "</div>";
+      return;
+    }
+
+    summaryEl.innerHTML =
+      '<div class="account-summary__user">' +
+        '<strong>@' + escapeHtml(session.user.username) + "</strong>" +
+        '<span>Joined ' + escapeHtml(formatTimestamp(session.user.createdAt)) + "</span>" +
+      "</div>";
+  }
+
+  function renderAccountSaves(pane, saves) {
+    var savesEl = pane.querySelector('[data-role="account-saves"]');
+    if (!savesEl) return;
+
+    if (!Array.isArray(saves) || !saves.length) {
+      savesEl.innerHTML =
+        '<div class="empty-state">' +
+          "<strong>No cloud saves yet.</strong>" +
+          "<span>Launch a game, then use the Cloud Save button in the launcher bar.</span>" +
+        "</div>";
+      return;
+    }
+
+    savesEl.innerHTML = saves.map(function (save) {
+      return (
+        '<article class="account-save-card">' +
+          '<div class="account-save-card__content">' +
+            '<strong>' + escapeHtml(core.humanizeSlug(save.gameKey || "")) + "</strong>" +
+            '<span>' + escapeHtml(save.summary || save.gameKey || "") + "</span>" +
+            '<span>Updated ' + escapeHtml(formatTimestamp(save.updatedAt)) + "</span>" +
+          "</div>" +
+          '<button type="button" class="toolbar-button" data-save-launch="' + escapeHtml(core.buildGameUri(save.gameKey, core.humanizeSlug(save.gameKey || ""), "")) + '">' +
+            "Open" +
+          "</button>" +
+        "</article>"
+      );
+    }).join("");
+  }
+
+  function syncAccountPane(pane, message) {
+    var socialApi = getSocialApi();
+    if (!socialApi) {
+      setAccountStatus(pane, "Account service unavailable.");
+      renderAccountSummary(pane, null);
+      renderAccountSaves(pane, []);
+      return;
+    }
+
+    socialApi.getSession(true).then(function (session) {
+      renderAccountSummary(pane, session);
+      if (!session || !session.authenticated) {
+        renderAccountSaves(pane, []);
+        setAccountStatus(pane, message || "Not logged in.");
+        return null;
+      }
+      return socialApi.listSaves().then(function (payload) {
+        renderAccountSaves(pane, payload && payload.saves);
+        setAccountStatus(pane, message || ("Logged in as @" + session.user.username + "."));
+      });
+    }).catch(function (error) {
+      renderAccountSummary(pane, null);
+      renderAccountSaves(pane, []);
+      setAccountStatus(pane, cleanText(error && error.message ? error.message : error));
+    });
+  }
+
+  function createChatPane(tab) {
+    var pane = cloneTemplate("chat-pane-template");
+    if (!pane) return null;
+
+    var form = pane.querySelector('[data-role="chat-form"]');
+    if (form) {
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        submitChatMessage(tab, pane);
+      });
+    }
+
+    var roomForm = pane.querySelector('[data-role="chat-room-form"]');
+    if (roomForm) {
+      roomForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        submitRoomCreate(tab, pane);
+      });
+    }
+
+    var directForm = pane.querySelector('[data-role="chat-direct-form"]');
+    if (directForm) {
+      directForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        submitDirectCreate(tab, pane);
+      });
+    }
+
+    var composer = pane.querySelector(".chat-room__input");
+    if (composer) {
+      composer.addEventListener("input", function () {
+        syncAiInputHeight(composer);
+      });
+      composer.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          submitChatMessage(tab, pane);
+        }
+      });
+      syncAiInputHeight(composer);
+    }
+
+    if (typeof tab.chatState.wizardStep !== "number") tab.chatState.wizardStep = 1;
+    wireChatWizard(tab, pane);
+    setChatWizardStep(tab, pane, tab.chatState.wizardStep);
+
+    pane.addEventListener("click", function (event) {
+      var target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+
+      var threadButton = target.closest("[data-chat-thread]");
+      if (threadButton) {
+        tab.chatState.activeThreadId = cleanText(threadButton.getAttribute("data-chat-thread"));
+        setChatWizardStep(tab, pane, 3);
+        syncChatPane(pane, tab, "Conversation loaded.");
+        return;
+      }
+
+      var joinButton = target.closest("[data-chat-join]");
+      if (joinButton) {
+        joinChatRoom(tab, pane, joinButton.getAttribute("data-chat-join"));
+      }
+    });
+
+    syncChatPane(pane, tab);
+    tab.chatState.pollHandle = window.setInterval(function () {
+      if (!pane.isConnected) return;
+      if (tab.id !== state.activeTabId) return;
+      syncChatPane(pane, tab);
+    }, 5000);
+    return pane;
+  }
+
+  function setChatStatus(pane, message) {
+    if (!pane) return;
+    var statusEl = pane.querySelector('[data-role="chat-status"]');
+    if (statusEl) {
+      statusEl.textContent = cleanText(message) || "Chat ready.";
+    }
+  }
+
+  function renderChatThreads(pane, tab, payload) {
+    var listEl = pane.querySelector('[data-role="chat-thread-list"]');
+    var roomCatalogEl = pane.querySelector('[data-role="chat-room-catalog"]');
+    if (!listEl || !roomCatalogEl) return;
+
+    var threads = Array.isArray(payload && payload.threads) ? payload.threads : [];
+    var rooms = Array.isArray(payload && payload.rooms) ? payload.rooms : [];
+
+    listEl.innerHTML = threads.length
+      ? threads.map(function (thread) {
+          var label = thread.type === "direct" && thread.peer ? "@" + thread.peer.username : thread.name;
+          var preview = thread.lastMessage ? thread.lastMessage.username + ": " + thread.lastMessage.content : "No messages yet.";
+          return (
+            '<button type="button" class="chat-thread-card' + (String(thread.id) === String(tab.chatState.activeThreadId) ? ' chat-thread-card--active' : '') + '" data-chat-thread="' + escapeHtml(thread.id) + '">' +
+              '<strong>' + escapeHtml(label) + "</strong>" +
+              '<span>' + escapeHtml(preview) + "</span>" +
+            "</button>"
+          );
+        }).join("")
+      : '<div class="empty-state"><strong>No joined chats yet.</strong><span>Create a room or start a DM.</span></div>';
+
+    roomCatalogEl.innerHTML =
+      '<div class="chat-room-catalog__title">Public rooms</div>' +
+      (rooms.length
+        ? rooms.map(function (room) {
+            return (
+              '<div class="chat-room-card">' +
+                '<div class="chat-room-card__content">' +
+                  '<strong>' + escapeHtml(room.name) + "</strong>" +
+                  '<span>' + escapeHtml(String(room.memberCount || 0)) + " members</span>" +
+                "</div>" +
+                (room.joined
+                  ? '<span class="chat-room-card__joined">Joined</span>'
+                  : '<button type="button" class="toolbar-button" data-chat-join="' + escapeHtml(room.id) + '">Join</button>') +
+              "</div>"
+            );
+          }).join("")
+        : '<div class="empty-state"><strong>No rooms yet.</strong><span>Create the first one above.</span></div>');
+  }
+
+  function renderChatMessages(pane, thread, messages) {
+    var headerEl = pane.querySelector('[data-role="chat-thread-header"]');
+    var messagesEl = pane.querySelector('[data-role="chat-messages"]');
+    if (!headerEl || !messagesEl) return;
+
+    if (!thread) {
+      headerEl.innerHTML =
+        '<div class="empty-state empty-state--compact">' +
+          "<strong>Select a conversation.</strong>" +
+          "<span>Pick a joined room or DM from the left.</span>" +
+        "</div>";
+      messagesEl.innerHTML = "";
+      return;
+    }
+
+    headerEl.innerHTML =
+      '<div class="chat-room__title-wrap">' +
+        '<strong class="chat-room__title">' + escapeHtml(thread.type === "direct" && thread.peer ? "@" + thread.peer.username : thread.name) + "</strong>" +
+        '<span class="chat-room__meta">' + escapeHtml(thread.type === "direct" ? "Direct message" : "Public room") + "</span>" +
+      "</div>";
+
+    if (!Array.isArray(messages) || !messages.length) {
+      messagesEl.innerHTML =
+        '<div class="empty-state">' +
+          "<strong>No messages yet.</strong>" +
+          "<span>Say hi to get things started.</span>" +
+        "</div>";
+      return;
+    }
+
+    messagesEl.innerHTML = messages.map(function (message) {
+      return (
+        '<article class="chat-message">' +
+          '<div class="chat-message__meta">@' + escapeHtml(message.username) + " • " + escapeHtml(formatTimestamp(message.createdAt)) + "</div>" +
+          '<div class="chat-message__body">' + escapeHtml(message.content) + "</div>" +
+        "</article>"
+      );
+    }).join("");
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function syncChatPane(pane, tab, message) {
+    var socialApi = getSocialApi();
+    if (!socialApi) {
+      setChatStatus(pane, "Chat service unavailable.");
+      renderChatMessages(pane, null, []);
+      return;
+    }
+
+    socialApi.getSession(true).then(function (session) {
+      if (!session || !session.authenticated) {
+        renderChatThreads(pane, tab, { threads: [], rooms: [] });
+        renderChatMessages(pane, null, []);
+        setChatStatus(pane, "Log in from Account to use community chat.");
+        return null;
+      }
+
+      return socialApi.listThreads().then(function (payload) {
+        var threads = Array.isArray(payload && payload.threads) ? payload.threads : [];
+        if (tab.chatState.activeThreadId) {
+          var stillExists = threads.some(function (thread) {
+            return String(thread.id) === String(tab.chatState.activeThreadId);
+          });
+          if (!stillExists) {
+            tab.chatState.activeThreadId = "";
+          }
+        }
+
+        renderChatThreads(pane, tab, payload);
+        if (tab.chatState.wizardStep === 3 && !tab.chatState.activeThreadId) {
+          setChatWizardStep(tab, pane, 2);
+        }
+        if (!tab.chatState.activeThreadId) {
+          renderChatMessages(pane, null, []);
+          setChatStatus(pane, message || "Choose a room or DM.");
+          return null;
+        }
+
+        return socialApi.listMessages(tab.chatState.activeThreadId).then(function (messagesPayload) {
+          renderChatMessages(pane, messagesPayload && messagesPayload.thread, messagesPayload && messagesPayload.messages);
+          setChatStatus(pane, message || ("Chatting as @" + session.user.username + "."));
+        });
+      });
+    }).catch(function (error) {
+      renderChatThreads(pane, tab, { threads: [], rooms: [] });
+      renderChatMessages(pane, null, []);
+      setChatStatus(pane, cleanText(error && error.message ? error.message : error));
+    });
+  }
+
+  function submitRoomCreate(tab, pane) {
+    var socialApi = getSocialApi();
+    var form = pane.querySelector('[data-role="chat-room-form"]');
+    if (!socialApi || !form) return;
+    var input = form.querySelector('[name="room-name"]');
+    var value = cleanText(input && input.value);
+    setChatStatus(pane, "Creating room...");
+    socialApi.createRoom(value).then(function (payload) {
+      if (input) input.value = "";
+      if (payload && payload.thread && payload.thread.id) {
+        tab.chatState.activeThreadId = String(payload.thread.id);
+        setChatWizardStep(tab, pane, 3);
+      }
+      syncChatPane(pane, tab, "Room created.");
+    }).catch(function (error) {
+      setChatStatus(pane, cleanText(error && error.message ? error.message : error));
+    });
+  }
+
+  function submitDirectCreate(tab, pane) {
+    var socialApi = getSocialApi();
+    var form = pane.querySelector('[data-role="chat-direct-form"]');
+    if (!socialApi || !form) return;
+    var input = form.querySelector('[name="direct-username"]');
+    var value = cleanText(input && input.value);
+    setChatStatus(pane, "Opening DM...");
+    socialApi.createDirect(value).then(function (payload) {
+      if (input) input.value = "";
+      if (payload && payload.thread) {
+        tab.chatState.activeThreadId = String(payload.thread.id);
+        setChatWizardStep(tab, pane, 3);
+      }
+      syncChatPane(pane, tab, "Direct message ready.");
+    }).catch(function (error) {
+      setChatStatus(pane, cleanText(error && error.message ? error.message : error));
+    });
+  }
+
+  function joinChatRoom(tab, pane, threadId) {
+    var socialApi = getSocialApi();
+    if (!socialApi) return;
+    setChatStatus(pane, "Joining room...");
+    socialApi.joinRoom(threadId).then(function () {
+      tab.chatState.activeThreadId = cleanText(threadId);
+      setChatWizardStep(tab, pane, 3);
+      syncChatPane(pane, tab, "Joined room.");
+    }).catch(function (error) {
+      setChatStatus(pane, cleanText(error && error.message ? error.message : error));
+    });
+  }
+
+  function submitChatMessage(tab, pane) {
+    var socialApi = getSocialApi();
+    if (!socialApi || !tab.chatState.activeThreadId) return;
+    var input = pane.querySelector('.chat-room__input');
+    if (!input) return;
+
+    var value = cleanText(input.value);
+    if (!value) return;
+
+    socialApi.sendMessage(tab.chatState.activeThreadId, value).then(function () {
+      input.value = "";
+      syncAiInputHeight(input);
+      syncChatPane(pane, tab, "Message sent.");
+    }).catch(function (error) {
+      setChatStatus(pane, cleanText(error && error.message ? error.message : error));
+    });
   }
 
   function getSiteSettingsApi() {
@@ -1179,6 +1753,7 @@
     var gamePath = cleanText(tab.path);
 
     var fullscreenDisabled = gamePath ? "" : " disabled";
+    var cloudDisabled = gamePath ? "" : " disabled";
 
     var barHintHtml =
       !gamePath && !author
@@ -1203,6 +1778,13 @@
               barHintHtml +
             "</div>" +
             '<div class="game-launcher__bar-end">' +
+              '<span class="game-launcher__cloud-status" data-role="game-cloud-status">' + (gamePath ? "Cloud save ready." : "Pick a game to enable cloud saves.") + "</span>" +
+              '<button type="button" class="toolbar-button" data-game-load="1"' + cloudDisabled + ">" +
+              "Load cloud" +
+              "</button>" +
+              '<button type="button" class="toolbar-button" data-game-save="1"' + cloudDisabled + ">" +
+              "Save cloud" +
+              "</button>" +
               '<button type="button" class="game-launcher__back toolbar-button" data-route="antarctic://games">' +
               "Back to games" +
               "</button>" +
@@ -1239,7 +1821,167 @@
     frame.setAttribute("referrerpolicy", "no-referrer");
     viewport.appendChild(frame);
     attachAntarcticFontBridge(frame);
+
+    pane.addEventListener("click", function (event) {
+      var target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+
+      var saveButton = target.closest("[data-game-save]");
+      if (saveButton) {
+        event.preventDefault();
+        saveGameCloudState(tab, pane);
+        return;
+      }
+
+      var loadButton = target.closest("[data-game-load]");
+      if (loadButton) {
+        event.preventDefault();
+        loadGameCloudState(tab, pane);
+      }
+    });
+
     return pane;
+  }
+
+  function setGameCloudStatus(pane, message) {
+    if (!pane) return;
+    var statusEl = pane.querySelector('[data-role="game-cloud-status"]');
+    if (statusEl) {
+      statusEl.textContent = cleanText(message) || "Cloud save ready.";
+    }
+  }
+
+  function shouldSkipCloudKey(key) {
+    var normalized = cleanText(key).toLowerCase();
+    return (
+      normalized.indexOf("antarctic") === 0 ||
+      normalized.indexOf("palladium") === 0 ||
+      normalized.indexOf("bare-mux") === 0 ||
+      normalized.indexOf("baremux") === 0 ||
+      normalized.indexOf("scramjet") === 0
+    );
+  }
+
+  function captureStorageArea(storageArea) {
+    var snapshot = {};
+    if (!storageArea) return snapshot;
+
+    for (var index = 0; index < storageArea.length; index += 1) {
+      var key = storageArea.key(index);
+      if (shouldSkipCloudKey(key)) continue;
+      snapshot[key] = storageArea.getItem(key);
+    }
+
+    return snapshot;
+  }
+
+  function clearStorageArea(storageArea) {
+    if (!storageArea) return;
+    var keys = [];
+    for (var index = 0; index < storageArea.length; index += 1) {
+      var key = storageArea.key(index);
+      if (shouldSkipCloudKey(key)) continue;
+      keys.push(key);
+    }
+    keys.forEach(function (key) {
+      storageArea.removeItem(key);
+    });
+  }
+
+  function restoreStorageArea(storageArea, entries) {
+    clearStorageArea(storageArea);
+    if (!storageArea || !entries || typeof entries !== "object") return;
+    Object.keys(entries).forEach(function (key) {
+      if (shouldSkipCloudKey(key)) return;
+      storageArea.setItem(key, String(entries[key]));
+    });
+  }
+
+  function captureFrameStorageSnapshot(frame) {
+    if (!frame || !frame.contentWindow) {
+      throw new Error("Game frame is not ready yet.");
+    }
+
+    return {
+      localStorage: captureStorageArea(frame.contentWindow.localStorage),
+      sessionStorage: captureStorageArea(frame.contentWindow.sessionStorage)
+    };
+  }
+
+  function applyFrameStorageSnapshot(frame, snapshot) {
+    if (!frame || !frame.contentWindow) {
+      throw new Error("Game frame is not ready yet.");
+    }
+
+    restoreStorageArea(frame.contentWindow.localStorage, snapshot && snapshot.localStorage);
+    restoreStorageArea(frame.contentWindow.sessionStorage, snapshot && snapshot.sessionStorage);
+  }
+
+  function countSnapshotKeys(snapshot) {
+    var localKeys = snapshot && snapshot.localStorage ? Object.keys(snapshot.localStorage).length : 0;
+    var sessionKeys = snapshot && snapshot.sessionStorage ? Object.keys(snapshot.sessionStorage).length : 0;
+    return localKeys + sessionKeys;
+  }
+
+  function saveGameCloudState(tab, pane) {
+    var socialApi = getSocialApi();
+    if (!socialApi) {
+      setGameCloudStatus(pane, "Cloud save service unavailable.");
+      return;
+    }
+
+    var frame = pane.querySelector("iframe.game-launcher__frame");
+    if (!frame) {
+      setGameCloudStatus(pane, "Game frame is not ready yet.");
+      return;
+    }
+
+    setGameCloudStatus(pane, "Saving to cloud...");
+
+    socialApi.getSession(true).then(function (session) {
+      if (!session || !session.authenticated) {
+        throw new Error("Log in from Account to use cloud saves.");
+      }
+      var snapshot = captureFrameStorageSnapshot(frame);
+      return socialApi.putSave(tab.path, snapshot, tab.title + " (" + countSnapshotKeys(snapshot) + " keys)");
+    }).then(function (payload) {
+      setGameCloudStatus(pane, "Saved " + tab.title + " to cloud.");
+      return payload;
+    }).catch(function (error) {
+      setGameCloudStatus(pane, cleanText(error && error.message ? error.message : error));
+    });
+  }
+
+  function loadGameCloudState(tab, pane) {
+    var socialApi = getSocialApi();
+    if (!socialApi) {
+      setGameCloudStatus(pane, "Cloud save service unavailable.");
+      return;
+    }
+
+    var frame = pane.querySelector("iframe.game-launcher__frame");
+    if (!frame) {
+      setGameCloudStatus(pane, "Game frame is not ready yet.");
+      return;
+    }
+
+    setGameCloudStatus(pane, "Loading cloud save...");
+
+    socialApi.getSession(true).then(function (session) {
+      if (!session || !session.authenticated) {
+        throw new Error("Log in from Account to use cloud saves.");
+      }
+      return socialApi.getSave(tab.path);
+    }).then(function (payload) {
+      if (!payload || !payload.save) {
+        throw new Error("No cloud save found for this game.");
+      }
+      applyFrameStorageSnapshot(frame, payload.save.data);
+      frame.src = tab.path;
+      setGameCloudStatus(pane, "Cloud save loaded.");
+    }).catch(function (error) {
+      setGameCloudStatus(pane, cleanText(error && error.message ? error.message : error));
+    });
   }
 
   function createWebPane(tab) {
@@ -1805,7 +2547,7 @@
     var bubble = document.createElement("article");
     bubble.className = "ai-message ai-message--" + role;
     bubble.innerHTML =
-      '<div class="ai-message__label">' + (role === "user" ? "You" : "Antarctic Games AI") + "</div>" +
+      '<div class="ai-message__label">' + (role === "user" ? "You" : "Assistant") + "</div>" +
       '<div class="ai-message__body">' + renderMarkdown(text || "") + "</div>";
     return bubble;
   }
@@ -2112,7 +2854,7 @@
 
   function buildAiSystemPrompt(userText) {
     var lines = [
-      "You are Antarctic Games AI for the Antarctic browser shell.",
+      "You are a helpful assistant for the Antarctic browser shell.",
       "Never make up games, links, or site features.",
       "Always format replies in Markdown.",
       "Prefer short, direct answers."
@@ -2202,6 +2944,10 @@
       state.gamesCatalog = null;
       removePane(active);
       ensurePane(active);
+    } else if (active.view === "account") {
+      syncAccountPane(active.paneEl, "Account refreshed.");
+    } else if (active.view === "chat") {
+      syncChatPane(active.paneEl, active, "Chat refreshed.");
     } else if (active.view === "settings") {
       syncSettingsPane(active.paneEl, "Settings refreshed.");
     } else if (active.view === "web") {

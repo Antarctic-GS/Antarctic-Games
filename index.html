@@ -115,6 +115,23 @@
             </span>
             <span class="route-link__label">AI</span>
           </button>
+          <button type="button" class="route-link" data-route="antarctic://account">
+            <span class="route-link__rail" aria-hidden="true">
+              <svg class="ui-icon route-link__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12Z" />
+                <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+              </svg>
+            </span>
+            <span class="route-link__label">Account</span>
+          </button>
+          <button type="button" class="route-link" data-route="antarctic://chat">
+            <span class="route-link__rail" aria-hidden="true">
+              <svg class="ui-icon route-link__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6A2.5 2.5 0 0 1 16.5 15H11l-4 4v-4H7.5A2.5 2.5 0 0 1 5 12.5Z" />
+              </svg>
+            </span>
+            <span class="route-link__label">Chat</span>
+          </button>
           <button type="button" class="route-link" data-route="antarctic://settings">
             <span class="route-link__rail" aria-hidden="true">
               <svg class="ui-icon ui-icon--filled route-link__icon" viewBox="0 0 15 15" aria-hidden="true">
@@ -235,6 +252,7 @@
         <nav class="home-shortcuts" aria-label="Quick links">
           <button type="button" class="home-shortcut-pill" data-route="antarctic://games">Games</button>
           <button type="button" class="home-shortcut-pill" data-route="antarctic://ai">AI</button>
+          <button type="button" class="home-shortcut-pill" data-route="antarctic://account">Account</button>
           <button type="button" class="home-shortcut-pill" data-route="antarctic://settings">Settings</button>
         </nav>
       </div>
@@ -300,16 +318,6 @@
 
   <template id="ai-pane-template">
     <section class="shell-pane shell-pane--internal shell-pane--ai">
-      <div class="section-hero">
-        <div>
-          <p class="section-hero__eyebrow">antarctic://ai</p>
-          <h2 class="section-hero__title">Antarctic Games AI</h2>
-          <p class="section-hero__text">
-            Ask about the site, the game list, or anything else you want to throw at it.
-          </p>
-        </div>
-      </div>
-
       <div class="ai-layout">
         <section class="content-card ai-chat">
           <div class="ai-chat__messages" data-role="ai-messages" aria-live="polite"></div>
@@ -326,12 +334,12 @@
               </button>
             </div>
             <form class="ai-chat__form" data-role="ai-form">
-              <label class="sr-only" for="ai-input">Ask Antarctic Games AI</label>
+              <label class="sr-only" for="ai-input">Message</label>
               <textarea
                 id="ai-input"
                 class="ai-chat__input"
                 rows="1"
-                placeholder="Message Antarctic Games AI"
+                placeholder="Type a message…"
               ></textarea>
               <div class="ai-chat__actions">
                 <button type="submit" class="toolbar-button toolbar-button--accent ai-chat__send" aria-label="Send message">
@@ -422,9 +430,173 @@
     </section>
   </template>
 
+  <template id="account-pane-template">
+    <section class="shell-pane shell-pane--internal shell-pane--account">
+      <div class="pane-wizard pane-wizard--account">
+        <header class="pane-wizard__header">
+          <div class="pane-wizard__status" data-role="account-status">Checking session...</div>
+        </header>
+
+        <div class="pane-wizard__track">
+          <div class="pane-wizard__step is-active" data-account-step="1">
+            <div class="pane-wizard__step-body">
+              <p class="pane-wizard__eyebrow">antarctic://account</p>
+              <h2 class="pane-wizard__title">Account</h2>
+              <p class="pane-wizard__lede">
+                Log in, pick your username, and keep cloud saves attached to your account.
+              </p>
+            </div>
+          </div>
+
+          <div class="pane-wizard__step" data-account-step="2">
+            <div class="pane-wizard__step-body">
+              <section class="content-card account-card">
+                <div class="content-card__header">
+                  <div>
+                    <p class="content-card__eyebrow">Authentication</p>
+                    <h3 class="content-card__title">Sign up or log in</h3>
+                  </div>
+                </div>
+                <form class="account-form" data-role="account-auth-form">
+                  <label class="settings-field">
+                    <span class="settings-field__label">Username</span>
+                    <input class="settings-field__input" type="text" name="account-username" placeholder="antarcticfan" autocomplete="username" />
+                  </label>
+                  <label class="settings-field">
+                    <span class="settings-field__label">Password</span>
+                    <input class="settings-field__input" type="password" name="account-password" placeholder="At least 6 characters" autocomplete="current-password" />
+                  </label>
+                  <div class="settings-actions">
+                    <button type="submit" class="toolbar-button toolbar-button--accent" data-account-action="login">Log in</button>
+                    <button type="button" class="toolbar-button" data-account-action="signup">Sign up</button>
+                    <button type="button" class="toolbar-button" data-account-action="logout">Log out</button>
+                  </div>
+                </form>
+              </section>
+            </div>
+          </div>
+
+          <div class="pane-wizard__step" data-account-step="3">
+            <div class="pane-wizard__step-body pane-wizard__step-body--stack">
+              <section class="content-card account-card">
+                <div class="content-card__header">
+                  <div>
+                    <p class="content-card__eyebrow">Profile</p>
+                    <h3 class="content-card__title">Your account</h3>
+                  </div>
+                </div>
+                <div class="account-summary" data-role="account-summary"></div>
+              </section>
+              <section class="content-card account-card">
+                <div class="content-card__header">
+                  <div>
+                    <p class="content-card__eyebrow">Cloud Saves</p>
+                    <h3 class="content-card__title">Saved game progress</h3>
+                  </div>
+                </div>
+                <div class="account-saves" data-role="account-saves"></div>
+              </section>
+            </div>
+          </div>
+        </div>
+
+        <footer class="pane-wizard__footer">
+          <div class="pane-wizard__dots" aria-hidden="true">
+            <span class="pane-wizard__dot is-active"></span>
+            <span class="pane-wizard__dot"></span>
+            <span class="pane-wizard__dot"></span>
+          </div>
+          <div class="pane-wizard__nav">
+            <button type="button" class="toolbar-button" data-account-wizard-back hidden>Back</button>
+            <button type="button" class="toolbar-button toolbar-button--accent" data-account-wizard-next>Continue</button>
+          </div>
+        </footer>
+      </div>
+    </section>
+  </template>
+
+  <template id="chat-pane-template">
+    <section class="shell-pane shell-pane--internal shell-pane--chat">
+      <div class="pane-wizard pane-wizard--chat">
+        <header class="pane-wizard__header">
+          <div class="pane-wizard__status" data-role="chat-status">Loading conversations...</div>
+        </header>
+
+        <div class="pane-wizard__track">
+          <div class="pane-wizard__step is-active" data-chat-step="1">
+            <div class="pane-wizard__step-body">
+              <p class="pane-wizard__eyebrow">antarctic://chat</p>
+              <h2 class="pane-wizard__title">Community Chat</h2>
+              <p class="pane-wizard__lede">
+                Join rooms, start direct messages, and talk with other Antarctic users.
+              </p>
+            </div>
+          </div>
+
+          <div class="pane-wizard__step" data-chat-step="2">
+            <div class="pane-wizard__step-body pane-wizard__step-body--threads">
+              <aside class="content-card chat-sidebar">
+                <div class="content-card__header">
+                  <div>
+                    <p class="content-card__eyebrow">Threads</p>
+                    <h3 class="content-card__title">Rooms and DMs</h3>
+                  </div>
+                </div>
+                <form class="chat-create-form" data-role="chat-room-form">
+                  <label class="settings-field">
+                    <span class="settings-field__label">Create room</span>
+                    <input class="settings-field__input" type="text" name="room-name" placeholder="Late Night Games" autocomplete="off" />
+                  </label>
+                  <button type="submit" class="toolbar-button toolbar-button--accent">Create room</button>
+                </form>
+                <form class="chat-create-form" data-role="chat-direct-form">
+                  <label class="settings-field">
+                    <span class="settings-field__label">Start DM</span>
+                    <input class="settings-field__input" type="text" name="direct-username" placeholder="username" autocomplete="off" />
+                  </label>
+                  <button type="submit" class="toolbar-button">Open DM</button>
+                </form>
+                <div class="chat-thread-list" data-role="chat-thread-list"></div>
+                <div class="chat-room-catalog" data-role="chat-room-catalog"></div>
+              </aside>
+            </div>
+          </div>
+
+          <div class="pane-wizard__step" data-chat-step="3">
+            <div class="pane-wizard__step-body pane-wizard__step-body--room">
+              <section class="content-card chat-room">
+                <div class="chat-room__header" data-role="chat-thread-header"></div>
+                <div class="chat-room__messages" data-role="chat-messages"></div>
+                <form class="chat-room__composer" data-role="chat-form">
+                  <textarea class="ai-chat__input chat-room__input" name="chat-message" rows="1" placeholder="Send a message"></textarea>
+                  <div class="chat-room__actions">
+                    <button type="submit" class="toolbar-button toolbar-button--accent">Send</button>
+                  </div>
+                </form>
+              </section>
+            </div>
+          </div>
+        </div>
+
+        <footer class="pane-wizard__footer">
+          <div class="pane-wizard__dots" aria-hidden="true">
+            <span class="pane-wizard__dot is-active"></span>
+            <span class="pane-wizard__dot"></span>
+            <span class="pane-wizard__dot"></span>
+          </div>
+          <div class="pane-wizard__nav">
+            <button type="button" class="toolbar-button" data-chat-wizard-back hidden>Back</button>
+            <button type="button" class="toolbar-button toolbar-button--accent" data-chat-wizard-next>Continue</button>
+          </div>
+        </footer>
+      </div>
+    </section>
+  </template>
+
   <script src="site-storage.js"></script>
   <script src="site-settings.js"></script>
   <script src="backend.js"></script>
+  <script src="social-client.js"></script>
   <script src="baremux/index.js"></script>
   <script src="scram/scramjet.all.js"></script>
   <script src="data/games-catalog.js" data-antarctic-games-catalog="true" data-palladium-games-catalog="true"></script>

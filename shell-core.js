@@ -5,6 +5,8 @@
     newtab: "New Tab",
     games: "Games",
     ai: "AI",
+    account: "Account",
+    chat: "Chat",
     settings: "Settings",
     gamelauncher: "Game Launcher"
   };
@@ -115,7 +117,7 @@
         };
       }
 
-      if (route === "games" || route === "ai" || route === "settings" || route === "gamelauncher") {
+      if (route === "games" || route === "ai" || route === "account" || route === "chat" || route === "settings" || route === "gamelauncher") {
         return {
           view: route,
           route: route,

@@ -23,6 +23,8 @@ test("internal Antarctic routes normalize into view descriptors", () => {
   const core = loadCore();
   const home = core.describeInput("antarctic://home");
   const games = core.describeInput("antarctic://games");
+  const account = core.describeInput("antarctic://account");
+  const chat = core.describeInput("antarctic://chat");
   const settings = core.describeInput("antarctic://settings");
   const launcher = core.describeInput("antarctic://gamelauncher");
 
@@ -35,6 +37,16 @@ test("internal Antarctic routes normalize into view descriptors", () => {
   assert.equal(games.route, "games");
   assert.equal(games.title, "Games");
   assert.equal(games.uri, "antarctic://games");
+
+  assert.equal(account.view, "account");
+  assert.equal(account.route, "account");
+  assert.equal(account.title, "Account");
+  assert.equal(account.uri, "antarctic://account");
+
+  assert.equal(chat.view, "chat");
+  assert.equal(chat.route, "chat");
+  assert.equal(chat.title, "Chat");
+  assert.equal(chat.uri, "antarctic://chat");
 
   assert.equal(settings.view, "settings");
   assert.equal(settings.route, "settings");
