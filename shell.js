@@ -4,6 +4,8 @@
 
   var STORAGE_KEY = "antarctic.shell.state.v1";
   var LEGACY_STORAGE_KEY = "palladium.shell.state.v1";
+  var PROXY_STORAGE_VERSION_KEY = "antarctic.proxy.storage.version.v1";
+  var PROXY_STORAGE_VERSION = "scramjet-storage-2026-03-22";
   var SCRAMJET_PREFIX = "/service/scramjet/";
   var SCRAMJET_SW_PATH = "/sw.js";
   var BAREMUX_WORKER_PATH = "/baremux/worker.js";
@@ -222,6 +224,60 @@
 
   function getSiteStorageApi() {
     return window.AntarcticGamesStorage || window.PalladiumSiteStorage || null;
+  }
+
+  function isRemoteAssetUrl(value) {
+    return /^(?:[a-z]+:)?\/\//i.test(String(value || "").trim()) || /^(?:data|blob):/i.test(String(value || "").trim());
+  }
+
+  function resolveLocalAppUrl(value) {
+    var text = cleanText(value);
+    if (!text || isRemoteAssetUrl(text)) {
+      return text;
+    }
+
+    var normalized = text.replace(/\\/g, "/").replace(/^\/+/, "");
+    if (!normalized) {
+      return "/";
+    }
+
+    try {
+      return new URL("/" + normalized, window.location.origin).toString();
+    } catch (error) {
+      return "/" + normalized;
+    }
+  }
+
+  function readPersistentValue(key) {
+    var storage = getSiteStorageApi();
+    if (storage && typeof storage.getItem === "function") {
+      return cleanText(storage.getItem(key));
+    }
+
+    try {
+      return cleanText(window.localStorage.getItem(key));
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function writePersistentValue(key, value) {
+    var normalized = cleanText(value);
+    var storage = getSiteStorageApi();
+    if (storage && typeof storage.setItem === "function") {
+      storage.setItem(key, normalized);
+      return;
+    }
+
+    try {
+      if (normalized) {
+        window.localStorage.setItem(key, normalized);
+      } else {
+        window.localStorage.removeItem(key);
+      }
+    } catch (error) {
+      // Ignore storage failures.
+    }
   }
 
   function injectAntarcticFontsIntoDocument(doc) {
@@ -944,7 +1000,7 @@
     }
   }
 
-  var ACCOUNT_WIZARD_STEPS = 3;
+  var ACCOUNT_WIZARD_STEPS = 2;
   var CHAT_WIZARD_STEPS = 3;
 
   function setAccountWizardStep(tab, pane, step) {
@@ -1125,7 +1181,7 @@
 
     if (action === "logout") {
       socialApi.logout().then(function () {
-        if (tab && pane) setAccountWizardStep(tab, pane, 2);
+        if (tab && pane) setAccountWizardStep(tab, pane, 1);
         syncAccountPane(pane, tab, "Logged out.");
       }).catch(function (error) {
         setAccountStatus(pane, cleanText(error && error.message ? error.message : error));
@@ -1148,7 +1204,7 @@
 
     request.then(function () {
       if (passwordInput) passwordInput.value = "";
-      if (tab && pane) setAccountWizardStep(tab, pane, 3);
+      if (tab && pane) setAccountWizardStep(tab, pane, 2);
       syncAccountPane(pane, tab, action === "signup" ? "Account created." : "Logged in.");
     }).catch(function (error) {
       setAccountStatus(pane, cleanText(error && error.message ? error.message : error));
@@ -1276,12 +1332,12 @@
       renderAccountSaves(pane, authenticated ? bootstrap.saves : []);
 
       if (!authenticated) {
-        if (tab && pane) setAccountWizardStep(tab, pane, 2);
+        if (tab && pane) setAccountWizardStep(tab, pane, 1);
         setAccountStatus(pane, message || "Log in to sync your saves and community profile.");
         return;
       }
 
-      if (tab && pane) setAccountWizardStep(tab, pane, 3);
+      if (tab && pane) setAccountWizardStep(tab, pane, 2);
       setAccountStatus(pane, message || ("Logged in as @" + community.user.username + "."));
     }).catch(function (error) {
       setPaneAuthenticatedState(pane, false);
@@ -1690,12 +1746,7 @@
   function resolveSettingsFaviconPreviewUrl(raw) {
     var fav = cleanText(raw);
     if (!fav) fav = "images/favicon.png?v=4";
-    if (/^(?:https?:|data:|blob:)/i.test(fav)) return fav;
-    try {
-      return new URL(fav, window.location.href).href;
-    } catch (error) {
-      return fav;
-    }
+    return resolveLocalAppUrl(fav);
   }
 
   function setSettingsStatus(pane, message) {
@@ -1974,16 +2025,16 @@
             "</div>" +
             '<div class="game-launcher__bar-end">' +
               '<span class="game-launcher__cloud-status" data-role="game-cloud-status">' + (gamePath ? "Cloud save ready." : "Pick a game to enable cloud saves.") + "</span>" +
-              '<button type="button" class="toolbar-button" data-game-load="1"' + cloudDisabled + ">" +
+              '<button type="button" class="game-launcher__action toolbar-button" data-game-load="1"' + cloudDisabled + ">" +
               "Load cloud" +
               "</button>" +
-              '<button type="button" class="toolbar-button" data-game-save="1"' + cloudDisabled + ">" +
+              '<button type="button" class="game-launcher__action toolbar-button" data-game-save="1"' + cloudDisabled + ">" +
               "Save cloud" +
               "</button>" +
-              '<button type="button" class="game-launcher__back toolbar-button" data-route="antarctic://games">' +
+              '<button type="button" class="game-launcher__action game-launcher__back toolbar-button" data-route="antarctic://games">' +
               "Back to games" +
               "</button>" +
-              '<button type="button" class="game-launcher__fullscreen-btn toolbar-button"' +
+              '<button type="button" class="game-launcher__action game-launcher__fullscreen-btn toolbar-button"' +
               ' data-game-fullscreen="1" aria-label="Enter fullscreen"' +
               fullscreenDisabled +
               ">" +
@@ -2011,7 +2062,7 @@
 
     var frame = document.createElement("iframe");
     frame.className = "shell-pane__frame game-launcher__frame";
-    frame.src = gamePath;
+    frame.src = resolveLocalAppUrl(gamePath);
     frame.setAttribute("allow", "clipboard-read; clipboard-write; fullscreen");
     frame.setAttribute("referrerpolicy", "no-referrer");
     viewport.appendChild(frame);
@@ -2172,7 +2223,7 @@
         throw new Error("No cloud save found for this game.");
       }
       applyFrameStorageSnapshot(frame, payload.save.data);
-      frame.src = tab.path;
+      frame.src = resolveLocalAppUrl(tab.path);
       setGameCloudStatus(pane, "Cloud save loaded.");
     }).catch(function (error) {
       setGameCloudStatus(pane, cleanText(error && error.message ? error.message : error));
@@ -2497,12 +2548,15 @@
     });
   }
 
-  function repairProxyRuntimeStorage() {
+  function repairProxyRuntimeStorage(options) {
+    var silent = Boolean(options && options.silent);
     if (state.proxyRuntime.repairPromise) {
       return state.proxyRuntime.repairPromise;
     }
 
-    setProxyHealth(false, "Resetting proxy storage and retrying...", "Repairing");
+    if (!silent) {
+      setProxyHealth(false, "Resetting proxy storage and retrying...", "Repairing");
+    }
 
     state.proxyRuntime.repairPromise = closeProxyRuntimeHandles().then(function () {
       return unregisterProxyServiceWorkers();
@@ -2526,6 +2580,7 @@
       state.proxyRuntime.controller = null;
       state.proxyRuntime.ready = false;
       state.proxyRuntime.transportUrl = "";
+      writePersistentValue(PROXY_STORAGE_VERSION_KEY, PROXY_STORAGE_VERSION);
     }).then(function () {
       state.proxyRuntime.repairPromise = null;
     }, function (error) {
@@ -2600,6 +2655,18 @@
     return state.proxyRuntime.initPromise;
   }
 
+  function ensureProxyStorageCompatibility() {
+    if (readPersistentValue(PROXY_STORAGE_VERSION_KEY) === PROXY_STORAGE_VERSION) {
+      return Promise.resolve();
+    }
+
+    return repairProxyRuntimeStorage({ silent: true }).catch(function () {
+      return null;
+    }).then(function () {
+      writePersistentValue(PROXY_STORAGE_VERSION_KEY, PROXY_STORAGE_VERSION);
+    });
+  }
+
   function syncWebTabFromUrl(tab, value) {
     var nextUrl = decodeScramjetUrl(value);
     if (!nextUrl) return;
@@ -2655,7 +2722,7 @@
   function buildThumbMarkup(game) {
     var image = cleanText(game && game.image);
     if (image) {
-      return '<div class="game-card__thumb"><img src="' + escapeHtml(image) + '" alt="' + escapeHtml(game.title) + '" loading="lazy" /></div>';
+      return '<div class="game-card__thumb"><img src="' + escapeHtml(resolveLocalAppUrl(image)) + '" alt="' + escapeHtml(game.title) + '" loading="lazy" /></div>';
     }
     return '<div class="game-card__thumb"></div>';
   }
@@ -2723,7 +2790,7 @@
         featuredEl.innerHTML =
           '<div class="featured-launch__thumb">' +
             (cleanText(featuredGame.image)
-              ? '<img src="' + escapeHtml(featuredGame.image) + '" alt="' + escapeHtml(featuredGame.title) + '" loading="lazy" />'
+              ? '<img src="' + escapeHtml(resolveLocalAppUrl(featuredGame.image)) + '" alt="' + escapeHtml(featuredGame.title) + '" loading="lazy" />'
               : "") +
           "</div>" +
           '<div class="featured-launch__body">' +
@@ -3189,7 +3256,7 @@
       lines.push("When answering about games, use ONLY this catalog.");
       lines.push("Catalog:");
       lines.push(
-        games.slice(0, 40).map(function (game) {
+        games.slice(0, 24).map(function (game) {
           return "- " + game.title + " | " + game.author + " | " + game.path;
         }).join("\n")
       );
@@ -3206,14 +3273,19 @@
 
     return buildAiSystemPrompt(userText).then(function (systemPrompt) {
       var messages = [{ role: "system", content: systemPrompt }];
-      tab.aiState.memory.forEach(function (message) {
+      tab.aiState.memory.slice(-8).forEach(function (message) {
         messages.push(message);
       });
-      messages.push({ role: "user", content: userText });
 
       return requestAi({
         messages: messages,
-        stream: true
+        stream: true,
+        keep_alive: "24h",
+        options: {
+          num_predict: 64,
+          num_ctx: 768,
+          temperature: 0.1
+        }
       }, onDelta);
     });
   }
@@ -3278,7 +3350,7 @@
       }
     } else if (active.view === "gamelauncher") {
       var gameFrame = active.paneEl && active.paneEl.querySelector("iframe");
-      if (gameFrame) gameFrame.src = active.path;
+      if (gameFrame) gameFrame.src = resolveLocalAppUrl(active.path);
     }
 
     renderShell();
@@ -3400,9 +3472,13 @@
     window.setInterval(tick, 1000);
   }
 
-  restoreTabs();
-  bindEvents();
-  startShellClock();
-  renderShell();
-  refreshProxyStatus();
+  ensureProxyStorageCompatibility().catch(function () {
+    return null;
+  }).finally(function () {
+    restoreTabs();
+    bindEvents();
+    startShellClock();
+    renderShell();
+    refreshProxyStatus();
+  });
 })();

@@ -1238,21 +1238,29 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 0.5rem;
   flex: 0 0 auto;
   margin-left: auto;
 }
 
-.game-launcher__back {
+.game-launcher__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
   padding: 0.45rem 0.85rem;
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.03em;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: none;
   white-space: nowrap;
+}
+
+.game-launcher__back {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--text);
 }
 
@@ -1263,18 +1271,11 @@
 }
 
 .game-launcher__fullscreen-btn {
-  display: inline-flex;
-  align-items: center;
   gap: 0.45rem;
-  padding: 0.45rem 0.85rem;
   font-size: 0.8rem;
-  font-weight: 600;
   letter-spacing: 0.04em;
-  border-radius: 999px;
   background: rgba(59, 140, 255, 0.2);
   border: 1px solid rgba(88, 160, 255, 0.45);
-  box-shadow: none;
-  white-space: nowrap;
 }
 
 .game-launcher__fullscreen-btn:hover:not(:disabled) {

@@ -473,21 +473,14 @@
         <div class="pane-wizard__track">
           <div class="pane-wizard__step is-active" data-account-step="1">
             <div class="pane-wizard__step-body">
-              <p class="pane-wizard__eyebrow">antarctic://account</p>
-              <h2 class="pane-wizard__title">Account</h2>
-              <p class="pane-wizard__lede">
-                Log in, pick your username, and keep cloud saves attached to your account.
-              </p>
-            </div>
-          </div>
-
-          <div class="pane-wizard__step" data-account-step="2">
-            <div class="pane-wizard__step-body">
               <section class="content-card account-card">
                 <div class="content-card__header">
                   <div>
-                    <p class="content-card__eyebrow">Authentication</p>
+                    <p class="content-card__eyebrow">antarctic://account</p>
                     <h3 class="content-card__title">Sign up or log in</h3>
+                    <p class="pane-wizard__lede">
+                      Pick a username, log in fast, and keep cloud saves attached to your account.
+                    </p>
                   </div>
                 </div>
                 <form class="account-form" data-role="account-auth-form">
@@ -509,7 +502,7 @@
             </div>
           </div>
 
-          <div class="pane-wizard__step" data-account-step="3">
+          <div class="pane-wizard__step" data-account-step="2">
             <div class="pane-wizard__step-body pane-wizard__step-body--stack">
               <section class="content-card account-card">
                 <div class="content-card__header">
@@ -542,18 +535,6 @@
             </div>
           </div>
         </div>
-
-        <footer class="pane-wizard__footer">
-          <div class="pane-wizard__dots" aria-hidden="true">
-            <span class="pane-wizard__dot is-active"></span>
-            <span class="pane-wizard__dot"></span>
-            <span class="pane-wizard__dot"></span>
-          </div>
-          <div class="pane-wizard__nav">
-            <button type="button" class="toolbar-button" data-account-wizard-back hidden>Back</button>
-            <button type="button" class="toolbar-button toolbar-button--accent" data-account-wizard-next>Continue</button>
-          </div>
-        </footer>
       </div>
     </section>
   </template>
