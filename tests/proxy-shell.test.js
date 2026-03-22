@@ -198,10 +198,15 @@ test("service worker bootstraps Scramjet from the static frontend origin", () =>
   const serviceWorker = fs.readFileSync(path.join(FRONTEND_DIR, "sw.js"), "utf8");
 
   assert.match(serviceWorker, /importScripts\("\/scram\/scramjet\.all\.js"\)/);
-  assert.match(serviceWorker, /if \(!scramjet\.route\(event\)\) \{\s*return;\s*\}/);
+  assert.match(serviceWorker, /const SCRAMJET_PREFIX = "\/service\/scramjet\/";/);
+  assert.match(serviceWorker, /const SCRAMJET_WASM_PATH = "\/scram\/scramjet\.wasm\.wasm";/);
+  assert.match(serviceWorker, /function shouldHandleScramjetRequest\(event\)/);
+  assert.match(serviceWorker, /requestUrl\.startsWith\(origin \+ SCRAMJET_PREFIX\)/);
+  assert.match(serviceWorker, /requestUrl\.startsWith\(origin \+ SCRAMJET_WASM_PATH\)/);
+  assert.match(serviceWorker, /if \(!shouldHandleScramjetRequest\(event\)\) \{\s*return;\s*\}/);
   assert.match(serviceWorker, /await scramjet\.loadConfig\(\);\s*return scramjet\.fetch\(event\);/);
   assert.doesNotMatch(serviceWorker, /await scramjet\.loadConfig\(\);[\s\S]*return fetch\(event\.request\);/);
-  assert.match(serviceWorker, /scramjet\.route\(event\)/);
+  assert.doesNotMatch(serviceWorker, /scramjet\.route\(event\)/);
   assert.match(serviceWorker, /scramjet\.fetch\(event\)/);
 });
 
