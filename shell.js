@@ -5,11 +5,13 @@
   var STORAGE_KEY = "antarctic.shell.state.v1";
   var LEGACY_STORAGE_KEY = "palladium.shell.state.v1";
   var PROXY_STORAGE_VERSION_KEY = "antarctic.proxy.storage.version.v1";
-  var PROXY_STORAGE_VERSION = "scramjet-storage-2026-03-22";
+  var PROXY_STORAGE_VERSION = "scramjet-storage-2026-03-22-proxy-2";
+  var PROXY_REPAIR_RELOAD_KEY = "antarctic.proxy.repair.reload.v1";
   var PROXY_REQUEST_HEADER_METHOD = "x-antarctic-proxy-method";
   var PROXY_REQUEST_HEADER_HEADERS = "x-antarctic-proxy-headers";
   var LOCAL_APP_ASSET_PARAM = "antarctic_asset";
   var LOCAL_APP_ASSET_VERSION = "2026-03-22-asset-1";
+  var PROXY_RUNTIME_ASSET_VERSION = "2026-03-22-proxy-2";
   var SCRAMJET_PREFIX = "/service/scramjet/";
   var SCRAMJET_SW_PATH = "/sw.js";
   var BAREMUX_WORKER_PATH = "/baremux/worker.js";
@@ -247,6 +249,7 @@
       controller: null,
       initPromise: null,
       repairPromise: null,
+      reloadScheduled: false,
       ready: false,
       transportMode: "",
       transportUrl: ""
@@ -373,6 +376,21 @@
       }
       assetUrl.searchParams.set(LOCAL_APP_ASSET_PARAM, LOCAL_APP_ASSET_VERSION);
       return assetUrl.toString();
+    } catch (error) {
+      return text;
+    }
+  }
+
+  function appendProxyRuntimeAssetVersion(value) {
+    var text = cleanText(value);
+    if (!text) {
+      return text;
+    }
+
+    try {
+      var assetUrl = new URL(text, getLocalAppBaseUrl());
+      assetUrl.searchParams.set(LOCAL_APP_ASSET_PARAM, PROXY_RUNTIME_ASSET_VERSION);
+      return assetUrl.pathname + assetUrl.search;
     } catch (error) {
       return text;
     }
@@ -3033,7 +3051,7 @@
       return Promise.reject(new Error("This browser does not support service workers."));
     }
 
-    return window.navigator.serviceWorker.register(SCRAMJET_SW_PATH).then(function () {
+    return window.navigator.serviceWorker.register(appendProxyRuntimeAssetVersion(SCRAMJET_SW_PATH)).then(function () {
       return window.navigator.serviceWorker.ready;
     }).then(function (registration) {
       return waitForProxyServiceWorkerController().then(function () {
@@ -3239,6 +3257,46 @@
     });
   }
 
+  function readProxyRepairReloadMarker() {
+    try {
+      return cleanText(window.sessionStorage.getItem(PROXY_REPAIR_RELOAD_KEY));
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function writeProxyRepairReloadMarker(value) {
+    try {
+      if (value) {
+        window.sessionStorage.setItem(PROXY_REPAIR_RELOAD_KEY, cleanText(value));
+      } else {
+        window.sessionStorage.removeItem(PROXY_REPAIR_RELOAD_KEY);
+      }
+    } catch (error) {
+      // Ignore session storage failures during recovery bookkeeping.
+    }
+  }
+
+  function scheduleProxyRepairReload() {
+    if (!window.location || typeof window.location.reload !== "function") {
+      return false;
+    }
+
+    if (readProxyRepairReloadMarker() === PROXY_STORAGE_VERSION) {
+      return false;
+    }
+
+    writeProxyRepairReloadMarker(PROXY_STORAGE_VERSION);
+    window.setTimeout(function () {
+      try {
+        window.location.reload();
+      } catch (error) {
+        // Ignore reload failures; the current page will keep the offline state visible.
+      }
+    }, 30);
+    return true;
+  }
+
   function deleteIndexedDatabase(name) {
     return new Promise(function (resolve) {
       if (!window.indexedDB || !name) {
@@ -3297,6 +3355,7 @@
       state.proxyRuntime.transportMode = "";
       state.proxyRuntime.transportUrl = "";
       writePersistentValue(PROXY_STORAGE_VERSION_KEY, PROXY_STORAGE_VERSION);
+      state.proxyRuntime.reloadScheduled = scheduleProxyRepairReload();
     }).then(function () {
       state.proxyRuntime.repairPromise = null;
     }, function (error) {
@@ -3330,10 +3389,10 @@
       }
 
       return controller.init().then(function () {
-        var mux = new window.BareMux.BareMuxConnection(BAREMUX_WORKER_PATH);
+        var mux = new window.BareMux.BareMuxConnection(appendProxyRuntimeAssetVersion(BAREMUX_WORKER_PATH));
         return probeWispTransport(wispUrl).then(function (wispReachable) {
           if (wispReachable) {
-            return mux.setTransport(LIBCURL_TRANSPORT_PATH, [{ wisp: wispUrl }]).then(function () {
+            return mux.setTransport(appendProxyRuntimeAssetVersion(LIBCURL_TRANSPORT_PATH), [{ wisp: wispUrl }]).then(function () {
               state.proxyRuntime.controller = controller;
               state.proxyRuntime.ready = true;
               state.proxyRuntime.transportMode = "wisp";
@@ -3359,6 +3418,9 @@
       }
 
       return repairProxyRuntimeStorage().then(function () {
+        if (state.proxyRuntime.reloadScheduled) {
+          throw new Error("Restarting proxy runtime...");
+        }
         return initializeProxyRuntime(config, false);
       });
     });
@@ -3377,6 +3439,8 @@
       return initializeProxyRuntime(config, true);
     }).then(function (runtime) {
       state.proxyRuntime.initPromise = null;
+      state.proxyRuntime.reloadScheduled = false;
+      writeProxyRepairReloadMarker("");
       return runtime;
     }).catch(function (error) {
       state.proxyRuntime.initPromise = null;
