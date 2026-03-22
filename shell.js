@@ -2130,6 +2130,32 @@
     return /IDBDatabase/i.test(message) || /object stores? was not found/i.test(message) || /NotFoundError/i.test(message);
   }
 
+  function getProxyOrigin() {
+    try {
+      return cleanText(window.location.origin);
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function pushUniqueValue(list, value) {
+    var normalized = cleanText(value);
+    if (!normalized) return;
+    if (list.indexOf(normalized) === -1) {
+      list.push(normalized);
+    }
+  }
+
+  function isProxyDatabaseName(name) {
+    var normalized = cleanText(name);
+    var origin = getProxyOrigin();
+    if (!normalized) {
+      return false;
+    }
+
+    return normalized === "$scramjet" || normalized === origin + "@$scramjet" || /^EM_FS_/i.test(normalized) || /@EM_FS_/i.test(normalized);
+  }
+
   function getProxyDatabaseNames() {
     var names = [];
     var pathname = "/";
@@ -2159,6 +2185,80 @@
     }
 
     return names;
+  }
+
+  function getKnownProxyDatabaseNames() {
+    var names = [];
+    var origin = getProxyOrigin();
+    getProxyDatabaseNames().forEach(function (name) {
+      pushUniqueValue(names, name);
+      if (origin) {
+        pushUniqueValue(names, origin + "@" + name);
+      }
+    });
+    pushUniqueValue(names, "$scramjet");
+    if (origin) {
+      pushUniqueValue(names, origin + "@$scramjet");
+    }
+    return names;
+  }
+
+  function listProxyDatabaseNames() {
+    var knownNames = getKnownProxyDatabaseNames();
+    if (!window.indexedDB || typeof window.indexedDB.databases !== "function") {
+      return Promise.resolve(knownNames);
+    }
+
+    return window.indexedDB.databases().then(function (entries) {
+      var names = knownNames.slice();
+      (entries || []).forEach(function (entry) {
+        var name = cleanText(entry && entry.name);
+        if (isProxyDatabaseName(name)) {
+          pushUniqueValue(names, name);
+        }
+      });
+      return names;
+    }).catch(function () {
+      return knownNames;
+    });
+  }
+
+  function unregisterProxyServiceWorkers() {
+    if (
+      !window.navigator ||
+      !window.navigator.serviceWorker ||
+      typeof window.navigator.serviceWorker.getRegistrations !== "function"
+    ) {
+      return Promise.resolve();
+    }
+
+    return window.navigator.serviceWorker.getRegistrations().then(function (registrations) {
+      return Promise.all(
+        (registrations || []).map(function (registration) {
+          var scriptUrl = cleanText(
+            (registration && registration.active && registration.active.scriptURL) ||
+              (registration && registration.installing && registration.installing.scriptURL) ||
+              (registration && registration.waiting && registration.waiting.scriptURL)
+          );
+          if (!scriptUrl || scriptUrl.indexOf("/sw.js") === -1 || typeof registration.unregister !== "function") {
+            return null;
+          }
+          return registration.unregister().catch(function () {
+            return null;
+          });
+        })
+      );
+    }).then(function () {
+      return null;
+    }).catch(function () {
+      return null;
+    });
+  }
+
+  function waitForProxyRepairWindow() {
+    return new Promise(function (resolve) {
+      window.setTimeout(resolve, 80);
+    });
   }
 
   function deleteIndexedDatabase(name) {
@@ -2192,11 +2292,17 @@
 
     setProxyHealth(false, "Resetting proxy storage and retrying...", "Repairing");
 
-    state.proxyRuntime.repairPromise = Promise.all(
-      getProxyDatabaseNames().map(function (name) {
-        return deleteIndexedDatabase(name);
-      })
-    ).then(function () {
+    state.proxyRuntime.repairPromise = unregisterProxyServiceWorkers().then(function () {
+      return waitForProxyRepairWindow();
+    }).then(function () {
+      return listProxyDatabaseNames();
+    }).then(function (names) {
+      return Promise.all(
+        names.map(function (name) {
+          return deleteIndexedDatabase(name);
+        })
+      );
+    }).then(function () {
       try {
         window.localStorage.removeItem("bare-mux-path");
       } catch (error) {

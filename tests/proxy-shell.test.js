@@ -49,6 +49,9 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /storage\.setJson\(STORAGE_KEY, payload/);
   assert.match(shellScript, /data-game-save="1"/);
   assert.match(shellScript, /data-game-load="1"/);
+  assert.match(shellScript, /normalized === "\$scramjet"/);
+  assert.match(shellScript, /window\.indexedDB\.databases\(\)/);
+  assert.match(shellScript, /window\.navigator\.serviceWorker\.getRegistrations\(\)/);
   assert.match(shellScript, /window\.indexedDB\.deleteDatabase\(name\)/);
   assert.match(shellScript, /Resetting proxy storage and retrying/);
   assert.match(shellScript, /return initializeProxyRuntime\(config, false\);/);
