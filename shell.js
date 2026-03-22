@@ -677,6 +677,10 @@
       window.clearInterval(tab.chatState.pollHandle);
       tab.chatState.pollHandle = 0;
     }
+    if (tab && tab.paneEl && tab.paneEl.__paneSyncTimer) {
+      window.clearTimeout(tab.paneEl.__paneSyncTimer);
+      tab.paneEl.__paneSyncTimer = 0;
+    }
     if (tab && tab.paneEl && typeof tab.paneEl.__socialUnsubscribe === "function") {
       tab.paneEl.__socialUnsubscribe();
       tab.paneEl.__socialUnsubscribe = null;
@@ -1447,6 +1451,7 @@
     if (!pane || pane.__ghostClickBound) return;
     pane.__ghostClickBound = true;
     pane.__ghostClickState = {
+      interactionUntil: 0,
       moved: false,
       pointerActive: false,
       touchActive: false,
@@ -1455,9 +1460,19 @@
       suppressUntil: 0
     };
 
+    function markPaneInteraction(durationMs) {
+      var state = pane.__ghostClickState;
+      if (!state) return;
+      state.interactionUntil = Math.max(
+        Number(state.interactionUntil || 0),
+        Date.now() + Math.max(0, Number(durationMs || 0) || 0)
+      );
+    }
+
     function suppressGhostClick(durationMs) {
       var state = pane.__ghostClickState;
       if (!state) return;
+      markPaneInteraction(durationMs);
       state.suppressUntil = Date.now() + Math.max(0, Number(durationMs || 0) || 0);
     }
 
@@ -1480,6 +1495,7 @@
 
     pane.addEventListener("pointerdown", function (event) {
       if (event.pointerType === "mouse" && event.button !== 0) return;
+      markPaneInteraction(420);
       pane.__ghostClickState.pointerActive = true;
       pane.__ghostClickState.moved = false;
       pane.__ghostClickState.startX = Number(event.clientX || 0);
@@ -1489,6 +1505,7 @@
     pane.addEventListener("pointermove", function (event) {
       var state = pane.__ghostClickState;
       if (!state || !state.pointerActive) return;
+      markPaneInteraction(480);
       updateMoveState(event.clientX, event.clientY);
     }, true);
 
@@ -1508,6 +1525,7 @@
     pane.addEventListener("touchstart", function (event) {
       var point = readTouchPoint(event);
       if (!point) return;
+      markPaneInteraction(480);
       pane.__ghostClickState.touchActive = true;
       pane.__ghostClickState.moved = false;
       pane.__ghostClickState.startX = Number(point.clientX || 0);
@@ -1519,6 +1537,7 @@
       if (!state || !state.touchActive) return;
       var point = readTouchPoint(event);
       if (!point) return;
+      markPaneInteraction(520);
       updateMoveState(point.clientX, point.clientY);
       if (state.moved) {
         suppressGhostClick(320);
@@ -1543,12 +1562,18 @@
     pane.addEventListener("touchend", settleTouch, { capture: true, passive: true });
     pane.addEventListener("touchcancel", settleTouch, { capture: true, passive: true });
     pane.addEventListener("wheel", function () {
-      suppressGhostClick(260);
+      suppressGhostClick(420);
+    }, { capture: true, passive: true });
+    pane.addEventListener("scroll", function () {
+      suppressGhostClick(420);
     }, { capture: true, passive: true });
     pane.addEventListener("click", function (event) {
       if (!shouldSuppressGhostClick(pane)) return;
       event.preventDefault();
       event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === "function") {
+        event.stopImmediatePropagation();
+      }
     }, true);
   }
 
@@ -1558,6 +1583,30 @@
       pane.__ghostClickState &&
       Number(pane.__ghostClickState.suppressUntil || 0) > Date.now()
     );
+  }
+
+  function isPaneInteractionActive(pane) {
+    return Boolean(
+      pane &&
+      pane.__ghostClickState &&
+      Number(pane.__ghostClickState.interactionUntil || 0) > Date.now()
+    );
+  }
+
+  function schedulePaneSyncAfterInteraction(pane, callback) {
+    if (!pane || typeof callback !== "function" || !isPaneInteractionActive(pane)) {
+      return false;
+    }
+    if (pane.__paneSyncTimer) {
+      window.clearTimeout(pane.__paneSyncTimer);
+    }
+    var delay = Math.max(80, Number((pane.__ghostClickState && pane.__ghostClickState.interactionUntil) || 0) - Date.now() + 24);
+    pane.__paneSyncTimer = window.setTimeout(function () {
+      pane.__paneSyncTimer = 0;
+      if (!pane.isConnected) return;
+      callback();
+    }, delay);
+    return true;
   }
 
   function setPaneAuthenticatedState(pane, authenticated) {
@@ -1780,6 +1829,12 @@
   }
 
   function syncAccountPane(pane, tab, message, forceRefresh) {
+    if (!forceRefresh && schedulePaneSyncAfterInteraction(pane, function () {
+      syncAccountPane(pane, tab, message, forceRefresh);
+    })) {
+      return;
+    }
+
     var socialApi = getSocialApi();
     if (!socialApi) {
       setPaneAuthenticatedState(pane, false);
@@ -2139,6 +2194,12 @@
   }
 
   function syncChatPane(pane, tab, message, forceRefresh) {
+    if (!forceRefresh && schedulePaneSyncAfterInteraction(pane, function () {
+      syncChatPane(pane, tab, message, forceRefresh);
+    })) {
+      return;
+    }
+
     var socialApi = getSocialApi();
     var modeConfig = getChatModeConfig(tab);
     applyChatPaneMode(tab, pane);

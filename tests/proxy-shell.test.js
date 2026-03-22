@@ -85,6 +85,8 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /function buildShellHelpAiResponse\(userText\)/);
   assert.match(shellScript, /function bindGhostClickGuard\(pane\)/);
   assert.match(shellScript, /function shouldSuppressGhostClick\(pane\)/);
+  assert.match(shellScript, /function isPaneInteractionActive\(pane\)/);
+  assert.match(shellScript, /function schedulePaneSyncAfterInteraction\(pane, callback\)/);
   assert.match(shellScript, /function findCatalogCategoryInQuery\(userText, games\)/);
   assert.match(shellScript, /function extractRequestedGameCount\(userText\)/);
   assert.match(shellScript, /function resolveLocalAppUrl\(value\)/);
@@ -129,6 +131,8 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.doesNotMatch(shellScript, /if \(!tab\.chatState\.activeThreadId && threads\.length\) \{\s*tab\.chatState\.activeThreadId = String\(threads\[0\]\.id\);\s*\}/);
   assert.match(shellScript, /legacy shortcut to group chats/);
   assert.match(shellScript, /socialApi\.getBootstrap\(Boolean\(forceRefresh\)\)/);
+  assert.match(shellScript, /if \(!forceRefresh && schedulePaneSyncAfterInteraction\(pane, function \(\) \{\s*syncAccountPane\(pane, tab, message, forceRefresh\);/);
+  assert.match(shellScript, /if \(!forceRefresh && schedulePaneSyncAfterInteraction\(pane, function \(\) \{\s*syncChatPane\(pane, tab, message, forceRefresh\);/);
   assert.match(shellScript, /storage\.setJson\(STORAGE_KEY, payload/);
   assert.match(shellScript, /ensureProxyStorageCompatibility\(\)/);
   assert.match(shellScript, /data-game-save="1"/);
