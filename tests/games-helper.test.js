@@ -75,7 +75,11 @@ test("pickFeaturedGame stays stable and prefers entries with artwork", () => {
 });
 
 test("loadCatalog prefers the committed local manifest", async () => {
-  const sampleGames = [{ title: "Brotato", path: "games/bullet-hell/brotato.html" }];
+  const sampleGames = [
+    { title: "OvO", path: "games/platformer/ovo.html" },
+    { title: "Brotato", path: "games/bullet-hell/brotato.html" },
+    { title: "AdVenture Capitalist!", path: "games/clickers/adventure-capitalist.html" }
+  ];
   const { api, calls } = createHelperContext({
     window: {
       ANTARCTIC_GAMES_CATALOG: { games: sampleGames }
@@ -83,7 +87,14 @@ test("loadCatalog prefers the committed local manifest", async () => {
   });
 
   const games = await api.loadCatalog();
-  assert.deepEqual(games, sampleGames);
+  assert.deepEqual(
+    games.map((game) => game.title),
+    ["AdVenture Capitalist!", "Brotato", "OvO"]
+  );
+  assert.deepEqual(
+    sampleGames.map((game) => game.title),
+    ["OvO", "Brotato", "AdVenture Capitalist!"]
+  );
   assert.equal(calls.length, 0);
 });
 

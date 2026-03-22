@@ -145,6 +145,31 @@
     });
   }
 
+  function compareCatalogGames(left, right) {
+    var leftTitle = sanitizeText(left && left.title).toLowerCase();
+    var rightTitle = sanitizeText(right && right.title).toLowerCase();
+    var titleOrder = leftTitle.localeCompare(rightTitle, undefined, { numeric: true });
+    if (titleOrder !== 0) {
+      return titleOrder;
+    }
+
+    var leftAuthor = sanitizeText(left && left.author).toLowerCase();
+    var rightAuthor = sanitizeText(right && right.author).toLowerCase();
+    var authorOrder = leftAuthor.localeCompare(rightAuthor, undefined, { numeric: true });
+    if (authorOrder !== 0) {
+      return authorOrder;
+    }
+
+    return normalizeGamePath(left && left.path).localeCompare(normalizeGamePath(right && right.path), undefined, {
+      numeric: true
+    });
+  }
+
+  function sortCatalogGames(games) {
+    if (!Array.isArray(games)) return [];
+    return games.slice().sort(compareCatalogGames);
+  }
+
   function matchesCatalogQuery(game, rawQuery) {
     var query = sanitizeText(rawQuery).toLowerCase();
     if (!query) return true;
@@ -190,7 +215,7 @@
     if (!games) {
       throw new Error("Embedded games catalog is unavailable.");
     }
-    catalogCache = sanitizeCatalogGames(games);
+    catalogCache = sortCatalogGames(sanitizeCatalogGames(games));
     return catalogCache.slice();
   }
 
