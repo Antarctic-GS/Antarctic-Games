@@ -1270,11 +1270,13 @@
       threads: [],
       rooms: [],
       saves: [],
+      incomingDirectRequests: [],
       stats: {
         threadCount: 0,
         roomCount: 0,
         joinedRoomCount: 0,
         directCount: 0,
+        incomingDirectRequestCount: 0,
         saveCount: 0
       }
     };
@@ -1433,6 +1435,7 @@
     metricsEl.innerHTML = [
       { label: "Joined chats", value: stats.threadCount || 0 },
       { label: "Direct messages", value: stats.directCount || 0 },
+      { label: "Incoming DMs", value: stats.incomingDirectRequestCount || 0 },
       { label: "Public rooms", value: stats.roomCount || 0 },
       { label: "Cloud saves", value: stats.saveCount || 0 }
     ].map(function (metric) {
@@ -1455,8 +1458,13 @@
     }
 
     var stats = bootstrap && bootstrap.stats ? bootstrap.stats : emptyCommunityBootstrap().stats;
+    var incomingCount = Number(stats.incomingDirectRequestCount || 0);
     quickActionsEl.innerHTML =
-      '<button type="button" class="toolbar-button toolbar-button--accent" data-account-route="antarctic://chat">Jump into ' + escapeHtml(String(stats.threadCount || 0)) + " chats</button>" +
+      '<button type="button" class="toolbar-button toolbar-button--accent" data-account-route="antarctic://chat">' +
+        (incomingCount > 0
+          ? "Review " + escapeHtml(String(incomingCount)) + " incoming DMs"
+          : "Jump into " + escapeHtml(String(stats.threadCount || 0)) + " chats") +
+      "</button>" +
       '<button type="button" class="toolbar-button" data-account-route="antarctic://games">Explore games</button>' +
       '<button type="button" class="toolbar-button" data-account-route="antarctic://home">Back home</button>';
   }
@@ -1596,6 +1604,20 @@
         return;
       }
 
+      var acceptButton = target.closest("[data-chat-request-accept]");
+      if (acceptButton) {
+        event.preventDefault();
+        acceptIncomingDirectRequest(tab, pane, acceptButton.getAttribute("data-chat-request-accept"));
+        return;
+      }
+
+      var denyButton = target.closest("[data-chat-request-deny]");
+      if (denyButton) {
+        event.preventDefault();
+        denyIncomingDirectRequest(tab, pane, denyButton.getAttribute("data-chat-request-deny"));
+        return;
+      }
+
       var joinButton = target.closest("[data-chat-join]");
       if (joinButton) {
         joinChatRoom(tab, pane, joinButton.getAttribute("data-chat-join"));
@@ -1633,11 +1655,16 @@
     }
 
     var stats = community.bootstrap && community.bootstrap.stats ? community.bootstrap.stats : emptyCommunityBootstrap().stats;
+    var incomingCount = Number(stats.incomingDirectRequestCount || 0);
     sessionEl.innerHTML =
       '<div class="chat-session-card">' +
         '<div class="chat-session-card__identity">' +
           '<strong>@' + escapeHtml(community.user.username) + "</strong>" +
-          '<span>' + escapeHtml(String(stats.threadCount || 0)) + " joined chats • " + escapeHtml(String(stats.directCount || 0)) + " DMs</span>" +
+          '<span>' +
+            escapeHtml(String(stats.threadCount || 0)) + " joined chats • " +
+            escapeHtml(String(stats.directCount || 0)) + " DMs • " +
+            escapeHtml(String(incomingCount)) + " incoming" +
+          "</span>" +
         "</div>" +
         '<button type="button" class="toolbar-button" data-route="antarctic://account">Account</button>' +
       "</div>";
@@ -1646,10 +1673,35 @@
   function renderChatThreads(pane, tab, payload) {
     var listEl = pane.querySelector('[data-role="chat-thread-list"]');
     var roomCatalogEl = pane.querySelector('[data-role="chat-room-catalog"]');
-    if (!listEl || !roomCatalogEl) return;
+    var incomingRequestsEl = pane.querySelector('[data-role="chat-incoming-requests"]');
+    if (!listEl || !roomCatalogEl || !incomingRequestsEl) return;
 
     var threads = Array.isArray(payload && payload.threads) ? payload.threads : [];
     var rooms = Array.isArray(payload && payload.rooms) ? payload.rooms : [];
+    var incomingDirectRequests = Array.isArray(payload && payload.incomingDirectRequests)
+      ? payload.incomingDirectRequests
+      : [];
+
+    incomingRequestsEl.innerHTML =
+      '<div class="chat-room-catalog__title">Incoming DMs</div>' +
+      (incomingDirectRequests.length
+        ? incomingDirectRequests.map(function (request) {
+            var requester = request && request.requester ? request.requester : null;
+            var username = requester && requester.username ? "@" + requester.username : "Unknown user";
+            return (
+              '<article class="chat-request-card">' +
+                '<div class="chat-request-card__content">' +
+                  '<strong>' + escapeHtml(username) + "</strong>" +
+                  '<span>Wants to start a direct message with you.</span>' +
+                "</div>" +
+                '<div class="chat-request-card__actions">' +
+                  '<button type="button" class="toolbar-button toolbar-button--accent" data-chat-request-accept="' + escapeHtml(request.id) + '">Accept</button>' +
+                  '<button type="button" class="toolbar-button" data-chat-request-deny="' + escapeHtml(request.id) + '">Deny</button>' +
+                "</div>" +
+              "</article>"
+            );
+          }).join("")
+        : '<div class="empty-state empty-state--stacked"><strong>No incoming DMs.</strong><span>New requests will show up here.</span></div>');
 
     listEl.innerHTML = threads.length
       ? threads.map(function (thread) {
@@ -1830,8 +1882,38 @@
       if (payload && payload.thread) {
         tab.chatState.activeThreadId = String(payload.thread.id);
         setChatWizardStep(tab, pane, 3);
+        syncChatPane(pane, tab, payload.request ? "DM request accepted." : "Direct message ready.");
+        return;
       }
-      syncChatPane(pane, tab, "Direct message ready.");
+      setChatWizardStep(tab, pane, 2);
+      syncChatPane(pane, tab, "DM request sent.");
+    }).catch(function (error) {
+      setChatStatus(pane, cleanText(error && error.message ? error.message : error));
+    });
+  }
+
+  function acceptIncomingDirectRequest(tab, pane, requestId) {
+    var socialApi = getSocialApi();
+    if (!socialApi) return;
+    setChatStatus(pane, "Accepting DM...");
+    socialApi.acceptDirectRequest(requestId).then(function (payload) {
+      if (payload && payload.thread && payload.thread.id) {
+        tab.chatState.activeThreadId = String(payload.thread.id);
+        setChatWizardStep(tab, pane, 3);
+      }
+      syncChatPane(pane, tab, "DM accepted.");
+    }).catch(function (error) {
+      setChatStatus(pane, cleanText(error && error.message ? error.message : error));
+    });
+  }
+
+  function denyIncomingDirectRequest(tab, pane, requestId) {
+    var socialApi = getSocialApi();
+    if (!socialApi) return;
+    setChatStatus(pane, "Denying DM...");
+    socialApi.denyDirectRequest(requestId).then(function () {
+      setChatWizardStep(tab, pane, 2);
+      syncChatPane(pane, tab, "DM denied.");
     }).catch(function (error) {
       setChatStatus(pane, cleanText(error && error.message ? error.message : error));
     });

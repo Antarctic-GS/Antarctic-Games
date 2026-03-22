@@ -969,13 +969,15 @@
 }
 
 .chat-thread-list,
-.chat-room-catalog {
+.chat-room-catalog,
+.chat-request-list {
   display: grid;
   gap: 0.7rem;
 }
 
 .chat-thread-card,
-.chat-room-card {
+.chat-room-card,
+.chat-request-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1000,13 +1002,15 @@
 }
 
 .chat-thread-card strong,
-.chat-room-card strong {
+.chat-room-card strong,
+.chat-request-card strong {
   display: block;
   font-size: 0.94rem;
 }
 
 .chat-thread-card span,
 .chat-room-card span,
+.chat-request-card span,
 .chat-room-catalog__title {
   color: var(--muted);
   font-size: 0.82rem;
@@ -1035,6 +1039,19 @@
   display: grid;
   gap: 0.25rem;
   min-width: 0;
+}
+
+.chat-request-card__content {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.chat-request-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.55rem;
 }
 
 .chat-room-card__joined {

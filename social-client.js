@@ -82,11 +82,13 @@
       threads: [],
       rooms: [],
       saves: [],
+      incomingDirectRequests: [],
       stats: {
         threadCount: 0,
         roomCount: 0,
         joinedRoomCount: 0,
         directCount: 0,
+        incomingDirectRequestCount: 0,
         saveCount: 0
       }
     };
@@ -96,6 +98,9 @@
     var threads = Array.isArray(bootstrap && bootstrap.threads) ? bootstrap.threads : [];
     var rooms = Array.isArray(bootstrap && bootstrap.rooms) ? bootstrap.rooms : [];
     var saves = Array.isArray(bootstrap && bootstrap.saves) ? bootstrap.saves : [];
+    var incomingDirectRequests = Array.isArray(bootstrap && bootstrap.incomingDirectRequests)
+      ? bootstrap.incomingDirectRequests
+      : [];
 
     return {
       threadCount: threads.length,
@@ -106,6 +111,7 @@
       directCount: threads.filter(function (thread) {
         return thread && thread.type === "direct";
       }).length,
+      incomingDirectRequestCount: incomingDirectRequests.length,
       saveCount: saves.length
     };
   }
@@ -116,6 +122,9 @@
       if (Array.isArray(raw.threads)) bootstrap.threads = clonePlain(raw.threads) || [];
       if (Array.isArray(raw.rooms)) bootstrap.rooms = clonePlain(raw.rooms) || [];
       if (Array.isArray(raw.saves)) bootstrap.saves = clonePlain(raw.saves) || [];
+      if (Array.isArray(raw.incomingDirectRequests)) {
+        bootstrap.incomingDirectRequests = clonePlain(raw.incomingDirectRequests) || [];
+      }
       bootstrap.stats = Object.assign(
         deriveBootstrapStats(bootstrap),
         raw.stats && typeof raw.stats === "object" ? clonePlain(raw.stats) : {}
@@ -142,10 +151,16 @@
       threads: Object.prototype.hasOwnProperty.call(patch, "threads") ? patch.threads : base.threads,
       rooms: Object.prototype.hasOwnProperty.call(patch, "rooms") ? patch.rooms : base.rooms,
       saves: Object.prototype.hasOwnProperty.call(patch, "saves") ? patch.saves : base.saves,
+      incomingDirectRequests: Object.prototype.hasOwnProperty.call(patch, "incomingDirectRequests")
+        ? patch.incomingDirectRequests
+        : base.incomingDirectRequests,
       stats: Object.prototype.hasOwnProperty.call(patch, "stats") ? patch.stats : deriveBootstrapStats({
         threads: Object.prototype.hasOwnProperty.call(patch, "threads") ? patch.threads : base.threads,
         rooms: Object.prototype.hasOwnProperty.call(patch, "rooms") ? patch.rooms : base.rooms,
-        saves: Object.prototype.hasOwnProperty.call(patch, "saves") ? patch.saves : base.saves
+        saves: Object.prototype.hasOwnProperty.call(patch, "saves") ? patch.saves : base.saves,
+        incomingDirectRequests: Object.prototype.hasOwnProperty.call(patch, "incomingDirectRequests")
+          ? patch.incomingDirectRequests
+          : base.incomingDirectRequests
       })
     };
 
@@ -163,7 +178,7 @@
 
     var patch = {};
     var hasPatch = false;
-    ["threads", "rooms", "saves", "stats"].forEach(function (key) {
+    ["threads", "rooms", "saves", "incomingDirectRequests", "stats"].forEach(function (key) {
       if (Object.prototype.hasOwnProperty.call(payload, key)) {
         patch[key] = payload[key];
         hasPatch = true;
@@ -421,6 +436,16 @@
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ username: cleanText(username) })
+      });
+    },
+    acceptDirectRequest: function (requestId) {
+      return requestJson("/api/chat/dms/" + encodeURIComponent(String(requestId)) + "/accept", {
+        method: "POST"
+      });
+    },
+    denyDirectRequest: function (requestId) {
+      return requestJson("/api/chat/dms/" + encodeURIComponent(String(requestId)) + "/deny", {
+        method: "POST"
       });
     },
     joinRoom: function (threadId) {

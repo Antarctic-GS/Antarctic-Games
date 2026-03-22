@@ -57,6 +57,8 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellPage, /data-role="account-metrics"/);
   assert.match(shellPage, /data-role="account-quick-actions"/);
   assert.match(shellPage, /data-role="chat-session"/);
+  assert.match(shellPage, /data-role="chat-incoming-requests"/);
+  assert.match(shellPage, /Send DM request/);
   assert.match(shellPage, /prompt-list--composer/);
   assert.doesNotMatch(shellPage, /data-account-wizard-next/);
   assert.doesNotMatch(shellPage, /data-role="ai-status"/);
@@ -86,6 +88,11 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /function renderAccountMetrics\(pane, bootstrap\)/);
   assert.match(shellScript, /function renderAccountQuickActions\(pane, session, bootstrap\)/);
   assert.match(shellScript, /function renderChatSessionCard\(pane, community\)/);
+  assert.match(shellScript, /incomingDirectRequestCount/);
+  assert.match(shellScript, /function acceptIncomingDirectRequest\(tab, pane, requestId\)/);
+  assert.match(shellScript, /function denyIncomingDirectRequest\(tab, pane, requestId\)/);
+  assert.match(shellScript, /data-chat-request-accept/);
+  assert.match(shellScript, /data-chat-request-deny/);
   assert.match(shellScript, /accountState:\s*\{\s*allowAutoOpen:\s*true\s*\}/);
   assert.match(shellScript, /if \(tab && tab\.accountState\) \{\s*tab\.accountState\.allowAutoOpen = true;\s*\}/);
   assert.match(shellScript, /if \(tab && pane && tab\.accountState && tab\.accountState\.allowAutoOpen\) \{\s*setAccountWizardStep\(tab, pane, 2\);\s*tab\.accountState\.allowAutoOpen = false;\s*\}/);
@@ -128,6 +135,9 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(gamesHelper, /script\.src = resolveCatalogScriptUrl\(\);/);
   assert.match(gamesHelper, /manifestUrl\.searchParams\.set\(LOCAL_MANIFEST_ASSET_PARAM, LOCAL_MANIFEST_VERSION\)/);
   assert.match(socialClient, /function getBootstrap\(forceRefresh\)/);
+  assert.match(socialClient, /incomingDirectRequests:\s*\[\]/);
+  assert.match(socialClient, /acceptDirectRequest:\s*function \(requestId\)/);
+  assert.match(socialClient, /denyDirectRequest:\s*function \(requestId\)/);
   assert.match(socialClient, /function hasStoredToken\(\)/);
   assert.match(socialClient, /if \(!hasStoredToken\(\)\) \{/);
   assert.match(socialClient, /requestJson\("\/api\/community\/bootstrap"/);
@@ -175,6 +185,8 @@ test("settings shell keeps the sidebar on a fixed attached rail", () => {
   assert.match(settingsShellCss, /\.account-summary__hero\s*\{/);
   assert.match(settingsShellCss, /\.account-metric-card\s*\{/);
   assert.match(settingsShellCss, /\.chat-session-card\s*\{/);
+  assert.match(settingsShellCss, /\.chat-request-list\s*\{/);
+  assert.match(settingsShellCss, /\.chat-request-card__actions\s*\{/);
   assert.match(settingsShellCss, /\.chat-thread-card__badge\s*\{/);
   assert.match(settingsShellCss, /\.chat-message--own\s*\{/);
   assert.match(settingsShellCss, /\.game-launcher__action\s*\{/);

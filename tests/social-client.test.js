@@ -85,11 +85,20 @@ test("social client reuses the bootstrap payload returned by login", async () =>
           { id: 1, name: "Lobby", joined: true, memberCount: 1 }
         ],
         saves: [],
+        incomingDirectRequests: [
+          {
+            id: 4,
+            status: "pending",
+            requester: { id: 9, username: "blizzard", createdAt: "2026-03-21T16:31:00.000Z" },
+            target: { id: 7, username: "snowfox", createdAt: "2026-03-21T16:30:00.000Z" }
+          }
+        ],
         stats: {
           threadCount: 1,
           roomCount: 1,
           joinedRoomCount: 1,
           directCount: 0,
+          incomingDirectRequestCount: 1,
           saveCount: 0
         }
       }
@@ -100,12 +109,14 @@ test("social client reuses the bootstrap payload returned by login", async () =>
   assert.equal(loggedIn.authenticated, true);
   assert.equal(loggedIn.user.username, "snowfox");
   assert.equal(loggedIn.bootstrap.stats.threadCount, 1);
+  assert.equal(loggedIn.bootstrap.incomingDirectRequests.length, 1);
   assert.equal(calls.length, 1);
   assert.equal(calls[0].url, "https://api.example.test/api/account/login");
 
   const cachedBootstrap = await api.getBootstrap();
   assert.equal(cachedBootstrap.authenticated, true);
   assert.equal(cachedBootstrap.bootstrap.rooms.length, 1);
+  assert.equal(cachedBootstrap.bootstrap.stats.incomingDirectRequestCount, 1);
   assert.equal(calls.length, 1);
 });
 
@@ -124,11 +135,13 @@ test("social client clears cached session and bootstrap state on logout", async 
         threads: [{ id: 3, type: "direct", peer: { username: "snowfox" } }],
         rooms: [],
         saves: [{ gameKey: "games/platformer/ovo.html", summary: "OvO cloud", updatedAt: "2026-03-21T16:36:00.000Z" }],
+        incomingDirectRequests: [],
         stats: {
           threadCount: 1,
           roomCount: 0,
           joinedRoomCount: 0,
           directCount: 1,
+          incomingDirectRequestCount: 0,
           saveCount: 1
         }
       }
@@ -157,6 +170,7 @@ test("social client clears cached session and bootstrap state on logout", async 
   assert.equal(bootstrap.authenticated, false);
   assert.equal(bootstrap.bootstrap.threads.length, 0);
   assert.equal(bootstrap.bootstrap.saves.length, 0);
+  assert.equal(bootstrap.bootstrap.incomingDirectRequests.length, 0);
   assert.equal(calls.length, 2);
 });
 
@@ -174,5 +188,6 @@ test("social client short-circuits anonymous session and bootstrap checks withou
   assert.equal(session.token, "");
   assert.equal(bootstrap.authenticated, false);
   assert.equal(bootstrap.bootstrap.threads.length, 0);
+  assert.equal(bootstrap.bootstrap.incomingDirectRequests.length, 0);
   assert.equal(calls.length, 0);
 });
