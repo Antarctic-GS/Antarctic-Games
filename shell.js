@@ -1631,6 +1631,13 @@
       var joinButton = target.closest("[data-chat-join]");
       if (joinButton) {
         joinChatRoom(tab, pane, joinButton.getAttribute("data-chat-join"));
+        return;
+      }
+
+      var leaveButton = target.closest("[data-chat-leave]");
+      if (leaveButton) {
+        event.preventDefault();
+        leaveChatRoom(tab, pane, leaveButton.getAttribute("data-chat-leave"));
       }
     });
 
@@ -1778,7 +1785,12 @@
               : ((cleanText(thread.visibility || "public").toLowerCase() === "private" ? "Private room" : "Public room") + " • 2000 character max")
           ) +
         "</span>" +
-      "</div>";
+      "</div>" +
+      (thread.type === "room"
+        ? '<div class="chat-room__header-actions">' +
+            '<button type="button" class="toolbar-button" data-chat-leave="' + escapeHtml(thread.id) + '">Leave room</button>' +
+          "</div>"
+        : "");
 
     if (!Array.isArray(messages) || !messages.length) {
       messagesEl.innerHTML =
@@ -1961,6 +1973,19 @@
       tab.chatState.activeThreadId = cleanText(threadId);
       setChatWizardStep(tab, pane, 3);
       syncChatPane(pane, tab, "Joined room.");
+    }).catch(function (error) {
+      setChatStatus(pane, cleanText(error && error.message ? error.message : error));
+    });
+  }
+
+  function leaveChatRoom(tab, pane, threadId) {
+    var socialApi = getSocialApi();
+    if (!socialApi) return;
+    setChatStatus(pane, "Leaving room...");
+    socialApi.leaveRoom(threadId).then(function () {
+      tab.chatState.activeThreadId = "";
+      setChatWizardStep(tab, pane, 2);
+      syncChatPane(pane, tab, "Left room.");
     }).catch(function (error) {
       setChatStatus(pane, cleanText(error && error.message ? error.message : error));
     });

@@ -99,6 +99,8 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /function syncRoomInviteField\(pane\)/);
   assert.match(shellScript, /function syncChatMessageCounter\(pane\)/);
   assert.match(shellScript, /room\.invited \? "Accept invite" : "Join"/);
+  assert.match(shellScript, /function leaveChatRoom\(tab, pane, threadId\)/);
+  assert.match(shellScript, /data-chat-leave/);
   assert.match(shellScript, /function acceptIncomingDirectRequest\(tab, pane, requestId\)/);
   assert.match(shellScript, /function denyIncomingDirectRequest\(tab, pane, requestId\)/);
   assert.match(shellScript, /data-chat-request-accept/);
@@ -149,6 +151,7 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(socialClient, /createRoom:\s*function \(name, options\)/);
   assert.match(socialClient, /visibility:\s*cleanText\(roomOptions\.visibility \|\| "public"\)/);
   assert.match(socialClient, /invitedUsers:\s*invitedUsers/);
+  assert.match(socialClient, /leaveRoom:\s*function \(threadId\)/);
   assert.match(socialClient, /acceptDirectRequest:\s*function \(requestId\)/);
   assert.match(socialClient, /denyDirectRequest:\s*function \(requestId\)/);
   assert.match(socialClient, /function hasStoredToken\(\)/);
@@ -204,6 +207,7 @@ test("settings shell keeps the sidebar on a fixed attached rail", () => {
   assert.match(settingsShellCss, /\.chat-request-list\s*\{/);
   assert.match(settingsShellCss, /\.chat-request-card__actions\s*\{/);
   assert.match(settingsShellCss, /\.chat-room__counter\s*\{/);
+  assert.match(settingsShellCss, /\.chat-room__header-actions\s*\{/);
   assert.match(settingsShellCss, /\.chat-thread-card__badge\s*\{/);
   assert.match(settingsShellCss, /\.chat-message--own\s*\{/);
   assert.match(settingsShellCss, /\.game-launcher__action\s*\{/);

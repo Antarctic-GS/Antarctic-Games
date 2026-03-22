@@ -461,6 +461,9 @@
     joinRoom: function (threadId) {
       return requestJson("/api/chat/threads/" + encodeURIComponent(String(threadId)) + "/join", { method: "POST" });
     },
+    leaveRoom: function (threadId) {
+      return requestJson("/api/chat/threads/" + encodeURIComponent(String(threadId)) + "/leave", { method: "POST" });
+    },
     listMessages: function (threadId) {
       return requestJson("/api/chat/threads/" + encodeURIComponent(String(threadId)) + "/messages", { method: "GET" });
     },
