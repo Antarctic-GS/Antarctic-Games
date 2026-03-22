@@ -8,6 +8,7 @@ const FRONTEND_DIR = path.resolve(__dirname, "..");
 test("frontend ships static Scramjet proxy assets", () => {
   const requiredFiles = [
     "settings-shell.css",
+    "site-storage.js",
     path.join("scram", "scramjet.all.js"),
     path.join("scram", "scramjet.sync.js"),
     path.join("scram", "scramjet.wasm.wasm"),
@@ -27,6 +28,7 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   const shellScript = fs.readFileSync(path.join(FRONTEND_DIR, "shell.js"), "utf8");
 
   assert.match(shellPage, /id="sidebar-toggle"/);
+  assert.match(shellPage, /<script src="site-storage\.js"><\/script>\s*<script src="site-settings\.js"><\/script>/);
   assert.match(shellPage, /baremux\/index\.js/);
   assert.match(shellPage, /scram\/scramjet\.all\.js/);
   assert.match(shellPage, /<script src="data\/games-catalog\.js" data-antarctic-games-catalog="true" data-palladium-games-catalog="true"><\/script>/);
@@ -36,6 +38,8 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellPage, /prompt-list--composer/);
   assert.doesNotMatch(shellPage, /data-role="ai-status"/);
   assert.match(shellScript, /function isRecoverableProxyStorageError\(error\)/);
+  assert.match(shellScript, /window\.AntarcticGamesStorage \|\| window\.PalladiumSiteStorage/);
+  assert.match(shellScript, /storage\.setJson\(STORAGE_KEY, payload/);
   assert.match(shellScript, /window\.indexedDB\.deleteDatabase\(name\)/);
   assert.match(shellScript, /Resetting proxy storage and retrying/);
   assert.match(shellScript, /return initializeProxyRuntime\(config, false\);/);

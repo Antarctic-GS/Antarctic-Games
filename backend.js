@@ -2,6 +2,7 @@
   var STORAGE_KEY = "antarctic-backend-base";
   var LEGACY_STORAGE_KEY = "palladium-backend-base";
   var CONFIG_CACHE = null;
+  var storage = window.AntarcticGamesStorage || window.PalladiumSiteStorage || null;
 
   function normalizeBase(value) {
     var raw = String(value || "").trim();
@@ -38,6 +39,9 @@
   }
 
   function readStoredBase() {
+    if (storage && typeof storage.getItem === "function") {
+      return storage.getItem(STORAGE_KEY, { legacyKeys: [LEGACY_STORAGE_KEY] }) || "";
+    }
     try {
       return window.localStorage.getItem(STORAGE_KEY) || window.localStorage.getItem(LEGACY_STORAGE_KEY) || "";
     } catch (e) {
@@ -46,6 +50,10 @@
   }
 
   function writeStoredBase(base) {
+    if (storage && typeof storage.setItem === "function") {
+      storage.setItem(STORAGE_KEY, base || "", { legacyKeys: [LEGACY_STORAGE_KEY] });
+      return;
+    }
     try {
       if (!base) {
         window.localStorage.removeItem(STORAGE_KEY);

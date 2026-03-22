@@ -2,7 +2,8 @@
   var core = window.AntarcticGamesShellCore || window.PalladiumShellCore;
   if (!core) return;
 
-  var STORAGE_KEY = "palladium.shell.state.v1";
+  var STORAGE_KEY = "antarctic.shell.state.v1";
+  var LEGACY_STORAGE_KEY = "palladium.shell.state.v1";
   var SCRAMJET_PREFIX = "/service/scramjet/";
   var SCRAMJET_SW_PATH = "/sw.js";
   var BAREMUX_WORKER_PATH = "/baremux/worker.js";
@@ -215,6 +216,10 @@
     return window.AntarcticGamesBackend || window.PalladiumBackend || null;
   }
 
+  function getSiteStorageApi() {
+    return window.AntarcticGamesStorage || window.PalladiumSiteStorage || null;
+  }
+
   function injectAntarcticFontsIntoDocument(doc) {
     if (!doc || !doc.head) return;
     if (doc.getElementById("antarctic-font-bridge")) return;
@@ -254,8 +259,16 @@
   }
 
   function readStorage() {
+    var storage = getSiteStorageApi();
+    if (storage && typeof storage.getJson === "function") {
+      return storage.getJson(STORAGE_KEY, {
+        legacyKeys: [LEGACY_STORAGE_KEY],
+        sessionKeys: [STORAGE_KEY, LEGACY_STORAGE_KEY]
+      });
+    }
+
     try {
-      var raw = window.sessionStorage.getItem(STORAGE_KEY);
+      var raw = window.sessionStorage.getItem(STORAGE_KEY) || window.sessionStorage.getItem(LEGACY_STORAGE_KEY);
       return raw ? JSON.parse(raw) : null;
     } catch (error) {
       return null;
@@ -263,6 +276,15 @@
   }
 
   function writeStorage(payload) {
+    var storage = getSiteStorageApi();
+    if (storage && typeof storage.setJson === "function") {
+      storage.setJson(STORAGE_KEY, payload, {
+        legacyKeys: [LEGACY_STORAGE_KEY],
+        sessionKeys: [STORAGE_KEY, LEGACY_STORAGE_KEY]
+      });
+      return;
+    }
+
     try {
       window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch (error) {
@@ -927,7 +949,7 @@
     if (!pane) return;
     var statusEl = pane.querySelector('[data-role="settings-status"]');
     if (statusEl) {
-      statusEl.textContent = cleanText(message) || "Saved locally in this browser.";
+      statusEl.textContent = cleanText(message) || "Saved with first-party cookies in this browser.";
     }
   }
 

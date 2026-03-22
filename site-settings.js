@@ -8,6 +8,7 @@
   var DEFAULT_TITLE = "Antarctic Games";
   var DEFAULT_FAVICON = "images/favicon.png?v=4";
   var DEFAULT_THEME = "default";
+  var storage = window.AntarcticGamesStorage || window.PalladiumSiteStorage || null;
   var ALLOWED_THEMES = {
     "default": true,
     "color-wash": true,
@@ -44,14 +45,22 @@
   }
 
   function getStoredSetting(primaryKey, legacyKey) {
+    if (storage && typeof storage.getItem === "function") {
+      return String(storage.getItem(primaryKey, { legacyKeys: [legacyKey] }) || "").trim();
+    }
     return safeGetStorage(primaryKey) || safeGetStorage(legacyKey);
   }
 
-  function clearLegacyKey(legacyKey) {
-    try {
-      localStorage.removeItem(legacyKey);
-    } catch (error) {
-      // Ignore storage write failures.
+  function setStoredSetting(primaryKey, legacyKey, value) {
+    var normalizedValue = String(value == null ? "" : value).trim();
+    if (storage && typeof storage.setItem === "function") {
+      storage.setItem(primaryKey, normalizedValue, { legacyKeys: [legacyKey] });
+      return;
+    }
+
+    safeSetStorage(primaryKey, normalizedValue);
+    if (legacyKey) {
+      safeSetStorage(legacyKey, "");
     }
   }
 
@@ -156,35 +165,29 @@
   }
 
   function setTitle(value) {
-    safeSetStorage(TITLE_KEY, value);
-    clearLegacyKey(LEGACY_TITLE_KEY);
+    setStoredSetting(TITLE_KEY, LEGACY_TITLE_KEY, value);
     applyDocumentSettings();
   }
 
   function setFavicon(value) {
-    safeSetStorage(FAVICON_KEY, normalizeFavicon(value));
-    clearLegacyKey(LEGACY_FAVICON_KEY);
+    setStoredSetting(FAVICON_KEY, LEGACY_FAVICON_KEY, normalizeFavicon(value));
     applyDocumentSettings();
   }
 
   function setTheme(value) {
     var normalized = normalizeTheme(value);
     if (normalized === DEFAULT_THEME) {
-      safeSetStorage(THEME_KEY, "");
+      setStoredSetting(THEME_KEY, LEGACY_THEME_KEY, "");
     } else {
-      safeSetStorage(THEME_KEY, normalized);
+      setStoredSetting(THEME_KEY, LEGACY_THEME_KEY, normalized);
     }
-    clearLegacyKey(LEGACY_THEME_KEY);
     applyDocumentSettings();
   }
 
   function reset() {
-    safeSetStorage(TITLE_KEY, "");
-    safeSetStorage(FAVICON_KEY, "");
-    safeSetStorage(THEME_KEY, "");
-    clearLegacyKey(LEGACY_TITLE_KEY);
-    clearLegacyKey(LEGACY_FAVICON_KEY);
-    clearLegacyKey(LEGACY_THEME_KEY);
+    setStoredSetting(TITLE_KEY, LEGACY_TITLE_KEY, "");
+    setStoredSetting(FAVICON_KEY, LEGACY_FAVICON_KEY, "");
+    setStoredSetting(THEME_KEY, LEGACY_THEME_KEY, "");
     applyDocumentSettings();
   }
 
