@@ -73,10 +73,10 @@
     if (host === "localhost" || host === "127.0.0.1" || host === "::1" || window.location.port === "3000") {
       return window.location.origin;
     }
-    if (host === "sethpang.com" || host === "www.sethpang.com") {
+    if (host === "api.antarctic.games" || host === "www.api.antarctic.games") {
       return window.location.origin;
     }
-    return "https://sethpang.com";
+    return "https://api.antarctic.games";
   }
 
   function assetUrl(pathValue) {

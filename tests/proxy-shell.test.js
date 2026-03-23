@@ -221,8 +221,8 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(socialClient, /requestJson\("\/api\/community\/bootstrap"/);
   assert.match(socialClient, /credentials:\s*"same-origin"/);
   assert.match(socialClient, /return currentCommunityState\(\);/);
-  assert.match(backendHelper, /host === "sethpang\.com" \|\| host === "www\.sethpang\.com"/);
-  assert.match(backendHelper, /return "https:\/\/sethpang\.com";/);
+  assert.match(backendHelper, /host === "api\.antarctic\.games" \|\| host === "www\.api\.antarctic\.games"/);
+  assert.match(backendHelper, /return "https:\/\/api\.antarctic\.games";/);
   assert.doesNotMatch(backendHelper, /https:\/\/api\.sethpang\.com/);
 });
 

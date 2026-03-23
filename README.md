@@ -29,7 +29,7 @@ You can also remix this on [Replit](https://replit.com/@sethpanng/Palladium-Game
   3. You're good to go! Remember to run ```git pull origin main``` sometimes to keep your link updated.
 
 ## Local Game Hosting
-The frontend now commits the playable game files, SWFs, thumbnails, and a generated catalog manifest directly into this repo so a blocked `api.sethpang.com` domain does not take the whole games page down.
+The frontend now commits the playable game files, SWFs, thumbnails, and a generated catalog manifest directly into this repo so a blocked `api.antarctic.games` domain does not take the whole games page down.
 The only top-level app page is `index.html`; games launch from the shell into their own tabs through `palladium://gamelauncher?...` launch URIs.
 
 Refresh those bundled assets from a sibling backend checkout with:
@@ -51,9 +51,9 @@ The frontend stays fully static. Scramjet, BareMux, libcurl, and the service wor
 
 The live backend contract is:
 
-- `https://api.sethpang.com/api/ai/chat` for AI
-- `https://api.sethpang.com/api/config/public` for public runtime config
-- `wss://api.sethpang.com/wisp/` for Scramjet transport
+- `https://api.antarctic.games/api/ai/chat` for AI
+- `https://api.antarctic.games/api/config/public` for public runtime config
+- `wss://api.antarctic.games/wisp/` for Scramjet transport
 
 Refresh the committed proxy runtime from the backend repo with:
 
