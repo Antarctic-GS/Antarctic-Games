@@ -429,6 +429,21 @@
     }
   }
 
+  function isKnownProxyServiceWorkerScript(scriptUrl) {
+    var text = cleanText(scriptUrl);
+    if (!text) {
+      return false;
+    }
+
+    try {
+      var parsed = new URL(text, getLocalAppBaseUrl());
+      var baseUrl = new URL(getLocalAppBaseUrl());
+      return parsed.origin === baseUrl.origin && parsed.pathname === SCRAMJET_SW_PATH;
+    } catch (error) {
+      return false;
+    }
+  }
+
   function isRemoteAssetUrl(value) {
     var text = cleanText(value);
     if (!text) return false;
@@ -3468,8 +3483,13 @@
       return false;
     }
 
-    var activeVersion = readProxyServiceWorkerAssetVersion(window.navigator.serviceWorker.controller.scriptURL);
-    return activeVersion === PROXY_RUNTIME_ASSET_VERSION;
+    var scriptUrl = window.navigator.serviceWorker.controller.scriptURL;
+    if (!isKnownProxyServiceWorkerScript(scriptUrl)) {
+      return false;
+    }
+
+    var activeVersion = readProxyServiceWorkerAssetVersion(scriptUrl);
+    return !activeVersion || activeVersion === PROXY_RUNTIME_ASSET_VERSION;
   }
 
   function waitForProxyServiceWorkerController() {

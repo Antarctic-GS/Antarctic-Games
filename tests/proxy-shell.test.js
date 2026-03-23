@@ -100,6 +100,7 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /function probeWispTransport\(wispUrl\)/);
   assert.match(shellScript, /function createHttpProxyTransport\(config\)/);
   assert.match(shellScript, /function readProxyServiceWorkerAssetVersion\(scriptUrl\)/);
+  assert.match(shellScript, /function isKnownProxyServiceWorkerScript\(scriptUrl\)/);
   assert.match(shellScript, /function hasCurrentProxyServiceWorkerController\(\)/);
   assert.match(shellScript, /function waitForProxyServiceWorkerController\(\)/);
   assert.match(shellScript, /function shouldSkipFrontendProxyHeader\(name\)/);
@@ -172,7 +173,10 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /window\.location\.reload\(\)/);
   assert.match(shellScript, /Proxy service worker controller is still unavailable\./);
   assert.match(shellScript, /writeProxyControllerReloadMarker\(""\)/);
-  assert.match(shellScript, /var activeVersion = readProxyServiceWorkerAssetVersion\(window\.navigator\.serviceWorker\.controller\.scriptURL\);/);
+  assert.match(shellScript, /var scriptUrl = window\.navigator\.serviceWorker\.controller\.scriptURL;/);
+  assert.match(shellScript, /if \(!isKnownProxyServiceWorkerScript\(scriptUrl\)\) \{\s*return false;\s*\}/);
+  assert.match(shellScript, /var activeVersion = readProxyServiceWorkerAssetVersion\(scriptUrl\);/);
+  assert.match(shellScript, /return !activeVersion \|\| activeVersion === PROXY_RUNTIME_ASSET_VERSION;/);
   assert.match(shellScript, /config && config\.services && config\.services\.proxyRequest/);
   assert.match(shellScript, /config && config\.services && \(config\.services\.proxyFetch \|\| config\.services\.proxy\)/);
   assert.match(shellScript, /var httpTransportUrl = proxyRequestUrl \|\| proxyFetchUrl;/);
