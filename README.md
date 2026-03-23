@@ -55,6 +55,8 @@ The live backend contract is:
 - `https://api.antarctic.games/api/config/public` for public runtime config
 - `wss://api.antarctic.games/wisp/` for Scramjet transport
 
+Old saved backend hosts like `sethpang.com` and `api.sethpang.com` are automatically migrated forward to `https://api.antarctic.games` by the frontend helper.
+
 Refresh the committed proxy runtime from the backend repo with:
 
 ```bash

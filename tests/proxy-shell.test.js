@@ -77,6 +77,7 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /function isRecoverableProxyStorageError\(error\)/);
   assert.match(shellScript, /function isRecoverableProxyControllerError\(error\)/);
   assert.match(shellScript, /var PROXY_STORAGE_VERSION_KEY = "antarctic\.proxy\.storage\.version\.v1"/);
+  assert.match(backendHelper, /var DEFAULT_BACKEND_BASE = "https:\/\/api\.antarctic\.games";/);
   assert.match(shellScript, /window\.AntarcticGamesStorage \|\| window\.PalladiumSiteStorage/);
   assert.match(shellScript, /window\.AntarcticSocialClient \|\| window\.PalladiumSocialClient/);
   assert.match(shellScript, /var LOCAL_APP_ASSET_PARAM = "antarctic_asset"/);
@@ -221,9 +222,12 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(socialClient, /requestJson\("\/api\/community\/bootstrap"/);
   assert.match(socialClient, /credentials:\s*"same-origin"/);
   assert.match(socialClient, /return currentCommunityState\(\);/);
-  assert.match(backendHelper, /host === "api\.antarctic\.games" \|\| host === "www\.api\.antarctic\.games"/);
-  assert.match(backendHelper, /return "https:\/\/api\.antarctic\.games";/);
-  assert.doesNotMatch(backendHelper, /https:\/\/api\.sethpang\.com/);
+  assert.match(backendHelper, /function normalizeConfiguredBase\(value\)/);
+  assert.match(backendHelper, /api\\\.sethpang\\\.com/);
+  assert.match(backendHelper, /sethpang\\\.com/);
+  assert.match(backendHelper, /return DEFAULT_BACKEND_BASE;/);
+  assert.match(backendHelper, /writeStoredBase\(stored\);/);
+  assert.doesNotMatch(backendHelper, /return "https:\/\/api\.sethpang\.com";/);
 });
 
 test("service worker bootstraps Scramjet from the static frontend origin", () => {

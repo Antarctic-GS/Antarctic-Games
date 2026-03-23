@@ -3,6 +3,7 @@
   var LEGACY_STORAGE_KEY = "palladium-backend-base";
   var CONFIG_CACHE = null;
   var storage = window.AntarcticGamesStorage || window.PalladiumSiteStorage || null;
+  var DEFAULT_BACKEND_BASE = "https://api.antarctic.games";
 
   function normalizeBase(value) {
     var raw = String(value || "").trim();
@@ -20,6 +21,18 @@
     } catch (e) {
       return "";
     }
+  }
+
+  function normalizeConfiguredBase(value) {
+    var normalized = normalizeBase(value);
+    if (!normalized) return "";
+    if (/^https?:\/\/(?:www\.)?sethpang\.com$/i.test(normalized)) {
+      return DEFAULT_BACKEND_BASE;
+    }
+    if (/^https?:\/\/(?:www\.)?api\.sethpang\.com$/i.test(normalized)) {
+      return DEFAULT_BACKEND_BASE;
+    }
+    return normalized;
   }
 
   function fromQuery() {
@@ -76,7 +89,7 @@
     if (host === "api.antarctic.games" || host === "www.api.antarctic.games") {
       return window.location.origin;
     }
-    return "https://api.antarctic.games";
+    return DEFAULT_BACKEND_BASE;
   }
 
   function assetUrl(pathValue) {
@@ -89,22 +102,28 @@
   }
 
   function resolveBase() {
-    var query = normalizeBase(fromQuery());
+    var query = normalizeConfiguredBase(fromQuery());
     if (query) {
       writeStoredBase(query);
       return query;
     }
 
-    var globalBase = normalizeBase(window.ANTARCTIC_GAMES_BACKEND_BASE || window.PALLADIUM_BACKEND_BASE || "");
+    var globalBase = normalizeConfiguredBase(window.ANTARCTIC_GAMES_BACKEND_BASE || window.PALLADIUM_BACKEND_BASE || "");
     if (globalBase) return globalBase;
 
-    var metaBase = normalizeBase(fromMeta());
+    var metaBase = normalizeConfiguredBase(fromMeta());
     if (metaBase) return metaBase;
 
-    var stored = normalizeBase(readStoredBase());
-    if (stored) return stored;
+    var storedRaw = readStoredBase();
+    var stored = normalizeConfiguredBase(storedRaw);
+    if (stored) {
+      if (stored !== normalizeBase(storedRaw)) {
+        writeStoredBase(stored);
+      }
+      return stored;
+    }
 
-    return normalizeBase(inferDefaultBase());
+    return normalizeConfiguredBase(inferDefaultBase());
   }
 
   function apiUrl(pathValue) {
@@ -149,7 +168,7 @@
   var api = {
     getBaseUrl: resolveBase,
     setBaseUrl: function (value) {
-      var normalized = normalizeBase(value);
+      var normalized = normalizeConfiguredBase(value);
       writeStoredBase(normalized);
       return normalized;
     },
