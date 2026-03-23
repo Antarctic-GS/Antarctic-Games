@@ -1,40 +1,12 @@
-/* global $scramjetLoadWorker */
-
-const PROXY_RUNTIME_ASSET_VERSION = "2026-03-23-proxy-5";
-const SCRAMJET_BUNDLE_PATH =
-  "/scram/scramjet.all.js?antarctic_asset=" + encodeURIComponent(PROXY_RUNTIME_ASSET_VERSION);
-
-importScripts(SCRAMJET_BUNDLE_PATH);
-
-const SCRAMJET_PREFIX = "/service/scramjet/";
-const SCRAMJET_WASM_PATH = "/scram/scramjet.wasm.wasm";
-const workerFactory = typeof $scramjetLoadWorker === "function" ? $scramjetLoadWorker() : null;
-const ScramjetServiceWorker = workerFactory && workerFactory.ScramjetServiceWorker;
-const scramjet = ScramjetServiceWorker ? new ScramjetServiceWorker() : null;
-
-function shouldHandleScramjetRequest(event) {
-  const requestUrl = String(event && event.request && event.request.url ? event.request.url : "");
-  const origin = String(self.location && self.location.origin ? self.location.origin : "");
-  if (!requestUrl || !origin) return false;
-  return requestUrl.startsWith(origin + SCRAMJET_PREFIX) || requestUrl.startsWith(origin + SCRAMJET_WASM_PATH);
-}
-
-self.addEventListener("install", function () {
-  self.skipWaiting();
+self.addEventListener("install", function (event) {
+  event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener("activate", function (event) {
-  event.waitUntil(self.clients.claim());
-});
-
-self.addEventListener("fetch", function (event) {
-  if (!scramjet) return;
-  if (!shouldHandleScramjetRequest(event)) {
-    return;
-  }
-
-  event.respondWith((async function () {
-    await scramjet.loadConfig();
-    return scramjet.fetch(event);
-  })());
+  event.waitUntil(
+    (async function () {
+      await self.clients.claim();
+      await self.registration.unregister();
+    })()
+  );
 });

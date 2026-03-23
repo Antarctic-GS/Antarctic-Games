@@ -5,23 +5,17 @@ const path = require("node:path");
 
 const FRONTEND_DIR = path.resolve(__dirname, "..");
 
-test("frontend ships static Scramjet proxy assets", () => {
+test("frontend ships the static shell runtime files", () => {
   const requiredFiles = [
     "netlify.toml",
     "settings-shell.css",
     "site-storage.js",
     "social-client.js",
-    path.join("scram", "scramjet.all.js"),
-    path.join("scram", "scramjet.sync.js"),
-    path.join("scram", "scramjet.wasm.wasm"),
-    path.join("baremux", "index.js"),
-    path.join("baremux", "worker.js"),
-    path.join("libcurl", "index.mjs"),
     "sw.js"
   ];
 
   for (const relativePath of requiredFiles) {
-    assert.ok(fs.existsSync(path.join(FRONTEND_DIR, relativePath)), `Missing proxy asset: ${relativePath}`);
+    assert.ok(fs.existsSync(path.join(FRONTEND_DIR, relativePath)), `Missing frontend asset: ${relativePath}`);
   }
 });
 
@@ -35,7 +29,7 @@ test("frontend ships a Netlify config for the static shell", () => {
   assert.match(netlifyConfig, /\[\[redirects\]\]\s*[\s\S]*from = "\/\*"[\s\S]*to = "\/index\.html"[\s\S]*status = 200/);
 });
 
-test("frontend shell references Scramjet assets and sidebar controls", () => {
+test("frontend shell keeps web browsing disabled and preserves sidebar controls", () => {
   const shellPage = fs.readFileSync(path.join(FRONTEND_DIR, "index.html"), "utf8");
   const shellScript = fs.readFileSync(path.join(FRONTEND_DIR, "shell.js"), "utf8");
   const gamesHelper = fs.readFileSync(path.join(FRONTEND_DIR, "games-static.js"), "utf8");
@@ -45,8 +39,9 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellPage, /id="sidebar-toggle"/);
   assert.match(shellPage, /<script src="site-storage\.js"><\/script>\s*<script src="site-settings\.js"><\/script>/);
   assert.match(shellPage, /<script src="social-client\.js"><\/script>/);
-  assert.match(shellPage, /baremux\/index\.js/);
-  assert.match(shellPage, /scram\/scramjet\.all\.js/);
+  assert.doesNotMatch(shellPage, /baremux\/index\.js/);
+  assert.doesNotMatch(shellPage, /scram\/scramjet\.all\.js/);
+  assert.match(shellPage, /Built-in web browsing is temporarily disabled/);
   assert.match(shellPage, /<script src="data\/games-catalog\.js" data-antarctic-games-catalog="true" data-palladium-games-catalog="true"><\/script>/);
   assert.match(shellPage, /antarctic:\/\/settings/);
   assert.match(shellPage, /antarctic:\/\/account/);
@@ -146,7 +141,10 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.match(shellScript, /if \(!forceRefresh && schedulePaneSyncAfterInteraction\(pane, function \(\) \{\s*syncAccountPane\(pane, tab, message, forceRefresh\);/);
   assert.match(shellScript, /if \(!forceRefresh && schedulePaneSyncAfterInteraction\(pane, function \(\) \{\s*syncChatPane\(pane, tab, message, forceRefresh\);/);
   assert.match(shellScript, /storage\.setJson\(STORAGE_KEY, payload/);
-  assert.match(shellScript, /ensureProxyStorageCompatibility\(\)/);
+  assert.match(shellScript, /function disableProxyRuntime\(\)/);
+  assert.match(shellScript, /PROXY_DISABLED_MESSAGE/);
+  assert.match(shellScript, /renderDisabledWebPane\(tab, tab\.paneEl\)/);
+  assert.match(shellScript, /setProxyHealth\(false, PROXY_DISABLED_MESSAGE, "Off"\)/);
   assert.match(shellScript, /data-game-save="1"/);
   assert.match(shellScript, /data-game-load="1"/);
   assert.match(shellScript, /game-launcher__action toolbar-button/);
@@ -230,23 +228,17 @@ test("frontend shell references Scramjet assets and sidebar controls", () => {
   assert.doesNotMatch(backendHelper, /return "https:\/\/api\.sethpang\.com";/);
 });
 
-test("service worker bootstraps Scramjet from the static frontend origin", () => {
+test("service worker unregisters the old proxy runtime", () => {
   const serviceWorker = fs.readFileSync(path.join(FRONTEND_DIR, "sw.js"), "utf8");
 
-  assert.match(serviceWorker, /const PROXY_RUNTIME_ASSET_VERSION = "2026-03-23-proxy-5";/);
-  assert.match(serviceWorker, /const SCRAMJET_BUNDLE_PATH =/);
-  assert.match(serviceWorker, /\/scram\/scramjet\.all\.js\?antarctic_asset=/);
-  assert.match(serviceWorker, /importScripts\(SCRAMJET_BUNDLE_PATH\)/);
-  assert.match(serviceWorker, /const SCRAMJET_PREFIX = "\/service\/scramjet\/";/);
-  assert.match(serviceWorker, /const SCRAMJET_WASM_PATH = "\/scram\/scramjet\.wasm\.wasm";/);
-  assert.match(serviceWorker, /function shouldHandleScramjetRequest\(event\)/);
-  assert.match(serviceWorker, /requestUrl\.startsWith\(origin \+ SCRAMJET_PREFIX\)/);
-  assert.match(serviceWorker, /requestUrl\.startsWith\(origin \+ SCRAMJET_WASM_PATH\)/);
-  assert.match(serviceWorker, /if \(!shouldHandleScramjetRequest\(event\)\) \{\s*return;\s*\}/);
-  assert.match(serviceWorker, /await scramjet\.loadConfig\(\);\s*return scramjet\.fetch\(event\);/);
-  assert.doesNotMatch(serviceWorker, /await scramjet\.loadConfig\(\);[\s\S]*return fetch\(event\.request\);/);
-  assert.doesNotMatch(serviceWorker, /scramjet\.route\(event\)/);
-  assert.match(serviceWorker, /scramjet\.fetch\(event\)/);
+  assert.match(serviceWorker, /self\.addEventListener\("install"/);
+  assert.match(serviceWorker, /self\.skipWaiting\(\)/);
+  assert.match(serviceWorker, /self\.addEventListener\("activate"/);
+  assert.match(serviceWorker, /self\.clients\.claim\(\)/);
+  assert.match(serviceWorker, /self\.registration\.unregister\(\)/);
+  assert.doesNotMatch(serviceWorker, /scramjet/i);
+  assert.doesNotMatch(serviceWorker, /baremux/i);
+  assert.doesNotMatch(serviceWorker, /fetch", function \(event\)/);
 });
 
 test("settings shell keeps the sidebar on a fixed attached rail", () => {

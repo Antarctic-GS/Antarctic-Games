@@ -14,6 +14,7 @@
   var LOCAL_APP_ASSET_PARAM = "antarctic_asset";
   var LOCAL_APP_ASSET_VERSION = "2026-03-22-asset-1";
   var PROXY_RUNTIME_ASSET_VERSION = "2026-03-23-proxy-5";
+  var PROXY_DISABLED_MESSAGE = "Built-in web browsing is temporarily disabled right now.";
   var SCRAMJET_PREFIX = "/service/scramjet/";
   var SCRAMJET_SW_PATH = "/sw.js";
   var BAREMUX_WORKER_PATH = "/baremux/worker.js";
@@ -3037,21 +3038,23 @@
 
   function createWebPane(tab) {
     var pane = document.createElement("section");
-    pane.className = "shell-pane shell-pane--frame shell-pane--proxy";
-
-    var wrap = document.createElement("div");
-    wrap.className = "shell-pane__frame-wrap";
-
-    var frame = document.createElement("iframe");
-    frame.className = "shell-pane__frame shell-pane__frame--proxy";
-    frame.src = "about:blank";
-    frame.setAttribute("allow", "clipboard-read; clipboard-write; fullscreen");
-    frame.setAttribute("referrerpolicy", "no-referrer");
-
-    wrap.appendChild(frame);
-    pane.appendChild(wrap);
-    attachAntarcticFontBridge(frame);
+    pane.className = "shell-pane shell-pane--internal shell-pane--web-disabled";
+    pane.innerHTML =
+      '<div class="empty-state empty-state--stacked">' +
+        "<strong>Built-in web browsing is temporarily disabled.</strong>" +
+        '<span data-role="web-disabled-copy"></span>' +
+      "</div>";
+    renderDisabledWebPane(tab, pane);
     return pane;
+  }
+
+  function renderDisabledWebPane(tab, pane) {
+    var copyEl = pane && pane.querySelector('[data-role="web-disabled-copy"]');
+    if (!copyEl) return;
+    var targetUrl = cleanText(tab && tab.targetUrl);
+    copyEl.textContent = targetUrl
+      ? 'The requested page "' + targetUrl + '" cannot be loaded inside Antarctic right now.'
+      : "Games, chats, AI, and account features still work normally.";
   }
 
   function loadProxyConfig() {
@@ -4022,6 +4025,42 @@
     });
   }
 
+  function disableProxyRuntime() {
+    state.proxyRuntime.controller = null;
+    state.proxyRuntime.ready = false;
+    state.proxyRuntime.transportMode = "";
+    state.proxyRuntime.transportUrl = "";
+    state.proxyRuntime.reloadScheduled = false;
+
+    return closeProxyRuntimeHandles().catch(function () {
+      return null;
+    }).then(function () {
+      return unregisterProxyServiceWorkers().catch(function () {
+        return null;
+      });
+    }).then(function () {
+      return listProxyDatabaseNames().catch(function () {
+        return [];
+      });
+    }).then(function (names) {
+      return Promise.all(
+        (Array.isArray(names) ? names : []).map(function (name) {
+          return deleteIndexedDatabase(name).catch(function () {
+            return null;
+          });
+        })
+      );
+    }).then(function () {
+      try {
+        window.localStorage.removeItem("bare-mux-path");
+      } catch (error) {
+        // Ignore storage cleanup failures while proxy mode is disabled.
+      }
+      writeProxyRepairReloadMarker("");
+      writeProxyControllerReloadMarker("");
+    });
+  }
+
   function syncWebTabFromUrl(tab, value) {
     var nextUrl = decodeScramjetUrl(value);
     if (!nextUrl) return;
@@ -4050,28 +4089,9 @@
 
   function hydrateWebPane(tab) {
     if (!tab || tab.view !== "web" || !tab.paneEl) return;
-
-    var frame = tab.paneEl.querySelector("iframe");
-    if (!frame) return;
-
-    ensureProxyRuntime().then(function (runtime) {
-      if (!tab.paneEl || frame !== tab.paneEl.querySelector("iframe")) return;
-
-      if (!tab.webState.frameController) {
-        tab.webState.frameController = runtime.controller.createFrame(frame);
-        tab.webState.frameController.addEventListener("urlchange", function (event) {
-          syncWebTabFromUrl(tab, event && event.url);
-        });
-        tab.webState.frameController.addEventListener("navigate", function (event) {
-          syncWebTabFromUrl(tab, event && event.url);
-        });
-      }
-
-      navigateWebPane(tab, true);
-    }).catch(function (error) {
-      frame.src = "about:blank";
-      setProxyHealth(false, error && error.message ? error.message : error, "Offline");
-    });
+    tab.webState.frameController = null;
+    renderDisabledWebPane(tab, tab.paneEl);
+    setProxyHealth(false, PROXY_DISABLED_MESSAGE, "Off");
   }
 
   function buildThumbMarkup(game) {
@@ -4929,23 +4949,8 @@
   }
 
   function refreshProxyStatus() {
-    setProxyHealth(false, "Checking the backend Scramjet transport...", "Booting");
-
-    var backendApi = getBackendApi();
-    if (!backendApi || typeof backendApi.fetchJson !== "function") {
-      setProxyHealth(false, "Backend helper unavailable.", "Offline");
-      return;
-    }
-
-    backendApi.fetchJson("/api/proxy/health").then(function (health) {
-      setProxyHealth(true, health && health.message ? health.message : "Backend proxy transport is online.", "Connecting");
-      return ensureProxyRuntime();
-    }).then(function (runtime) {
-      setProxyHealth(true, "Scramjet ready via " + runtime.transportUrl, "Online");
-      refreshAllWebFrames();
-    }).catch(function (error) {
-      setProxyHealth(false, error && error.message ? error.message : error, "Offline");
-    });
+    setProxyHealth(false, PROXY_DISABLED_MESSAGE, "Off");
+    refreshAllWebFrames();
   }
 
   function refreshAllWebFrames() {
@@ -5110,7 +5115,7 @@
     window.setInterval(tick, 1000);
   }
 
-  ensureProxyStorageCompatibility().catch(function () {
+  disableProxyRuntime().catch(function () {
     return null;
   }).finally(function () {
     restoreTabs();
