@@ -104,6 +104,33 @@ test("netlify API proxy answers config/public locally", async () => {
   }
 });
 
+test("netlify API proxy answers anonymous account session locally", async () => {
+  const proxyModule = await loadProxyModule();
+  const response = await proxyModule.default(new Request("https://antarctic-games.netlify.app/api/account/session", {
+    headers: {
+      origin: "https://www.antarctic.games",
+      "x-antarctic-session": "stale-token"
+    }
+  }));
+  const payload = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(payload.authenticated, false);
+  assert.equal(response.headers.get("access-control-allow-origin"), "*");
+  assert.match(response.headers.get("access-control-allow-headers") || "", /x-antarctic-session/);
+});
+
+test("netlify API proxy answers anonymous community bootstrap locally", async () => {
+  const proxyModule = await loadProxyModule();
+  const response = await proxyModule.default(new Request("https://antarctic-games.netlify.app/api/community/bootstrap"));
+  const payload = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(payload.ok, true);
+  assert.equal(payload.authenticated, false);
+  assert.deepEqual(payload.bootstrap.threads, []);
+});
+
 test("netlify API proxy reports browsing readiness locally", async () => {
   const proxyModule = await loadProxyModule();
   const response = await proxyModule.default(new Request("https://antarctic-games.netlify.app/api/proxy/health"));
@@ -139,6 +166,8 @@ test("netlify API proxy relays upstream responses for GET browsing fetches", asy
     assert.equal(capturedInit.method, "GET");
     assert.equal(capturedInit.headers.get("accept-encoding"), "identity");
     assert.equal(response.status, 200);
+    assert.equal(response.headers.get("access-control-allow-origin"), "*");
+    assert.match(response.headers.get("access-control-expose-headers") || "", /x-antarctic-final-url/);
     assert.equal(response.headers.get("x-antarctic-final-url"), "https://duckduckgo.com/");
     assert.match(await response.text(), /<html>ok<\/html>/);
   } finally {
@@ -215,9 +244,15 @@ test("netlify API proxy falls back to the backend origin for non-browsing APIs",
   };
 
   try {
-    const response = await proxyModule.default(new Request("https://antarctic-games.netlify.app/api/account/session"));
+    const response = await proxyModule.default(new Request("https://antarctic-games.netlify.app/api/account/login", {
+      method: "POST",
+      body: JSON.stringify({ username: "guest", password: "guest" }),
+      headers: {
+        "content-type": "application/json"
+      }
+    }));
 
-    assert.equal(capturedUrl, "https://api.antarctic.games/api/account/session");
+    assert.equal(capturedUrl, "https://api.antarctic.games/api/account/login");
     assert.deepEqual(await response.json(), { ok: true });
   } finally {
     global.fetch = originalFetch;
@@ -233,11 +268,33 @@ test("netlify API proxy returns a 502 when the backend fallback cannot be reache
   };
 
   try {
-    const response = await proxyModule.default(new Request("https://antarctic-games.netlify.app/api/account/session"));
+    const response = await proxyModule.default(new Request("https://antarctic-games.netlify.app/api/account/login", {
+      method: "POST",
+      body: JSON.stringify({ username: "guest", password: "guest" }),
+      headers: {
+        "content-type": "application/json"
+      }
+    }));
 
     assert.equal(response.status, 502);
     assert.match(await response.text(), /Antarctic API proxy failed: connect ECONNREFUSED/);
   } finally {
     global.fetch = originalFetch;
   }
+});
+
+test("netlify API proxy preflight allows custom-domain session headers", async () => {
+  const proxyModule = await loadProxyModule();
+  const response = await proxyModule.default(new Request("https://antarctic-games.netlify.app/api/community/bootstrap", {
+    method: "OPTIONS",
+    headers: {
+      origin: "https://www.antarctic.games",
+      "access-control-request-method": "GET",
+      "access-control-request-headers": "x-antarctic-session"
+    }
+  }));
+
+  assert.equal(response.status, 204);
+  assert.equal(response.headers.get("access-control-allow-origin"), "*");
+  assert.match(response.headers.get("access-control-allow-headers") || "", /x-antarctic-session/);
 });

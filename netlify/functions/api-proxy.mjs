@@ -12,6 +12,13 @@ const BROWSER_FETCH_USER_AGENT =
 const PROXY_REQUEST_HEADER_METHOD = "x-antarctic-proxy-method";
 const PROXY_REQUEST_HEADER_HEADERS = "x-antarctic-proxy-headers";
 const PROXY_ALLOWED_METHODS = new Set(["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]);
+const EXPOSED_PROXY_HEADERS = [
+  "content-type",
+  "x-antarctic-final-url",
+  "x-palladium-final-url",
+  "x-antarctic-proxy-status-text",
+  "x-palladium-proxy-status-text"
+].join(",");
 const HOP_BY_HOP_HEADERS = new Set([
   "connection",
   "content-length",
@@ -196,9 +203,49 @@ export function buildPublicConfig(siteOrigin) {
   };
 }
 
+function buildAnonymousCommunityPayload() {
+  return {
+    ok: true,
+    authenticated: false,
+    user: null,
+    bootstrap: {
+      threads: [],
+      rooms: [],
+      saves: [],
+      incomingDirectRequests: [],
+      stats: {
+        threadCount: 0,
+        roomCount: 0,
+        joinedRoomCount: 0,
+        directCount: 0,
+        incomingDirectRequestCount: 0,
+        saveCount: 0
+      }
+    }
+  };
+}
+
 function buildBaseHeaders(extraHeaders = {}) {
   const headers = new Headers(extraHeaders);
   headers.set("cache-control", headers.get("cache-control") || "no-store");
+  headers.set("access-control-allow-origin", headers.get("access-control-allow-origin") || "*");
+  headers.set(
+    "access-control-allow-methods",
+    headers.get("access-control-allow-methods") || "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS"
+  );
+  headers.set(
+    "access-control-allow-headers",
+    headers.get("access-control-allow-headers") ||
+      [
+        "authorization",
+        "content-type",
+        "x-antarctic-session",
+        "x-palladium-session",
+        PROXY_REQUEST_HEADER_METHOD,
+        PROXY_REQUEST_HEADER_HEADERS
+      ].join(",")
+  );
+  headers.set("access-control-expose-headers", headers.get("access-control-expose-headers") || EXPOSED_PROXY_HEADERS);
   headers.set("x-content-type-options", "nosniff");
   return headers;
 }
@@ -234,13 +281,12 @@ function createTimeoutSignal() {
 }
 
 function buildProxyResponseHeaders(upstream, fallbackUrl) {
-  const headers = copyResponseHeaders(upstream && upstream.headers);
+  const headers = buildBaseHeaders(copyResponseHeaders(upstream && upstream.headers));
   const finalUrl = (upstream && upstream.url) || fallbackUrl || "";
   headers.set("x-antarctic-final-url", finalUrl);
   headers.set("x-palladium-final-url", finalUrl);
   headers.set("x-antarctic-proxy-status-text", (upstream && upstream.statusText) || "");
   headers.set("x-palladium-proxy-status-text", (upstream && upstream.statusText) || "");
-  headers.set("x-content-type-options", "nosniff");
   return headers;
 }
 
@@ -256,6 +302,10 @@ async function handleProxyHealth() {
 async function handleConfig(requestUrl) {
   const incomingUrl = new URL(requestUrl);
   return jsonResponse(200, buildPublicConfig(incomingUrl.origin));
+}
+
+async function handleAnonymousCommunityState() {
+  return jsonResponse(200, buildAnonymousCommunityPayload());
 }
 
 async function handleProxyFetch(request, url) {
@@ -373,15 +423,7 @@ export default async function apiProxy(request) {
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
-      headers: buildBaseHeaders({
-        "access-control-allow-origin": "*",
-        "access-control-allow-methods": "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS",
-        "access-control-allow-headers": [
-          "content-type",
-          PROXY_REQUEST_HEADER_METHOD,
-          PROXY_REQUEST_HEADER_HEADERS
-        ].join(",")
-      })
+      headers: buildBaseHeaders()
     });
   }
 
@@ -399,6 +441,14 @@ export default async function apiProxy(request) {
 
   if (url.pathname === "/api/proxy/request" && request.method === "POST") {
     return handleProxyRequest(request, url);
+  }
+
+  if (url.pathname === "/api/account/session" && (request.method === "GET" || request.method === "HEAD")) {
+    return handleAnonymousCommunityState();
+  }
+
+  if (url.pathname === "/api/community/bootstrap" && (request.method === "GET" || request.method === "HEAD")) {
+    return handleAnonymousCommunityState();
   }
 
   return proxyBackendRequest(request);

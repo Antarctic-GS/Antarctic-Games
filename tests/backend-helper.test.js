@@ -90,6 +90,14 @@ test("backend helper prefers same-origin API routes on Netlify frontends", () =>
   assert.equal(api.getBaseUrl(), "https://antarctic-games.netlify.app");
 });
 
+test("backend helper routes antarctic.games through the Netlify API bridge", () => {
+  const { api } = loadBackendApi({
+    origin: "https://www.antarctic.games"
+  });
+
+  assert.equal(api.getBaseUrl(), "https://antarctic-games.netlify.app");
+});
+
 test("backend helper migrates old saved backend hosts to api.antarctic.games", () => {
   const { api, localStorage } = loadBackendApi({
     origin: "https://sethpang.com",
@@ -100,6 +108,18 @@ test("backend helper migrates old saved backend hosts to api.antarctic.games", (
 
   assert.equal(api.getBaseUrl(), "https://api.antarctic.games");
   assert.equal(localStorage.getItem("antarctic-backend-base"), "https://api.antarctic.games");
+});
+
+test("backend helper migrates api.antarctic.games to the Netlify bridge on antarctic.games", () => {
+  const { api, localStorage } = loadBackendApi({
+    origin: "https://www.antarctic.games",
+    localStorage: {
+      "antarctic-backend-base": "https://api.antarctic.games"
+    }
+  });
+
+  assert.equal(api.getBaseUrl(), "https://antarctic-games.netlify.app");
+  assert.equal(localStorage.getItem("antarctic-backend-base"), "https://antarctic-games.netlify.app");
 });
 
 test("backend helper migrates old query overrides to api.antarctic.games", () => {

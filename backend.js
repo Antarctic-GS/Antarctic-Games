@@ -4,6 +4,7 @@
   var CONFIG_CACHE = null;
   var storage = window.AntarcticGamesStorage || window.PalladiumSiteStorage || null;
   var DEFAULT_BACKEND_BASE = "https://api.antarctic.games";
+  var NETLIFY_BACKEND_BRIDGE = "https://antarctic-games.netlify.app";
 
   function normalizeBase(value) {
     var raw = String(value || "").trim();
@@ -32,7 +33,20 @@
     if (/^https?:\/\/(?:www\.)?api\.sethpang\.com$/i.test(normalized)) {
       return DEFAULT_BACKEND_BASE;
     }
+    if (shouldUseNetlifyBridge()) {
+      if (/^https?:\/\/(?:www\.)?api\.antarctic\.games$/i.test(normalized)) {
+        return NETLIFY_BACKEND_BRIDGE;
+      }
+      if (/^https?:\/\/(?:www\.)?antarctic\.games$/i.test(normalized)) {
+        return NETLIFY_BACKEND_BRIDGE;
+      }
+    }
     return normalized;
+  }
+
+  function shouldUseNetlifyBridge() {
+    var host = String(window.location.hostname || "").toLowerCase();
+    return host === "antarctic.games" || host === "www.antarctic.games";
   }
 
   function fromQuery() {
@@ -88,6 +102,9 @@
     }
     if (/\.netlify\.app$/i.test(host)) {
       return window.location.origin;
+    }
+    if (shouldUseNetlifyBridge()) {
+      return NETLIFY_BACKEND_BRIDGE;
     }
     if (host === "api.antarctic.games" || host === "www.api.antarctic.games") {
       return window.location.origin;
