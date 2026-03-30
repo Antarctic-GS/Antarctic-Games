@@ -26,7 +26,7 @@ test("frontend ships a Netlify config for the static shell", () => {
   assert.match(netlifyConfig, /\[build\]\s*[\s\S]*command = "npm run verify"/);
   assert.match(netlifyConfig, /\[\[headers\]\]\s*[\s\S]*for = "\/sw\.js"[\s\S]*Service-Worker-Allowed = "\/"/);
   assert.match(netlifyConfig, /\[\[headers\]\]\s*[\s\S]*for = "\/scram\/\*"[\s\S]*immutable/);
-  assert.match(netlifyConfig, /\[\[redirects\]\]\s*[\s\S]*from = "\/api\/\*"[\s\S]*to = "https:\/\/api\.antarctic\.games\/api\/:splat"[\s\S]*status = 200/);
+  assert.doesNotMatch(netlifyConfig, /https:\/\/api\.antarctic\.games\/api\/:splat/);
   assert.match(netlifyConfig, /\[\[redirects\]\]\s*[\s\S]*from = "\/\*"[\s\S]*to = "\/index\.html"[\s\S]*status = 200/);
 });
 
