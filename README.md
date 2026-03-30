@@ -48,7 +48,7 @@ The sync script looks for `../antarctic-backend` first, then `../palladium-backe
 
 ## Static Proxy Shell
 The frontend stays fully static. Scramjet, BareMux, libcurl, and the service worker are committed into this repo so the shell can deploy to any static host without a long-running frontend server.
-Plain text lookups from the Antarctic address bar now open DuckDuckGo through the proxied page flow without mirroring the search query back into the real browser URL bar.
+Plain text lookups from the Antarctic address bar now open DuckDuckGo through the proxied page flow without exposing the remote web URL in the real browser URL bar.
 
 The live backend contract is:
 

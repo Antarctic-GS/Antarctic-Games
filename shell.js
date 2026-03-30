@@ -856,11 +856,21 @@
     return cleanText((tab && tab.browserUri) || (tab && tab.uri));
   }
 
+  function getPublicBrowserUri(tab) {
+    if (!tab) {
+      return "";
+    }
+    if (tab.view === "web") {
+      return "";
+    }
+    return getTabBrowserUri(tab);
+  }
+
   function syncBrowserUrl() {
     var active = getActiveTab();
     try {
       var params = new URLSearchParams(window.location.search || "");
-      var nextUri = getTabBrowserUri(active);
+      var nextUri = getPublicBrowserUri(active);
       if (nextUri) {
         params.set("uri", nextUri);
       } else {
@@ -5051,7 +5061,7 @@
       "- `antarctic://groupchats` as a legacy shortcut to chats",
       "- `antarctic://chat` as a legacy shortcut to chats",
       "- a normal URL like `https://duckduckgo.com`",
-      "- or plain search terms like `horror games`, which Antarctic submits through the proxied search page without exposing the query in the real browser URL bar"
+      "- or plain search terms like `horror games`, which Antarctic submits through the proxied search page without exposing the remote web URL in the real browser URL bar"
     ].join("\n");
   }
 

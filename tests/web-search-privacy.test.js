@@ -49,6 +49,7 @@ function loadPrivateSearchHelpers() {
     extractFunctionSource("resolveVisibleWebUri"),
     extractFunctionSource("resolveShellAddressWebUri"),
     extractFunctionSource("getTabBrowserUri"),
+    extractFunctionSource("getPublicBrowserUri"),
     extractFunctionSource("syncBrowserUrl"),
     extractFunctionSource("findPrivateSearchField"),
     extractFunctionSource("submitPrivateSearchFromFrame"),
@@ -56,6 +57,7 @@ function loadPrivateSearchHelpers() {
     "this.resolveVisibleWebUri = resolveVisibleWebUri;",
     "this.resolveShellAddressWebUri = resolveShellAddressWebUri;",
     "this.getTabBrowserUri = getTabBrowserUri;",
+    "this.getPublicBrowserUri = getPublicBrowserUri;",
     "this.syncBrowserUrl = syncBrowserUrl;",
     "this.submitPrivateSearchFromFrame = submitPrivateSearchFromFrame;"
   ].join("\n\n");
@@ -95,12 +97,13 @@ test("resolveShellAddressWebUri keeps the shell address bar on the search text",
   assert.equal(tab.searchQuery, "best horror games");
 });
 
-test("syncBrowserUrl prefers the sanitized browser URI over the shell address value", () => {
+test("syncBrowserUrl strips the uri parameter entirely for web tabs", () => {
   const context = loadPrivateSearchHelpers();
   const { syncBrowserUrl } = context;
   const calls = [];
 
   const tab = {
+    view: "web",
     uri: "best horror games",
     browserUri: "https://duckduckgo.com/"
   };
@@ -124,7 +127,14 @@ test("syncBrowserUrl prefers the sanitized browser URI over the shell address va
 
   syncBrowserUrl();
 
-  assert.deepEqual(calls, ["/?uri=https%3A%2F%2Fduckduckgo.com%2F"]);
+  assert.deepEqual(calls, ["/"]);
+});
+
+test("getPublicBrowserUri still preserves shareable internal routes", () => {
+  const { getPublicBrowserUri } = loadPrivateSearchHelpers();
+
+  assert.equal(getPublicBrowserUri({ view: "home", uri: "antarctic://home" }), "antarctic://home");
+  assert.equal(getPublicBrowserUri({ view: "web", browserUri: "https://duckduckgo.com/" }), "");
 });
 
 test("resolveVisibleWebUri leaves normal destinations unchanged", () => {
