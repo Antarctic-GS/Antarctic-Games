@@ -38,12 +38,12 @@ test("frontend shell ships the proxy runtime and preserves sidebar controls", ()
   const backendHelper = fs.readFileSync(path.join(FRONTEND_DIR, "backend.js"), "utf8");
 
   assert.match(shellPage, /id="sidebar-toggle"/);
-  assert.match(shellPage, /<script src="site-storage\.js"><\/script>\s*<script src="site-settings\.js"><\/script>/);
-  assert.match(shellPage, /<script src="social-client\.js"><\/script>/);
-  assert.match(shellPage, /<script src="baremux\/index\.js"><\/script>/);
-  assert.match(shellPage, /<script src="scram\/scramjet\.all\.js"><\/script>/);
+  assert.match(shellPage, /<script src="site-storage\.js\?v=2026-03-30-bridge-2"><\/script>\s*<script src="site-settings\.js\?v=2026-03-30-bridge-2"><\/script>/);
+  assert.match(shellPage, /<script src="social-client\.js\?v=2026-03-30-bridge-2"><\/script>/);
+  assert.match(shellPage, /<script src="baremux\/index\.js\?v=2026-03-30-bridge-2"><\/script>/);
+  assert.match(shellPage, /<script src="scram\/scramjet\.all\.js\?v=2026-03-30-bridge-2"><\/script>/);
   assert.match(shellPage, /Built-in web browsing is temporarily disabled/);
-  assert.match(shellPage, /<script src="data\/games-catalog\.js" data-antarctic-games-catalog="true" data-palladium-games-catalog="true"><\/script>/);
+  assert.match(shellPage, /<script src="data\/games-catalog\.js\?v=2026-03-30-bridge-2" data-antarctic-games-catalog="true" data-palladium-games-catalog="true"><\/script>/);
   assert.match(shellPage, /antarctic:\/\/settings/);
   assert.match(shellPage, /antarctic:\/\/account/);
   assert.match(shellPage, /antarctic:\/\/chats/);
