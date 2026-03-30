@@ -1,5 +1,6 @@
 :root {
   color-scheme: dark;
+  --shell-scale: 1;
   --bg-0: #020814;
   --bg-1: #061022;
   --bg-2: #0c1a32;
@@ -57,6 +58,10 @@
 html,
 body {
   min-height: 100%;
+}
+
+html {
+  font-size: calc(16px * var(--shell-scale));
 }
 
 body {
@@ -1113,6 +1118,20 @@ a {
   position: absolute;
   inset: 0;
   overflow: hidden;
+}
+
+.shell-pane__web-status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: calc(1.5rem + var(--gutter));
+  background: linear-gradient(180deg, rgba(7, 12, 22, 0.82), rgba(4, 8, 16, 0.92));
+  text-align: center;
+}
+
+.shell-pane__web-status[hidden] {
+  display: none;
 }
 
 .shell-pane__frame {

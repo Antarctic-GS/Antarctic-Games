@@ -1,8 +1,8 @@
 {
-  "name": "palladium-frontend",
+  "name": "antarctic-frontend",
   "version": "1.0.0",
   "private": true,
-  "description": "Static Palladium frontend with locally bundled games",
+  "description": "Static Antarctic frontend with locally bundled games",
   "scripts": {
     "sync:games": "node scripts/sync-local-games.js",
     "test": "node --test tests/*.test.js",

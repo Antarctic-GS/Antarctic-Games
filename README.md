@@ -1,14 +1,14 @@
-# Palladium Games
+# Antarctic Games
 
 ## Our Purpose
-Our purpose is to provide gaming fun to everybody who is probably sitting bored in a classroom while their teacher drones on about the Civil War.  
-
-We have games and a AI agent, and a proxy will be coming soon!
+Our purpose is to provide gaming fun to everybody who is probably sitting bored in a classroom while their teacher drones on about the Civil War.
+The frontend is now a single-shell browser experience where the main page is the proxy and internal routes like `antarctic://home`, `antarctic://games`, and `antarctic://ai` live inside the built-in address bar.
+We have games, an AI agent, and a built-in proxy shell.
 ## Our Tech Infrastructure
 We use games from [GN-MATH](https://gn-math.dev), and the [Internet Archive](https://archive.org)
 
 ## Deployment
-There are many ways to deploy a Palladium Games website. Here's how:
+There are many ways to deploy an Antarctic Games website. Here's how:
 
 ### Free Services (Netlify, Vercel, etc.)
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/Palladium-Games/Palladium-Games)
@@ -25,12 +25,12 @@ You can also remix this on [Replit](https://replit.com/@sethpanng/Palladium-Game
 
 ### Actual Hosting (yay)
   1. Run ```git clone https://github.com/Palladium-Games/Palladium-Games.git```
-  2. Configure your web server to serve the files in the Palladium Games folder
+  2. Configure your web server to serve the files in the Antarctic Games folder
   3. You're good to go! Remember to run ```git pull origin main``` sometimes to keep your link updated.
 
 ## Local Game Hosting
 The frontend now commits the playable game files, SWFs, thumbnails, and a generated catalog manifest directly into this repo so a blocked `api.antarctic.games` domain does not take the whole games page down.
-The only top-level app page is `index.html`; games launch from the shell into their own tabs through `palladium://gamelauncher?...` launch URIs.
+The only top-level app page is `index.html`; games launch from the shell into their own tabs through `antarctic://gamelauncher?...` launch URIs.
 
 Refresh those bundled assets from a sibling backend checkout with:
 
@@ -44,7 +44,7 @@ Verify the static catalog wiring with:
 npm test
 ```
 
-The sync script looks for `../palladium-backend` first and then `../backend`.
+The sync script looks for `../antarctic-backend` first, then `../palladium-backend`, and finally `../backend`.
 
 ## Static Proxy Shell
 The frontend stays fully static. Scramjet, BareMux, libcurl, and the service worker are committed into this repo so the shell can deploy to any static host without a long-running frontend server.
@@ -60,7 +60,7 @@ Old saved backend hosts like `sethpang.com` and `api.sethpang.com` are automatic
 Refresh the committed proxy runtime from the backend repo with:
 
 ```bash
-cd ../palladium-backend
+cd ../antarctic-backend
 npm run sync:frontend-proxy
 ```
 

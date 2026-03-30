@@ -63,6 +63,7 @@ async function main() {
 
 function resolveBackendDir() {
   const candidates = [
+    path.resolve(FRONTEND_DIR, "..", "antarctic-backend"),
     path.resolve(FRONTEND_DIR, "..", "palladium-backend"),
     path.resolve(FRONTEND_DIR, "..", "backend")
   ];
@@ -74,7 +75,7 @@ function resolveBackendDir() {
   }
 
   throw new Error(
-    "Could not find a sibling backend checkout. Expected apps.js under ../palladium-backend or ../backend."
+    "Could not find a sibling backend checkout. Expected apps.js under ../antarctic-backend, ../palladium-backend, or ../backend."
   );
 }
 

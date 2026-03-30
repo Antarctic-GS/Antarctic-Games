@@ -15,6 +15,8 @@
   var LOCAL_APP_ASSET_VERSION = "2026-03-22-asset-1";
   var PROXY_RUNTIME_ASSET_VERSION = "2026-03-23-proxy-5";
   var PROXY_DISABLED_MESSAGE = "Built-in web browsing is temporarily disabled right now.";
+  var PROXY_IDLE_MESSAGE = "Web browsing will connect when you open a page.";
+  var SHELL_SCALE_MIN = 0.78;
   var SCRAMJET_PREFIX = "/service/scramjet/";
   var SCRAMJET_SW_PATH = "/sw.js";
   var BAREMUX_WORKER_PATH = "/baremux/worker.js";
@@ -257,6 +259,52 @@
     commitSnapshot: "",
     ready: false
   };
+
+  function getViewportMetrics() {
+    var viewport = window.visualViewport;
+    var width = Number(viewport && viewport.width) || window.innerWidth || document.documentElement.clientWidth || 0;
+    var height = Number(viewport && viewport.height) || window.innerHeight || document.documentElement.clientHeight || 0;
+    return {
+      width: Math.max(320, width),
+      height: Math.max(480, height)
+    };
+  }
+
+  function computeResponsiveShellScale() {
+    var viewport = getViewportMetrics();
+    var widthTarget = state.sidebarCollapsed ? 1300 : 1480;
+    var heightTarget = 860;
+
+    if (viewport.width <= 1100) {
+      widthTarget = state.sidebarCollapsed ? 900 : 980;
+      heightTarget = 920;
+    }
+
+    if (viewport.width <= 760) {
+      widthTarget = 430;
+      heightTarget = 820;
+    }
+
+    var scale = Math.min(1, viewport.width / widthTarget, viewport.height / heightTarget);
+    if (!Number.isFinite(scale)) {
+      return 1;
+    }
+    return Math.max(SHELL_SCALE_MIN, scale);
+  }
+
+  function applyResponsiveShellScale() {
+    document.documentElement.style.setProperty("--shell-scale", String(computeResponsiveShellScale()));
+  }
+
+  function bindResponsiveShellScale() {
+    applyResponsiveShellScale();
+    window.addEventListener("resize", applyResponsiveShellScale);
+    window.addEventListener("orientationchange", applyResponsiveShellScale);
+    if (window.visualViewport && typeof window.visualViewport.addEventListener === "function") {
+      window.visualViewport.addEventListener("resize", applyResponsiveShellScale);
+      window.visualViewport.addEventListener("scroll", applyResponsiveShellScale);
+    }
+  }
 
   var state = {
     activeTabId: "",
@@ -1117,6 +1165,7 @@
     setDocumentTitle(active);
     syncBrowserUrl();
     persistState();
+    applyResponsiveShellScale();
   }
 
   function renderSidebarState() {
@@ -3038,23 +3087,48 @@
 
   function createWebPane(tab) {
     var pane = document.createElement("section");
-    pane.className = "shell-pane shell-pane--internal shell-pane--web-disabled";
+    pane.className = "shell-pane shell-pane--frame";
     pane.innerHTML =
-      '<div class="empty-state empty-state--stacked">' +
-        "<strong>Built-in web browsing is temporarily disabled.</strong>" +
-        '<span data-role="web-disabled-copy"></span>' +
+      '<div class="shell-pane__frame-wrap">' +
+        '<iframe class="shell-pane__frame" referrerpolicy="no-referrer" allow="clipboard-read; clipboard-write; fullscreen" sandbox="allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts"></iframe>' +
+        '<div class="empty-state empty-state--stacked shell-pane__web-status" data-role="web-status" hidden>' +
+          "<strong>Web browsing is unavailable right now.</strong>" +
+          '<span data-role="web-disabled-copy"></span>' +
+        "</div>" +
       "</div>";
     renderDisabledWebPane(tab, pane);
     return pane;
   }
 
-  function renderDisabledWebPane(tab, pane) {
+  function renderDisabledWebPane(tab, pane, message) {
     var copyEl = pane && pane.querySelector('[data-role="web-disabled-copy"]');
+    var statusEl = pane && pane.querySelector('[data-role="web-status"]');
+    var frame = pane && pane.querySelector("iframe.shell-pane__frame");
+    if (statusEl) {
+      statusEl.hidden = false;
+    }
+    if (frame) {
+      frame.hidden = true;
+    }
     if (!copyEl) return;
     var targetUrl = cleanText(tab && tab.targetUrl);
-    copyEl.textContent = targetUrl
+    var detail = cleanText(message);
+    copyEl.textContent = detail
+      ? detail
+      : targetUrl
       ? 'The requested page "' + targetUrl + '" cannot be loaded inside Antarctic right now.'
       : "Games, chats, AI, and account features still work normally.";
+  }
+
+  function renderEnabledWebPane(pane) {
+    var statusEl = pane && pane.querySelector('[data-role="web-status"]');
+    var frame = pane && pane.querySelector("iframe.shell-pane__frame");
+    if (statusEl) {
+      statusEl.hidden = true;
+    }
+    if (frame) {
+      frame.hidden = false;
+    }
   }
 
   function loadProxyConfig() {
@@ -3946,7 +4020,10 @@
 
       return controller.init().then(function () {
         var mux = new window.BareMux.BareMuxConnection(appendProxyRuntimeAssetVersion(BAREMUX_WORKER_PATH));
-        if (httpTransportUrl) {
+        function activateHttpFallback() {
+          if (!httpTransportUrl) {
+            return Promise.reject(new Error("No backend HTTP proxy endpoints are configured."));
+          }
           return mux
             .setRemoteTransport(createHttpProxyTransport(config), httpTransportUrl || "antarctic-http-fallback")
             .then(function () {
@@ -3957,17 +4034,26 @@
               return state.proxyRuntime;
             });
         }
+        if (!wispUrl) {
+          return activateHttpFallback();
+        }
         return probeWispTransport(wispUrl).then(function (wispReachable) {
           if (!wispReachable) {
-            throw new Error("Proxy websocket transport is unavailable.");
+            return activateHttpFallback();
           }
-          return mux.setTransport(appendProxyRuntimeAssetVersion(LIBCURL_TRANSPORT_PATH), [{ wisp: wispUrl }]).then(function () {
-            state.proxyRuntime.controller = controller;
-            state.proxyRuntime.ready = true;
-            state.proxyRuntime.transportMode = "wisp";
-            state.proxyRuntime.transportUrl = wispUrl;
-            return state.proxyRuntime;
-          });
+          return mux
+            .setTransport(appendProxyRuntimeAssetVersion(LIBCURL_TRANSPORT_PATH), [{ wisp: wispUrl }])
+            .then(function () {
+              state.proxyRuntime.controller = controller;
+              state.proxyRuntime.ready = true;
+              state.proxyRuntime.transportMode = "wisp";
+              state.proxyRuntime.transportUrl = wispUrl;
+              return state.proxyRuntime;
+            }, function () {
+              return activateHttpFallback();
+            });
+        }, function () {
+          return activateHttpFallback();
         });
       });
     }).catch(function (error) {
@@ -4089,9 +4175,59 @@
 
   function hydrateWebPane(tab) {
     if (!tab || tab.view !== "web" || !tab.paneEl) return;
-    tab.webState.frameController = null;
-    renderDisabledWebPane(tab, tab.paneEl);
-    setProxyHealth(false, PROXY_DISABLED_MESSAGE, "Off");
+    var frame = tab.paneEl.querySelector("iframe.shell-pane__frame");
+    if (!frame) return;
+
+    renderDisabledWebPane(tab, tab.paneEl, "Connecting the web browsing runtime...");
+    setProxyHealth(false, "Connecting the web browsing runtime...", "Starting");
+
+    if (!frame.__antarcticWebLoadBound) {
+      frame.__antarcticWebLoadBound = true;
+      frame.addEventListener("load", function () {
+        if (!tab.webState || !tab.webState.frameController) return;
+        try {
+          if (tab.webState.frameController.url && tab.webState.frameController.url.href) {
+            syncWebTabFromUrl(tab, tab.webState.frameController.url.href);
+          } else {
+            syncWebTabFromUrl(tab, frame.src);
+          }
+        } catch (error) {
+          syncWebTabFromUrl(tab, frame.src);
+        }
+        try {
+          var nextTitle = cleanText(frame.contentDocument && frame.contentDocument.title);
+          if (nextTitle) {
+            tab.title = nextTitle;
+          }
+        } catch (error) {
+          // Ignore proxied title access issues and keep the inferred title.
+        }
+        renderShell();
+      });
+    }
+
+    ensureProxyRuntime().then(function (runtime) {
+      if (!tab || !tab.paneEl || tab.view !== "web") return runtime;
+
+      if (!tab.webState.frameController) {
+        tab.webState.frameController = runtime.controller.createFrame(frame);
+      }
+
+      renderEnabledWebPane(tab.paneEl);
+      setProxyHealth(
+        true,
+        runtime.transportMode === "wisp"
+          ? "Web browsing is ready over the websocket transport."
+          : "Web browsing is ready over the HTTP fallback transport.",
+        runtime.transportMode === "wisp" ? "Online" : "Fallback"
+      );
+      navigateWebPane(tab, true);
+      return runtime;
+    }).catch(function (error) {
+      tab.webState.frameController = null;
+      renderDisabledWebPane(tab, tab.paneEl, error && error.message ? error.message : error);
+      setProxyHealth(false, error && error.message ? error.message : error, "Offline");
+    });
   }
 
   function buildThumbMarkup(game) {
@@ -4949,7 +5085,17 @@
   }
 
   function refreshProxyStatus() {
-    setProxyHealth(false, PROXY_DISABLED_MESSAGE, "Off");
+    if (state.proxyRuntime.ready) {
+      setProxyHealth(
+        true,
+        state.proxyRuntime.transportMode === "wisp"
+          ? "Web browsing is ready over the websocket transport."
+          : "Web browsing is ready over the HTTP fallback transport.",
+        state.proxyRuntime.transportMode === "wisp" ? "Online" : "Fallback"
+      );
+    } else {
+      setProxyHealth(false, PROXY_IDLE_MESSAGE, "Standby");
+    }
     refreshAllWebFrames();
   }
 
@@ -5115,10 +5261,11 @@
     window.setInterval(tick, 1000);
   }
 
-  disableProxyRuntime().catch(function () {
+  ensureProxyStorageCompatibility().catch(function () {
     return null;
   }).finally(function () {
     restoreTabs();
+    bindResponsiveShellScale();
     bindEvents();
     startShellClock();
     renderShell();

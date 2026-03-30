@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: palladium-frontend
+    name: antarctic-frontend
     runtime: static
     buildCommand: "true"
     staticPublishPath: .

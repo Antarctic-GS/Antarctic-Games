@@ -29,7 +29,7 @@ test("frontend ships a Netlify config for the static shell", () => {
   assert.match(netlifyConfig, /\[\[redirects\]\]\s*[\s\S]*from = "\/\*"[\s\S]*to = "\/index\.html"[\s\S]*status = 200/);
 });
 
-test("frontend shell keeps web browsing disabled and preserves sidebar controls", () => {
+test("frontend shell ships the proxy runtime and preserves sidebar controls", () => {
   const shellPage = fs.readFileSync(path.join(FRONTEND_DIR, "index.html"), "utf8");
   const shellScript = fs.readFileSync(path.join(FRONTEND_DIR, "shell.js"), "utf8");
   const gamesHelper = fs.readFileSync(path.join(FRONTEND_DIR, "games-static.js"), "utf8");
@@ -39,8 +39,8 @@ test("frontend shell keeps web browsing disabled and preserves sidebar controls"
   assert.match(shellPage, /id="sidebar-toggle"/);
   assert.match(shellPage, /<script src="site-storage\.js"><\/script>\s*<script src="site-settings\.js"><\/script>/);
   assert.match(shellPage, /<script src="social-client\.js"><\/script>/);
-  assert.doesNotMatch(shellPage, /baremux\/index\.js/);
-  assert.doesNotMatch(shellPage, /scram\/scramjet\.all\.js/);
+  assert.match(shellPage, /<script src="baremux\/index\.js"><\/script>/);
+  assert.match(shellPage, /<script src="scram\/scramjet\.all\.js"><\/script>/);
   assert.match(shellPage, /Built-in web browsing is temporarily disabled/);
   assert.match(shellPage, /<script src="data\/games-catalog\.js" data-antarctic-games-catalog="true" data-palladium-games-catalog="true"><\/script>/);
   assert.match(shellPage, /antarctic:\/\/settings/);
@@ -90,6 +90,9 @@ test("frontend shell keeps web browsing disabled and preserves sidebar controls"
   assert.match(shellScript, /function extractRequestedGameCount\(userText\)/);
   assert.match(shellScript, /function resolveLocalAppUrl\(value\)/);
   assert.match(shellScript, /function getLocalAppBaseUrl\(\)/);
+  assert.match(shellScript, /function computeResponsiveShellScale\(\)/);
+  assert.match(shellScript, /function bindResponsiveShellScale\(\)/);
+  assert.match(shellScript, /document\.documentElement\.style\.setProperty\("--shell-scale"/);
   assert.match(shellScript, /function appendLocalAssetVersion\(resolvedUrl\)/);
   assert.match(shellScript, /function appendProxyRuntimeAssetVersion\(value\)/);
   assert.match(shellScript, /function resolveProxyRequestUrl\(config\)/);
@@ -143,8 +146,10 @@ test("frontend shell keeps web browsing disabled and preserves sidebar controls"
   assert.match(shellScript, /storage\.setJson\(STORAGE_KEY, payload/);
   assert.match(shellScript, /function disableProxyRuntime\(\)/);
   assert.match(shellScript, /PROXY_DISABLED_MESSAGE/);
-  assert.match(shellScript, /renderDisabledWebPane\(tab, tab\.paneEl\)/);
-  assert.match(shellScript, /setProxyHealth\(false, PROXY_DISABLED_MESSAGE, "Off"\)/);
+  assert.match(shellScript, /runtime\.controller\.createFrame\(frame\)/);
+  assert.match(shellScript, /renderDisabledWebPane\(tab, tab\.paneEl, "Connecting the web browsing runtime\.\.\."\)/);
+  assert.match(shellScript, /setProxyHealth\(\s*true,\s*runtime\.transportMode === "wisp"/);
+  assert.match(shellScript, /setProxyHealth\(false, PROXY_IDLE_MESSAGE, "Standby"\)/);
   assert.match(shellScript, /data-game-save="1"/);
   assert.match(shellScript, /data-game-load="1"/);
   assert.match(shellScript, /game-launcher__action toolbar-button/);
@@ -194,7 +199,7 @@ test("frontend shell keeps web browsing disabled and preserves sidebar controls"
   assert.match(shellScript, /window\.navigator\.serviceWorker\.getRegistration\(\)/);
   assert.match(shellScript, /registration\.update\(\)\.catch\(function \(\) \{/);
   assert.match(shellScript, /new window\.BareMux\.BareMuxConnection\(appendProxyRuntimeAssetVersion\(BAREMUX_WORKER_PATH\)\)/);
-  assert.match(shellScript, /mux\.setTransport\(appendProxyRuntimeAssetVersion\(LIBCURL_TRANSPORT_PATH\), \[\{ wisp: wispUrl \}\]\)/);
+  assert.match(shellScript, /\.setTransport\(appendProxyRuntimeAssetVersion\(LIBCURL_TRANSPORT_PATH\), \[\{ wisp: wispUrl \}\]\)/);
   assert.match(shellScript, /name === "cookie"/);
   assert.match(shellScript, /normalizedMethod === "GET" \|\| normalizedMethod === "HEAD"/);
   assert.match(shellScript, /var fetchUrl = new URL\(proxyFetchUrl\);/);
@@ -202,6 +207,7 @@ test("frontend shell keeps web browsing disabled and preserves sidebar controls"
   assert.match(shellScript, /if \(state\.proxyRuntime\.reloadScheduled\) \{\s*throw new Error\("Restarting proxy runtime\.\.\."\);\s*\}/);
   assert.match(shellScript, /writeProxyRepairReloadMarker\(""\)/);
   assert.match(shellScript, /return initializeProxyRuntime\(config, false\);/);
+  assert.match(shellScript, /ensureProxyStorageCompatibility\(\)\.catch/);
   assert.match(gamesHelper, /var LOCAL_MANIFEST_ASSET_PARAM = "antarctic_asset"/);
   assert.match(gamesHelper, /var LOCAL_MANIFEST_VERSION = "2026-03-22-asset-1"/);
   assert.match(gamesHelper, /function resolveCatalogScriptUrl\(\)/);
