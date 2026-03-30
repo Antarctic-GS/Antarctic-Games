@@ -3275,8 +3275,11 @@
 
   function resolveProxyRequestUrl(config) {
     var explicitPath = cleanText(config && config.services && config.services.proxyRequest) || "/api/proxy/request";
-    var backendBase = normalizeBase(config && config.backendBase);
     var backendApi = getBackendApi();
+    if (backendApi && typeof backendApi.apiUrl === "function" && !/^https?:\/\//i.test(explicitPath)) {
+      return backendApi.apiUrl(explicitPath);
+    }
+    var backendBase = normalizeBase(config && config.backendBase);
     if (!backendBase && backendApi && typeof backendApi.getBaseUrl === "function") {
       backendBase = normalizeBase(backendApi.getBaseUrl());
     }
@@ -3291,8 +3294,11 @@
   function resolveProxyFetchUrl(config) {
     var explicitPath =
       cleanText(config && config.services && (config.services.proxyFetch || config.services.proxy)) || "/api/proxy/fetch";
-    var backendBase = normalizeBase(config && config.backendBase);
     var backendApi = getBackendApi();
+    if (backendApi && typeof backendApi.apiUrl === "function" && !/^https?:\/\//i.test(explicitPath)) {
+      return backendApi.apiUrl(explicitPath);
+    }
+    var backendBase = normalizeBase(config && config.backendBase);
     if (!backendBase && backendApi && typeof backendApi.getBaseUrl === "function") {
       backendBase = normalizeBase(backendApi.getBaseUrl());
     }

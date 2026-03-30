@@ -86,6 +86,9 @@
     if (host === "localhost" || host === "127.0.0.1" || host === "::1" || window.location.port === "3000") {
       return window.location.origin;
     }
+    if (/\.netlify\.app$/i.test(host)) {
+      return window.location.origin;
+    }
     if (host === "api.antarctic.games" || host === "www.api.antarctic.games") {
       return window.location.origin;
     }

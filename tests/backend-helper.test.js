@@ -82,6 +82,14 @@ test("backend helper keeps api.antarctic.games on-origin", () => {
   assert.equal(api.getBaseUrl(), "https://api.antarctic.games");
 });
 
+test("backend helper prefers same-origin API routes on Netlify frontends", () => {
+  const { api } = loadBackendApi({
+    origin: "https://antarctic-games.netlify.app"
+  });
+
+  assert.equal(api.getBaseUrl(), "https://antarctic-games.netlify.app");
+});
+
 test("backend helper migrates old saved backend hosts to api.antarctic.games", () => {
   const { api, localStorage } = loadBackendApi({
     origin: "https://sethpang.com",
